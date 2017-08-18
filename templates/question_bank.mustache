@@ -1,0 +1,54 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_threesixty/question_bank
+
+    Moodle question bank template for the 360-degree feedback.
+
+    The purpose of this template is to render the question bank  of the 360-degree feedback module
+    which can be used by the question chooser dialogue.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * none
+
+    Example context (json):
+    {
+    }
+}}
+<div class="container-fluid">
+    <div class="row m-b-1" id="question-edit-form-container">
+        <button class="btn btn-default" id="btn-question-bank-add">
+            {{#pix }} t/add, core, {{#str}}addanewquestion, mod_threesixty{{/str}} {{/pix }}
+        </button>
+    </div>
+    <div class="row" id="questionListWrapper">
+        {{> mod_threesixty/question_list}}
+    </div>
+</div>
+{{#js}}
+    require(['jquery', 'mod_threesixty/question_bank'], function($, qb) {
+        $("#btn-question-bank-add").click(function () {
+            qb.displayInputDialogue();
+        });
+    });
+{{/js}}

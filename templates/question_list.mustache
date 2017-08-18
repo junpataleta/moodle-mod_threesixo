@@ -1,0 +1,105 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_threesixty/question_list
+
+    Moodle question list template for the 360-degree feedback.
+
+    The purpose of this template is to render the list of questions from the question bank of the 360-degree feedback module
+    which can be used by the question chooser dialogue.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * pickerMode Whether to render template in picker mode or not.
+    * questions Array of questions with id, question and question type.
+
+    Example context (json):
+    {
+        "pickerMode": true,
+        "questions": [
+            {
+                "id": "1",
+                "question": "Example question 1",
+                "type": "Rated"
+            },
+            {
+                "id": "2",
+                "question": "Example question 2",
+                "type": "Rated"
+            },
+            {
+                "id": "3",
+                "question": "Example question 3",
+                "type": "Comment"
+            }
+        ]
+    }
+}}
+<table class="table table-striped table-responsive">
+    <tr>
+        {{#pickerMode}}
+            <th>
+                {{#str}}labelpick, mod_threesixty{{/str}}
+            </th>
+        {{/pickerMode}}
+        <th>
+            {{#str}}labelquestion, mod_threesixty{{/str}}
+        </th>
+        <th>
+            {{#str}}labelquestiontype, mod_threesixty{{/str}}
+        </th>
+        <th>
+            {{#str}}labelactions, mod_threesixty{{/str}}
+        </th>
+    </tr>
+    {{#questions}}
+        <tr>
+            {{#pickerMode}}
+                <td>
+                    <input type="checkbox" id="check-question-{{id}}" class="question-checkbox" title="{{question}}"
+                           data-questionid="{{id}}" {{#checked}}checked="checked"{{/checked}}/>
+                </td>
+            {{/pickerMode}}
+            <td>
+                {{question}}
+            </td>
+            <td>
+                {{typeName}}
+            </td>
+            <td>
+                {{#pickerMode}}
+                    <button class="btn btn-link edit-question-button" id="edit-question-{{id}}" data-questionid="{{id}}" title="{{#str}}editquestion, mod_threesixty{{/str}}">
+                        {{#pix }} t/edit, core, {{#str}}editquestion, mod_threesixty{{/str}} {{/pix}}
+                    </button>
+                    <button class="btn btn-link delete-question-button" id="delete-question-{{id}}" data-questionid="{{id}}" title="{{#str}}deletequestion, mod_threesixty{{/str}}">
+                        {{#pix }} t/delete, core, {{#str}}deletequestion, mod_threesixty{{/str}} {{/pix}}
+                    </button>
+                {{/pickerMode}}
+            </td>
+        </tr>
+    {{/questions}}
+</table>
+{{#js}}
+    require(['jquery', 'mod_threesixty/question_bank'], function($, qb) {
+        qb.bindItemActionEvents();
+    });
+{{/js}}

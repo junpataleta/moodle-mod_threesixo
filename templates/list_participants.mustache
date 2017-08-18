@@ -1,0 +1,106 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_threesixty/list_participants
+
+    Moodle template to the template library
+
+    The purpose of this template is build the entire page for the template library (by including smaller templates).
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * threesixtyid - int The ID for the 360 degree feedback.
+    * participants - array of all the members that will be given feedback. Each component has a name and an actions attribute.
+
+    Example context (json):
+    {
+        "threesixtyid": threesixtyid,
+        "participants": [
+            {
+                "name" : "Kurdapyo Dimagiba",
+                "actions" : "Aksyon!"
+            },
+            {
+                "name" : "Kurdapya Dimagiba",
+                "actions" : "Aksyon na!"
+            }
+        ]
+    }
+}}
+<div class="container-fluid" data-region="participantlist">
+    <div class="row m-t-1">
+        <table class="flexible generaltable generalbox">
+            <thead>
+                <tr>
+                    <th>{{#str}}name, mod_threesixty{{/str}}</th>
+                    <th>{{#str}}status, mod_threesixty{{/str}}</th>
+                    <th>{{#str}}labelactions, mod_threesixty{{/str}}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{# participants }}
+                <tr class="user unselectedrow">
+                    <td>
+                        {{ name }}
+                    </td>
+                    <td>
+                        <span class="label
+                            {{#statuspending}}label-default{{/statuspending}}
+                            {{#statusinprogress}}label-info{{/statusinprogress}}
+                            {{#statusviewonly}}label-info{{/statusviewonly}}
+                            {{#statuscompleted}}label-success{{/statuscompleted}}
+                            {{#statusdeclined}}label-warning{{/statusdeclined}}">
+                            {{#statuspending}}{{#str}}statuspending, mod_threesixty{{/str}}{{/statuspending}}
+                            {{#statusinprogress}}{{#str}}statusinprogress, mod_threesixty{{/str}}{{/statusinprogress}}
+                            {{#statuscompleted}}{{#str}}statuscompleted, mod_threesixty{{/str}}{{/statuscompleted}}
+                            {{#statusdeclined}}{{#str}}statusdeclined, mod_threesixty{{/str}}{{/statusdeclined}}
+                            {{#statusviewonly}}{{#str}}statusviewonly, mod_threesixty{{/str}}{{/statusviewonly}}
+                        </span>
+                    </td>
+                    <td>
+                        {{#respondlink}}
+                            <a class="btn btn-link" href="{{{respondlink}}}" title="{{#str}}providefeedback, mod_threesixty{{/str}}">
+                                {{#pix}} t/editstring, core, {{#str}}providefeedback, mod_threesixty{{/str}} {{/pix}}
+                            </a>
+                        {{/respondlink}}
+                        {{#reportslink}}
+                            <a class="btn btn-link" href="{{{reportslink}}}" data-action="view-report" data-id="{{id}}" data-userid="{{userid}}" title="{{#str}}view, mod_threesixty{{/str}}">
+                                {{#pix}} t/preview, core, {{#str}}viewfeedbackforuser, mod_threesixty{{/str}} {{/pix}}
+                            </a>
+                        {{/reportslink}}
+                        {{#declinelink}}
+                            <a class="btn btn-link" href="#" data-action="decline-feedback" data-statusid="{{statusid}}" data-userid="{{userid}}" data-name="{{name}}" title="{{#str}}decline, mod_threesixty{{/str}}">
+                                {{#pix}} t/delete, core, {{#str}}decline, mod_threesixty{{/str}} {{/pix}}
+                            </a>
+                        {{/declinelink}}
+                    </td>
+                </tr>
+            {{/ participants }}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{#js}}
+    require(['mod_threesixty/view'], function(mod) {
+        new mod({{threesixtyid}});
+    });
+{{/js}}

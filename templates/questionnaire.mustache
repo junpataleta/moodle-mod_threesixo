@@ -1,0 +1,132 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_threesixty/questionnaire
+
+    Moodle template to the template library
+
+    The purpose of this template is build the entire page for the template library (by including smaller templates).
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * status
+    * statusclass
+    * scalelabels
+    * ratedquestions
+    * scales
+
+    Example context (json):
+    {
+        "status": "In progress",
+        "statusclass": "label-info",
+        "ratedquestions": [
+            { "questionid" : 1, "question": "Treats co-workers with courtesy and respect." },
+            { "questionid" : 2, "question": "Has a positive attitude." },
+            { "questionid" : 3, "question": "Has initiative needed without relying on co-workers unnecessarily." },
+            { "questionid" : 4, "question": "Can capably lead projects effectively." },
+            { "questionid" : 5, "question": "Possesses strong technical skills for their position." }
+        ],
+        "scales": [
+            { "scale" : 1, "scalelabel": "1", "description": "Strongly disagree" },
+            { "scale" : 2, "scalelabel": "2", "description": "Disagree" },
+            { "scale" : 3, "scalelabel": "3", "description": "Somewhat disagree" },
+            { "scale" : 4, "scalelabel": "4", "description": "Somewhat agree" },
+            { "scale" : 5, "scalelabel": "5", "description": "Agree"},
+            { "scale" : 6, "scalelabel": "6", "description": "Strongly agree" },
+            { "scale" : 0, "scalelabel": "N/A", "description": "Not applicable" }
+        ]
+    }
+}}
+<div class="well">
+    <div data-region="status">
+        <span class="label {{statusclass}}">{{ status }}</span>
+    </div>
+</div>
+<table class="table table-striped"
+       data-region="questionnaire"
+       data-threesixtyid="{{threesixtyid}}"
+       data-anonymous="{{anonymous}}"
+       data-fromuserid="{{fromuserid}}"
+       data-touserid="{{touserid}}"
+       data-tousername="{{tousername}}">
+    <tr>
+        <th>
+            <div class="row-fluid rtl-compatible">
+                <div class="col-xs-5 span5">
+                </div>
+                {{#scales}}
+                    <div class="col-xs-1 span1 hideoverflow text-center">
+                        <span>{{description}}</span>
+                    </div>
+                {{/scales}}
+            </div>
+        </th>
+    </tr>
+    {{#ratedquestions}}
+        <tr>
+            <td>
+                <div class="row-fluid rtl-compatible" data-region="question-row" data-itemid="{{id}}">
+                    <div class="col-xs-5 span5">
+                        {{question}}
+                    </div>
+                    {{#scales}}
+                        <div class="col-xs-1 span1 scaleoption text-center">
+                            <label class="scaleoptionlabel label label-default p-l-1 p-r-1" data-value="{{scale}}" tabindex="0" for="option-{{questionid}}-{{scale}}">
+                                {{scalelabel}}
+                            </label>
+                            <input type="radio" class="accesshide" name="question-{{questionid}}" value="{{scale}}" tabindex="-1" id="option-{{questionid}}-{{scale}}"/>
+                        </div>
+                    {{/scales}}
+                </div>
+            </td>
+        </tr>
+    {{/ratedquestions}}
+    <tr>
+        <th>
+            {{#str}}comments, mod_threesixty{{/str}}
+        </th>
+    </tr>
+    {{#commentquestions}}
+        <tr>
+            <td>
+                <div class="row-fluid rtl-compatible" data-region="question-row" data-itemid="{{id}}">
+                    <div class="col-xs-5 span5">
+                        {{question}}
+                    </div>
+                    <div class="col-xs-7 span7">
+                        <textarea placeholder="{{#str}}entercomment, mod_threesixty{{/str}}" class="form-control comment" cols="50" rows="5" data-itemid="{{id}}">{{value}}</textarea>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    {{/commentquestions}}
+</table>
+<div>
+    <button class="btn btn-primary" id="submit-feedback">{{#str}}submit{{/str}}</button>
+    <button class="btn btn-default" id="save-feedback">{{#str}}savechanges{{/str}}</button>
+    <a class="btn btn-default" id="cancel-feedback" href="{{returnurl}}">{{#str}}cancel{{/str}}</a>
+</div>
+{{#js}}
+    require(['mod_threesixty/questionnaire'], function(mod) {
+        new mod();
+    });
+{{/js}}
