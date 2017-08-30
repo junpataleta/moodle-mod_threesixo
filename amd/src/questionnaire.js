@@ -61,13 +61,13 @@ define(['jquery',
                 responses[response.item] = response.value;
 
                 $('[data-region="question-row"]').each(function() {
-                    if ($(this).data('itemid') == response.item) {
+                    if ($(this).data('itemid') === response.item) {
                         var options = $(this).children('.scaleoption');
                         if (options) {
                             options.each(function() {
                                 // Mark selected option as selected.
                                 var selected = $(this).find('label');
-                                if (selected.data('value') == response.value) {
+                                if (selected.data('value') === response.value) {
                                     selected.removeClass('label-default');
                                     selected.removeClass('label-info');
                                     selected.addClass('label-success');
@@ -142,6 +142,11 @@ define(['jquery',
         });
     };
 
+    /**
+     * Save the responses.
+     *
+     * @param {boolean} finalise
+     */
     function saveResponses(finalise) {
         $('.comment').each(function() {
             responses[$(this).data('itemid')] = $(this).val().trim();
@@ -178,6 +183,14 @@ define(['jquery',
         }
     }
 
+    /**
+     * Send the responses to the server.
+     *
+     * @param {number} threesixtyId
+     * @param {number} toUser
+     * @param {array} responses
+     * @param {boolean} finalise
+     */
     function submitResponses(threesixtyId, toUser, responses, finalise) {
         var promises = Ajax.call([
             {
@@ -221,6 +234,16 @@ define(['jquery',
         }).fail(Notification.exception);
     }
 
+    /**
+     * Renders the confirmation dialogue to submit and finalise the responses.
+     *
+     * @param {string} title
+     * @param {string} confirmationMessage
+     * @param {number} threesixtyId
+     * @param {number} toUser
+     * @param {number} responses
+     * @param {boolean} finalise
+     */
     function showConfirmationDialogue(title, confirmationMessage, threesixtyId, toUser, responses, finalise) {
         var confirmButtonTextPromise = Str.get_string('finalise', 'mod_threesixty');
         var confirmModalPromise = ModalFactory.create({

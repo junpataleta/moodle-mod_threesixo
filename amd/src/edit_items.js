@@ -72,9 +72,9 @@ define([
                 item.movedownbutton = false;
                 item.type = value.typetext;
                 if (itemCount > 1) {
-                    if (value.position == 1) {
+                    if (value.position === 1) {
                         item.movedownbutton = true;
-                    } else if (value.position == itemCount) {
+                    } else if (value.position === itemCount) {
                         item.moveupbutton = true;
                     } else if (value.position > 1 && value.position < itemCount) {
                         item.moveupbutton = true;

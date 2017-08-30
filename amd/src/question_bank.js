@@ -34,7 +34,7 @@ define(
         'core/str',
         'core/modal_factory',
         'core/modal_events'
-    ], function ($, templates, notification, ajax, str, ModalFactory, ModalEvents) {
+    ], function($, templates, notification, ajax, str, ModalFactory, ModalEvents) {
 
     // Private variables and functions.
     var selectedQuestionsOld,
@@ -44,7 +44,13 @@ define(
         questionTypes,
         questionBankDialogue,
         inputDialogue;
-    
+
+    /**
+     * Fetches option data for the question type selector.
+     *
+     * @param {number} selectedId The currently selected question type.
+     * @returns {Array}
+     */
     function getQuestionTypeOptions(selectedId) {
         var questionTypeOptions = [];
         if (typeof selectedId === 'undefined') {
@@ -52,13 +58,16 @@ define(
         }
         // Get question type options.
         for (var key in questionTypes) {
+            if (!questionTypes.hasOwnProperty(key)) {
+                continue;
+            }
             var questionType = {
                 typeVal: key,
                 typeName: questionTypes[key]
             };
 
             if (selectedId !== false) {
-                if (key == selectedId) {
+                if (key === selectedId) {
                     questionType.selected = true;
                 }
             }
@@ -69,6 +78,9 @@ define(
         return questionTypeOptions;
     }
 
+    /**
+     * Refreshes the list of questions in the question bank.
+     */
     function refreshQuestionsList() {
         // Get list of questions thru AJAX.
         var promises = ajax.call([
@@ -77,7 +89,7 @@ define(
                 args: {}
             }
         ]);
-        promises[0].done(function (response) {
+        promises[0].done(function(response) {
             questions = response.questions;
             var data = {
                 pickerMode: threeSixtyId,
@@ -85,7 +97,7 @@ define(
             };
 
             templates.render('mod_threesixty/question_list', data)
-                .done(function (compiledSource) {
+                .done(function(compiledSource) {
                     $("#questionListWrapper").html(compiledSource);
                     bindItemActionEvents();
                 })
@@ -94,14 +106,14 @@ define(
     }
 
     var displayInputDialogue = function(questionId) {
-        str.get_string('addanewquestion', 'mod_threesixty').done(function (title) {
+        str.get_string('addanewquestion', 'mod_threesixty').done(function(title) {
             var data = {};
 
             if (typeof questionId !== 'undefined') {
                 data.questionid = questionId;
                 for (var i in questions) {
                     var question = questions[i];
-                    if (question.id == questionId) {
+                    if (question.id === questionId) {
                         data.question = question.question;
                         data.type = question.type;
                         break;
@@ -157,7 +169,7 @@ define(
                 modal.getRoot().on(ModalEvents.save, function() {
                     var question = $("#question-input").val().trim();
                     if (!question) {
-                        str.get_string('requiredelement', 'form').done(function (errorMsg) {
+                        str.get_string('requiredelement', 'form').done(function(errorMsg) {
                             var errorMessage = $('<div/>').append(errorMsg)
                                 .attr('class', 'alert alert-error')
                                 .attr('role', 'alert');
@@ -183,7 +195,7 @@ define(
                     var promises = ajax.call([
                         {methodname: method, args: data}
                     ]);
-                    promises[0].done(function () {
+                    promises[0].done(function() {
                         refreshQuestionsList();
                     }).fail(notification.exception);
                 });
@@ -209,8 +221,8 @@ define(
 
     /**
      * Displays the question bank dialogue.
-     * @param title
-     * @param questionBankTemplate
+     * @param {string} title
+     * @param {Promise} questionBankTemplate
      */
     function displayQuestionBankDialogue(title, questionBankTemplate) {
         // Set dialog's body content.
@@ -226,20 +238,20 @@ define(
                 title: title,
                 body: questionBankTemplate,
                 large: true
-            }).done(function (modal) {
+            }).done(function(modal) {
                 var modalRoot = modal.getRoot();
 
                 // On hide handler.
-                modalRoot.on(ModalEvents.hidden, function () {
+                modalRoot.on(ModalEvents.hidden, function() {
                     // Empty modal contents when it's hidden.
                     modal.setBody('');
                 });
 
-                modalRoot.on(ModalEvents.save, function () {
+                modalRoot.on(ModalEvents.save, function() {
                     var changed = false;
                     // Check if the new selected questions exist in the old selected questions.
                     $.each(selectedQuestionsOld, function(key, questionId) {
-                        if (selectedQuestions.indexOf(questionId) == -1) {
+                        if (selectedQuestions.indexOf(questionId) === -1) {
                             changed = true;
                         }
                     });
@@ -247,7 +259,7 @@ define(
                     // check if the old selected questions exist in the new selected questions.
                     if (!changed) {
                         $.each(selectedQuestions, function(key, questionId) {
-                            if (selectedQuestionsOld.indexOf(questionId) == -1) {
+                            if (selectedQuestionsOld.indexOf(questionId) === -1) {
                                 changed = true;
                             }
                         });
@@ -263,7 +275,7 @@ define(
                         var promises = ajax.call([
                             {methodname: 'mod_threesixty_set_items', args: data}
                         ]);
-                        promises[0].done(function () {
+                        promises[0].done(function() {
                             // Refresh the items list if the selection has changed.
                             require(['mod_threesixty/edit_items'], function(items) {
                                 items.refreshItemList();
@@ -284,7 +296,7 @@ define(
      * Binds the event listeners to question items such as edit, delete, checking.
      */
     var bindItemActionEvents = function() {
-        $(".question-checkbox").click(function () {
+        $(".question-checkbox").click(function() {
             var questionId = parseInt(this.getAttribute('data-questionid'));
 
             if ($(this).is(':checked')) {
@@ -297,12 +309,12 @@ define(
             }
         });
 
-        $(".edit-question-button").click(function () {
+        $(".edit-question-button").click(function() {
             var questionId = $(this).data('questionid');
             displayInputDialogue(questionId);
         });
 
-        $(".delete-question-button").click(function () {
+        $(".delete-question-button").click(function() {
             var deleteButton = this;
             str.get_string('deletequestion', 'mod_threesixty').done(function(title) {
                 ModalFactory.create({
@@ -322,7 +334,7 @@ define(
                                 }
                             }
                         ]);
-                        promises[0].done(function () {
+                        promises[0].done(function() {
                             refreshQuestionsList();
                         }).fail(notification.exception);
                     });
@@ -346,14 +358,14 @@ define(
                 args: {}
             }
         ]);
-        promises[0].done(function (response) {
+        promises[0].done(function(response) {
             questions = response.questions;
             context.questions = checkQuestions(questions);
 
             // Render the template and display the comment chooser dialog.
             var questionBankTemplate = templates.render('mod_threesixty/question_bank', context);
             str.get_string('labelpickfromquestionbank', 'mod_threesixty')
-                .done(function (title) {
+                .done(function(title) {
                     displayQuestionBankDialogue(title, questionBankTemplate);
                 })
                 .fail(notification.exception);
@@ -382,14 +394,17 @@ define(
 
         // Get list of questions thru AJAX.
         var promises = ajax.call(methodCalls);
-        promises[0].done(function (response) {
+        promises[0].done(function(response) {
             questionTypes = response.questiontypes;
             if (threeSixtyId) {
                 selectedQuestions = [];
                 selectedQuestionsOld = [];
-                promises[1].done(function (response) {
+                promises[1].done(function(response) {
                     var items = response.items;
                     for (var i in items) {
+                        if (!items.hasOwnProperty(i)) {
+                            continue;
+                        }
                         selectedQuestions.push(items[i].questionid);
                         // Store originally selected question IDs for comparison later.
                         selectedQuestionsOld.push(items[i].questionid);
@@ -402,11 +417,10 @@ define(
         }).fail(notification.exception);
     };
 
-    var questionBank = {
+    /** @alias module:mod_threesixty/question_bank */
+    return {
         init: questionBankInit,
         displayInputDialogue: displayInputDialogue,
         bindItemActionEvents: bindItemActionEvents
     };
-
-    return questionBank; /** @alias module:mod_threesixty/question_bank */
 });
