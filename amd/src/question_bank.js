@@ -19,7 +19,7 @@
  * The question bank dialogue contains all the questions that can be added to the 360 feedback activity.
  * It also serves as the interface where questions can be added, edited, or even removed permanently from the question bank.
  *
- * @module     mod_threesixty/question_bank
+ * @module     mod_threesixo/question_bank
  * @class      question_bank
  * @package    core
  * @copyright  2016 Jun Pataleta <jun@moodle.com>
@@ -85,7 +85,7 @@ define(
         // Get list of questions thru AJAX.
         var promises = ajax.call([
             {
-                methodname: 'mod_threesixty_get_questions',
+                methodname: 'mod_threesixo_get_questions',
                 args: {}
             }
         ]);
@@ -96,7 +96,7 @@ define(
                 questions: checkQuestions(questions)
             };
 
-            templates.render('mod_threesixty/question_list', data)
+            templates.render('mod_threesixo/question_list', data)
                 .done(function(compiledSource) {
                     $("#questionListWrapper").html(compiledSource);
                     bindItemActionEvents();
@@ -106,7 +106,7 @@ define(
     }
 
     var displayInputDialogue = function(questionId) {
-        str.get_string('addanewquestion', 'mod_threesixty').done(function(title) {
+        str.get_string('addanewquestion', 'mod_threesixo').done(function(title) {
             var data = {};
 
             if (typeof questionId !== 'undefined') {
@@ -122,7 +122,7 @@ define(
             }
 
             data.questionTypes = getQuestionTypeOptions(data.type);
-            var body = templates.render('mod_threesixty/item_edit', data);
+            var body = templates.render('mod_threesixo/item_edit', data);
             renderInputDialogue(title, body);
         }).fail(notification.exception);
     };
@@ -184,10 +184,10 @@ define(
                         type: qtype
                     };
 
-                    var method = 'mod_threesixty_add_question';
+                    var method = 'mod_threesixo_add_question';
                     var questionId = $("#question-id").val();
                     if (questionId) {
-                        method = 'mod_threesixty_update_question';
+                        method = 'mod_threesixo_update_question';
                         data.id = questionId;
                     }
 
@@ -273,11 +273,11 @@ define(
 
                         // Refresh the list of questions thru AJAX.
                         var promises = ajax.call([
-                            {methodname: 'mod_threesixty_set_items', args: data}
+                            {methodname: 'mod_threesixo_set_items', args: data}
                         ]);
                         promises[0].done(function() {
                             // Refresh the items list if the selection has changed.
-                            require(['mod_threesixty/edit_items'], function(items) {
+                            require(['mod_threesixo/edit_items'], function(items) {
                                 items.refreshItemList();
                             });
                         }).fail(notification.exception);
@@ -316,10 +316,10 @@ define(
 
         $(".delete-question-button").click(function() {
             var deleteButton = this;
-            str.get_string('deletequestion', 'mod_threesixty').done(function(title) {
+            str.get_string('deletequestion', 'mod_threesixo').done(function(title) {
                 ModalFactory.create({
                     title: title,
-                    body: str.get_string('confirmquestiondeletion', 'mod_threesixty'),
+                    body: str.get_string('confirmquestiondeletion', 'mod_threesixo'),
                     type: ModalFactory.types.CONFIRM
                 }).done(function(modal) {
                     modal.getRoot().on(ModalEvents.yes, function() {
@@ -328,7 +328,7 @@ define(
                         // Get list of questions thru AJAX.
                         var promises = ajax.call([
                             {
-                                methodname: 'mod_threesixty_delete_question',
+                                methodname: 'mod_threesixo_delete_question',
                                 args: {
                                     id: questionId
                                 }
@@ -354,7 +354,7 @@ define(
         // Render the question list.
         var promises = ajax.call([
             {
-                methodname: 'mod_threesixty_get_questions',
+                methodname: 'mod_threesixo_get_questions',
                 args: {}
             }
         ]);
@@ -363,8 +363,8 @@ define(
             context.questions = checkQuestions(questions);
 
             // Render the template and display the comment chooser dialog.
-            var questionBankTemplate = templates.render('mod_threesixty/question_bank', context);
-            str.get_string('labelpickfromquestionbank', 'mod_threesixty')
+            var questionBankTemplate = templates.render('mod_threesixo/question_bank', context);
+            str.get_string('labelpickfromquestionbank', 'mod_threesixo')
                 .done(function(title) {
                     displayQuestionBankDialogue(title, questionBankTemplate);
                 })
@@ -377,7 +377,7 @@ define(
 
         var methodCalls = [
             {
-                methodname: 'mod_threesixty_get_question_types',
+                methodname: 'mod_threesixo_get_question_types',
                 args: {}
             }
         ];
@@ -385,7 +385,7 @@ define(
         if (threeSixtyId) {
             // Get selected items for the 360-degree feedback.
             methodCalls.push({
-                methodname: 'mod_threesixty_get_items',
+                methodname: 'mod_threesixo_get_items',
                 args: {
                     threesixtyid: threeSixtyId
                 }
@@ -417,7 +417,7 @@ define(
         }).fail(notification.exception);
     };
 
-    /** @alias module:mod_threesixty/question_bank */
+    /** @alias module:mod_threesixo/question_bank */
     return {
         init: questionBankInit,
         displayInputDialogue: displayInputDialogue,

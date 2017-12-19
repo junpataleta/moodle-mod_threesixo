@@ -1,5 +1,5 @@
 {
-  "name": "moodle-mod_threesixty",
+  "name": "moodle-mod_threesixo",
   "description": "A 360-degree feedback activity module for Moodle.",
   "devDependencies": {
     "eslint": "3.7.1",

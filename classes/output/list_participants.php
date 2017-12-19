@@ -17,15 +17,15 @@
 /**
  * Class containing data for users that need to be given with 360 feedback.
  *
- * @package    mod_threesixty
+ * @package    mod_threesixo
  * @copyright  2015 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_threesixty\output;
+namespace mod_threesixo\output;
 
 defined('MOODLE_INTERNAL') || die();
 
-use mod_threesixty\api;
+use mod_threesixo\api;
 use moodle_url;
 use renderable;
 use renderer_base;
@@ -59,7 +59,7 @@ class list_participants implements renderable, templatable {
      */
     public function __construct($threesixty, $userid, $participants, $canviewreports = false) {
         $this->userid = $userid;
-        $this->threesixty = $threesixty;
+        $this->threesixo = $threesixty;
         $this->participants = $participants;
         $this->canviewreports = $canviewreports;
     }
@@ -75,9 +75,9 @@ class list_participants implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
         $data = new stdClass();
-        $data->threesixtyid = $this->threesixty->id;
+        $data->threesixtyid = $this->threesixo->id;
         $data->participants = [];
-        $anonymous = $this->threesixty->anonymous;
+        $anonymous = $this->threesixo->anonymous;
 
         foreach ($this->participants as $user) {
             $member = new stdClass();
@@ -121,9 +121,9 @@ class list_participants implements renderable, templatable {
                 if (empty($user->statusid)) {
                     $member->statusviewonly = true;
                 }
-                $reportslink = new moodle_url('/mod/threesixty/report.php');
+                $reportslink = new moodle_url('/mod/threesixo/report.php');
                 $reportslink->params([
-                    'threesixty' => $this->threesixty->id,
+                    'threesixo' => $this->threesixo->id,
                     'touser' => $user->userid,
                 ]);
                 $member->reportslink = $reportslink->out();
@@ -131,9 +131,9 @@ class list_participants implements renderable, templatable {
 
             // Show action buttons depending on status.
             if ($canrespond) {
-                $respondurl = new moodle_url('/mod/threesixty/questionnaire.php');
+                $respondurl = new moodle_url('/mod/threesixo/questionnaire.php');
                 $respondurl->params([
-                    'threesixty' => $this->threesixty->id,
+                    'threesixo' => $this->threesixo->id,
                     'submission' => $user->statusid,
                 ]);
                 $member->respondlink = $respondurl->out();

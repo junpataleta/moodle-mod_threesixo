@@ -17,16 +17,16 @@
 /**
  * Class containing data for users that need to be given with 360 feedback.
  *
- * @package    mod_threesixty
+ * @package    mod_threesixo
  * @copyright  2015 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_threesixty\output;
+namespace mod_threesixo\output;
 
 defined('MOODLE_INTERNAL') || die();
 
 use core_user;
-use mod_threesixty\api;
+use mod_threesixo\api;
 use renderable;
 use renderer_base;
 use stdClass;
@@ -60,28 +60,28 @@ class questionnaire implements renderable, templatable {
         $data = new stdClass();
 
         $submission = $this->submission;
-        $threesixty = api::get_instance($submission->threesixty);
+        $threesixty = api::get_instance($submission->threesixo);
         switch ($submission->status) {
             case api::STATUS_IN_PROGRESS: // In Progress.
                 $data->statusclass = 'label-info';
-                $data->status = get_string('statusinprogress', 'threesixty');
+                $data->status = get_string('statusinprogress', 'threesixo');
                 break;
             case api::STATUS_COMPLETE: // Completed.
                 $data->statusclass = 'label-success';
-                $data->status = get_string('statuscompleted', 'threesixty');
+                $data->status = get_string('statuscompleted', 'threesixo');
                 break;
             case api::STATUS_DECLINED: // Declined.
                 $data->statusclass = 'label-warning';
-                $data->status = get_string('statusdeclined', 'threesixty');
+                $data->status = get_string('statusdeclined', 'threesixo');
                 break;
             default: // Pending.
                 $data->statusclass = 'label';
-                $data->status = get_string('statuspending', 'threesixty');
+                $data->status = get_string('statuspending', 'threesixo');
                 break;
         }
         $data->scales = api::get_scales();
 
-        $items = api::get_items($submission->threesixty);
+        $items = api::get_items($submission->threesixo);
         $ratedquestions = [];
         $commentquestions = [];
 
@@ -102,7 +102,7 @@ class questionnaire implements renderable, templatable {
         $data->touserid = $submission->touser;
         $touser = core_user::get_user($submission->touser, get_all_user_name_fields(true));
         $data->tousername = fullname($touser);
-        $data->threesixtyid = $submission->threesixty;
+        $data->threesixtyid = $submission->threesixo;
         $data->anonymous = $threesixty->anonymous;
         $data->returnurl = $PAGE->url;
         $data->fromuserid = $submission->fromuser;

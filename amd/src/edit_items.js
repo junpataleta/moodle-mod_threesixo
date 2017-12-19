@@ -16,7 +16,7 @@
 /**
  * AMD code for the frequently used comments chooser for the marking guide grading form.
  *
- * @module     mod_threesixty/edit_items
+ * @module     mod_threesixo/edit_items
  * @class      edit_items
  * @package    core
  * @copyright  2016 Jun Pataleta <jun@moodle.com>
@@ -28,7 +28,7 @@ define([
     'core/notification',
     'core/ajax',
     'core/str',
-    'mod_threesixty/question_bank',
+    'mod_threesixo/question_bank',
     'core/yui'
 ], function($, Templates, Notification, Ajax, Str, Bank) {
 
@@ -52,7 +52,7 @@ define([
     editItems.refreshItemList = function() {
         var promises = Ajax.call([
             {
-                methodname: 'mod_threesixty_get_items',
+                methodname: 'mod_threesixo_get_items',
                 args: {
                     threesixtyid: threesixtyId
                 }
@@ -85,7 +85,7 @@ define([
             });
             context.allitems = items;
 
-            return Templates.render('mod_threesixty/list_360_items', context);
+            return Templates.render('mod_threesixo/list_360_items', context);
 
         }).done(function(compiledSource, js) {
             $('[data-region="itemlist"]').replaceWith(compiledSource);
@@ -124,21 +124,21 @@ define([
             e.preventDefault();
 
             var itemId = $(this).data('itemid');
-            editItems.callItemAction('mod_threesixty_delete_item', itemId);
+            editItems.callItemAction('mod_threesixo_delete_item', itemId);
         });
 
         $(ACTIONS.MOVE_UP).click(function(e) {
             e.preventDefault();
 
             var itemId = $(this).data('itemid');
-            editItems.callItemAction('mod_threesixty_move_item_up', itemId);
+            editItems.callItemAction('mod_threesixo_move_item_up', itemId);
         });
 
         $(ACTIONS.MOVE_DOWN).click(function(e) {
             e.preventDefault();
 
             var itemId = $(this).data('itemid');
-            editItems.callItemAction('mod_threesixty_move_item_down', itemId);
+            editItems.callItemAction('mod_threesixo_move_item_down', itemId);
         });
     };
 

@@ -16,7 +16,7 @@
 /**
  * AMD code for the frequently used comments chooser for the marking guide grading form.
  *
- * @module     mod_threesixty/questionnaire
+ * @module     mod_threesixo/questionnaire
  * @class      view
  * @package    core
  * @copyright  2016 Jun Pataleta <jun@moodle.com>
@@ -46,7 +46,7 @@ define(['jquery',
 
         var promises = Ajax.call([
             {
-                methodname: 'mod_threesixty_get_responses',
+                methodname: 'mod_threesixo_get_responses',
                 args: {
                     threesixtyid: threesixtyId,
                     fromuserid: fromUser,
@@ -163,18 +163,18 @@ define(['jquery',
             var messageStrings = [
                 {
                     key: 'finaliseanonymousfeedback',
-                    component: 'mod_threesixty'
+                    component: 'mod_threesixo'
                 },
                 {
                     key: 'confirmfinaliseanonymousfeedback',
-                    component: 'mod_threesixty',
+                    component: 'mod_threesixo',
                     param: {
                         'name': toUserFullname
                     }
                 }
             ];
 
-            Str.get_strings(messageStrings, 'mod_threesixty').done(function(messages) {
+            Str.get_strings(messageStrings, 'mod_threesixo').done(function(messages) {
                 showConfirmationDialogue(messages[0], messages[1], threesixtyId, toUser, responses, finalise);
             }).fail(Notification.exception);
         } else {
@@ -194,7 +194,7 @@ define(['jquery',
     function submitResponses(threesixtyId, toUser, responses, finalise) {
         var promises = Ajax.call([
             {
-                methodname: 'mod_threesixty_save_responses',
+                methodname: 'mod_threesixo_save_responses',
                 args: {
                     threesixtyid: threesixtyId,
                     touserid: toUser,
@@ -208,11 +208,11 @@ define(['jquery',
             var messageStrings = [
                 {
                     key: 'responsessaved',
-                    component: 'mod_threesixty'
+                    component: 'mod_threesixo'
                 },
                 {
                     key: 'errorresponsesavefailed',
-                    component: 'mod_threesixty'
+                    component: 'mod_threesixo'
                 }
             ];
 
@@ -245,7 +245,7 @@ define(['jquery',
      * @param {boolean} finalise
      */
     function showConfirmationDialogue(title, confirmationMessage, threesixtyId, toUser, responses, finalise) {
-        var confirmButtonTextPromise = Str.get_string('finalise', 'mod_threesixty');
+        var confirmButtonTextPromise = Str.get_string('finalise', 'mod_threesixo');
         var confirmModalPromise = ModalFactory.create({
             title: title,
             body: confirmationMessage,
