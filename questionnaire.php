@@ -19,35 +19,35 @@
  *
  * @author Jun Pataleta
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package mod_threesixty
+ * @package mod_threesixo
  */
 require_once('../../config.php');
 
-// The threesixty record id.
-$id = required_param('threesixty', PARAM_INT);
+// The threesixo record id.
+$id = required_param('threesixo', PARAM_INT);
 $submissionid = required_param('submission', PARAM_INT);
 
-list ($course, $cm) = get_course_and_cm_from_instance($id, 'threesixty');
+list ($course, $cm) = get_course_and_cm_from_instance($id, 'threesixo');
 require_login($course, true, $cm);
 
 $context = context_module::instance($cm->id);
-$submission = \mod_threesixty\api::get_submission($submissionid);
-$threesixty = \mod_threesixty\api::get_instance($submission->threesixty);
+$submission = \mod_threesixo\api::get_submission($submissionid);
+$threesixty = \mod_threesixo\api::get_instance($submission->threesixo);
 
 $PAGE->set_context($context);
 $PAGE->set_cm($cm, $course);
 $PAGE->set_pagelayout('incourse');
 
-$PAGE->set_url('/mod/threesixty/view.php', ['id' => $cm->id]);
+$PAGE->set_url('/mod/threesixo/view.php', ['id' => $cm->id]);
 $PAGE->set_heading($course->fullname);
 $title = format_string($threesixty->name);
 $PAGE->set_title($title);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($title));
-echo $OUTPUT->heading(get_string('providefeedback', 'mod_threesixty'), 3);
+echo $OUTPUT->heading(get_string('providefeedback', 'mod_threesixo'), 3);
 
-if (\mod_threesixty\api::is_ready($threesixty)) {
+if (\mod_threesixo\api::is_ready($threesixty)) {
     // Render user heading.
     if ($submission->touser > 0) {
         $touser = core_user::get_user($submission->touser);
@@ -62,19 +62,19 @@ if (\mod_threesixty\api::is_ready($threesixty)) {
     }
 
     // Set status to in progress if pending.
-    if ($submission->status == \mod_threesixty\api::STATUS_PENDING) {
-        \mod_threesixty\api::set_completion($submission->id, \mod_threesixty\api::STATUS_IN_PROGRESS);
+    if ($submission->status == \mod_threesixo\api::STATUS_PENDING) {
+        \mod_threesixo\api::set_completion($submission->id, \mod_threesixo\api::STATUS_IN_PROGRESS);
     }
 
     // 360-degree feedback question list.
-    $questionslist = new mod_threesixty\output\questionnaire($submission);
-    $questionslistoutput = $PAGE->get_renderer('mod_threesixty');
+    $questionslist = new mod_threesixo\output\questionnaire($submission);
+    $questionslistoutput = $PAGE->get_renderer('mod_threesixo');
     echo $questionslistoutput->render($questionslist);
 
 } else {
-    \core\notification::error(get_string('instancenotready', 'mod_threesixty'));
-    $viewurl = new moodle_url('/mod/threesixty/view.php', ['id' => $cm->id]);
-    echo html_writer::link($viewurl,  get_string('backto360dashboard', 'mod_threesixty'));
+    \core\notification::error(get_string('instancenotready', 'mod_threesixo'));
+    $viewurl = new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]);
+    echo html_writer::link($viewurl,  get_string('backto360dashboard', 'mod_threesixo'));
 }
 
 echo $OUTPUT->footer();

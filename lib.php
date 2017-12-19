@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Library of functions and constants for module threesixty
- * includes the main-part of threesixty-functions
+ * Library of functions and constants for module threesixo
+ * includes the main-part of threesixo-functions
  *
- * @package mod_threesixty
+ * @package mod_threesixo
  * @copyright 2017 Jun Pataleta
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,21 +35,21 @@ require_once($CFG->libdir.'/formslib.php');
  * @param stdClass $threesixty
  * @return bool|int The ID of the created 360-degree feedback or false if the insert failed.
  */
-function threesixty_add_instance($threesixty) {
+function threesixo_add_instance($threesixty) {
     global $DB;
 
     $threesixty->timemodified = time();
 
     // Insert the 360-degree feedback into the DB.
-    if ($threesixtyid = $DB->insert_record("threesixty", $threesixty)) {
+    if ($threesixtyid = $DB->insert_record("threesixo", $threesixty)) {
         $threesixty->id = $threesixtyid;
 
         if (!isset($threesixty->coursemodule)) {
-            $cm = get_coursemodule_from_id('threesixty', $threesixty->id);
+            $cm = get_coursemodule_from_id('threesixo', $threesixty->id);
             $threesixty->coursemodule = $cm->id;
         }
 
-        $DB->update_record('threesixty', $threesixty);
+        $DB->update_record('threesixo', $threesixty);
     }
 
     return $threesixtyid;
@@ -61,7 +61,7 @@ function threesixty_add_instance($threesixty) {
  * @param stdClass $threesixty
  * @return bool
  */
-function threesixty_update_instance($threesixty) {
+function threesixo_update_instance($threesixty) {
     global $DB;
 
     $threesixty->timemodified = time();
@@ -72,7 +72,7 @@ function threesixty_update_instance($threesixty) {
     }
 
     // save the feedback into the db
-    return $DB->update_record("threesixty", $threesixty);
+    return $DB->update_record("threesixo", $threesixty);
 }
 
 /**
@@ -81,21 +81,21 @@ function threesixty_update_instance($threesixty) {
  * @param int $id The ID of the 360-degree feedback to be deleted.
  * @return bool
  */
-function threesixty_delete_instance($id) {
+function threesixo_delete_instance($id) {
     global $DB;
 
     // Delete responses.
-    $DB->delete_records("threesixty_response", array("threesixty"=>$id));
+    $DB->delete_records("threesixo_response", array("threesixo"=>$id));
 
     // Delete statuses.
-    $DB->delete_records("threesixty_submission", array("threesixty"=>$id));
+    $DB->delete_records("threesixo_submission", array("threesixo"=>$id));
 
     // Delete items.
-    $DB->delete_records('threesixty_item', array('threesixty'=>$id));
+    $DB->delete_records('threesixo_item', array('threesixo'=>$id));
 
     // Delete events.
-    $DB->delete_records('event', array('modulename'=>'threesixty', 'instance'=>$id));
+    $DB->delete_records('event', array('modulename'=>'threesixo', 'instance'=>$id));
 
     // Finally, delete the 360-degree feedback.
-    return $DB->delete_records("threesixty", array("id"=>$id));
+    return $DB->delete_records("threesixo", array("id"=>$id));
 }

@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_threesixty/question_bank
+    @template mod_threesixo/question_bank
 
     Moodle question bank template for the 360-degree feedback.
 
@@ -38,15 +38,15 @@
 <div class="container-fluid">
     <div class="row m-b-1" id="question-edit-form-container">
         <button class="btn btn-default" id="btn-question-bank-add">
-            {{#pix }} t/add, core, {{#str}}addanewquestion, mod_threesixty{{/str}} {{/pix }}
+            {{#pix }} t/add, core, {{#str}}addanewquestion, mod_threesixo{{/str}} {{/pix }}
         </button>
     </div>
     <div class="row" id="questionListWrapper">
-        {{> mod_threesixty/question_list}}
+        {{> mod_threesixo/question_list}}
     </div>
 </div>
 {{#js}}
-    require(['jquery', 'mod_threesixty/question_bank'], function($, qb) {
+    require(['jquery', 'mod_threesixo/question_bank'], function($, qb) {
         $("#btn-question-bank-add").click(function () {
             qb.displayInputDialogue();
         });

@@ -15,14 +15,14 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_threesixty/list_360_items
+    @template mod_threesixo/list_360_items
 
     Moodle template to the template library
 
     The purpose of this template is build the entire page for the template library (by including smaller templates).
 
     Classes required for JS:
-    * mod_threesixty/edit_items
+    * mod_threesixo/edit_items
 
     Data attributes required for JS:
     * none
@@ -61,7 +61,7 @@
 }}
 <div class="container-fluid" data-region="itemlist">
     <div class="row m-t-1 m-b-1">
-        <button class="btn btn-default" id="btn-question-bank">{{#str}}labelpickfromquestionbank, mod_threesixty{{/str}}</button>
+        <button class="btn btn-default" id="btn-question-bank">{{#str}}labelpickfromquestionbank, mod_threesixo{{/str}}</button>
     </div>
     <div class="row">
         <table class="flexible generaltable generalbox">
@@ -83,18 +83,18 @@
                     </td>
                     <td>
                         {{#deletebutton}}
-                            <button class="btn btn-link" data-action="delete-item" id="delete-item-{{id}}" data-itemid="{{id}}" title="{{#str}}deletequestion, mod_threesixty{{/str}}">
-                                {{#pix }} t/delete, core, {{#str}}deletequestion, mod_threesixty{{/str}} {{/pix }}
+                            <button class="btn btn-link" data-action="delete-item" id="delete-item-{{id}}" data-itemid="{{id}}" title="{{#str}}deletequestion, mod_threesixo{{/str}}">
+                                {{#pix }} t/delete, core, {{#str}}deletequestion, mod_threesixo{{/str}} {{/pix }}
                             </button>
                         {{/deletebutton}}
                         {{#moveupbutton}}
-                            <button class="btn btn-link" data-action="move-item-up" id="move-item-up-{{id}}" data-itemid="{{id}}" title="{{#str}}moveitemup, mod_threesixty{{/str}}">
-                                {{#pix }} t/up, core, {{#str}}moveitemup, mod_threesixty{{/str}} {{/pix }}
+                            <button class="btn btn-link" data-action="move-item-up" id="move-item-up-{{id}}" data-itemid="{{id}}" title="{{#str}}moveitemup, mod_threesixo{{/str}}">
+                                {{#pix }} t/up, core, {{#str}}moveitemup, mod_threesixo{{/str}} {{/pix }}
                             </button>
                         {{/moveupbutton}}
                         {{#movedownbutton}}
-                            <button class="btn btn-link" data-action="move-item-down" id="move-item-down-{{id}}" data-itemid="{{id}}" title="{{#str}}moveitemdown, mod_threesixty{{/str}}">
-                                {{#pix }} t/down, core, {{#str}}moveitemdown, mod_threesixty{{/str}} {{/pix }}
+                            <button class="btn btn-link" data-action="move-item-down" id="move-item-down-{{id}}" data-itemid="{{id}}" title="{{#str}}moveitemdown, mod_threesixo{{/str}}">
+                                {{#pix }} t/down, core, {{#str}}moveitemdown, mod_threesixo{{/str}} {{/pix }}
                             </button>
                         {{/movedownbutton}}
                     </td>
@@ -105,7 +105,7 @@
     </div>
 </div>
 {{#js}}
-    require(['mod_threesixty/edit_items'], function(mod) {
+    require(['mod_threesixo/edit_items'], function(mod) {
         new mod({{threesixtyid}});
     });
 {{/js}}

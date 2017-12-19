@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_threesixty/question_list
+    @template mod_threesixo/question_list
 
     Moodle question list template for the 360-degree feedback.
 
@@ -58,17 +58,17 @@
     <tr>
         {{#pickerMode}}
             <th>
-                {{#str}}labelpick, mod_threesixty{{/str}}
+                {{#str}}labelpick, mod_threesixo{{/str}}
             </th>
         {{/pickerMode}}
         <th>
-            {{#str}}labelquestion, mod_threesixty{{/str}}
+            {{#str}}labelquestion, mod_threesixo{{/str}}
         </th>
         <th>
-            {{#str}}labelquestiontype, mod_threesixty{{/str}}
+            {{#str}}labelquestiontype, mod_threesixo{{/str}}
         </th>
         <th>
-            {{#str}}labelactions, mod_threesixty{{/str}}
+            {{#str}}labelactions, mod_threesixo{{/str}}
         </th>
     </tr>
     {{#questions}}
@@ -87,11 +87,11 @@
             </td>
             <td>
                 {{#pickerMode}}
-                    <button class="btn btn-link edit-question-button" id="edit-question-{{id}}" data-questionid="{{id}}" title="{{#str}}editquestion, mod_threesixty{{/str}}">
-                        {{#pix }} t/edit, core, {{#str}}editquestion, mod_threesixty{{/str}} {{/pix}}
+                    <button class="btn btn-link edit-question-button" id="edit-question-{{id}}" data-questionid="{{id}}" title="{{#str}}editquestion, mod_threesixo{{/str}}">
+                        {{#pix }} t/edit, core, {{#str}}editquestion, mod_threesixo{{/str}} {{/pix}}
                     </button>
-                    <button class="btn btn-link delete-question-button" id="delete-question-{{id}}" data-questionid="{{id}}" title="{{#str}}deletequestion, mod_threesixty{{/str}}">
-                        {{#pix }} t/delete, core, {{#str}}deletequestion, mod_threesixty{{/str}} {{/pix}}
+                    <button class="btn btn-link delete-question-button" id="delete-question-{{id}}" data-questionid="{{id}}" title="{{#str}}deletequestion, mod_threesixo{{/str}}">
+                        {{#pix }} t/delete, core, {{#str}}deletequestion, mod_threesixo{{/str}} {{/pix}}
                     </button>
                 {{/pickerMode}}
             </td>
@@ -99,7 +99,7 @@
     {{/questions}}
 </table>
 {{#js}}
-    require(['jquery', 'mod_threesixty/question_bank'], function($, qb) {
+    require(['jquery', 'mod_threesixo/question_bank'], function($, qb) {
         qb.bindItemActionEvents();
     });
 {{/js}}

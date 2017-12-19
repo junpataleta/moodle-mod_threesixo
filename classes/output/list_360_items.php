@@ -17,11 +17,11 @@
 /**
  * Class containing data for users that need to be given with 360 feedback.
  *
- * @package    mod_threesixty
+ * @package    mod_threesixo
  * @copyright  2015 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_threesixty\output;
+namespace mod_threesixo\output;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -30,7 +30,7 @@ use renderer_base;
 use templatable;
 use stdClass;
 use moodle_url;
-use mod_threesixty\api;
+use mod_threesixo\api;
 use html_writer;
 
 /**
@@ -109,7 +109,7 @@ class list_360_items implements \renderable, \templatable {
     }
 
     /**
-     * Generate default records for the table threesixty_submission.
+     * Generate default records for the table threesixo_submission.
      */
     private function generate_360_feedback_statuses() {
         global $DB;
@@ -119,25 +119,25 @@ class list_360_items implements \renderable, \templatable {
                         ON u.id = ue.userid
                       INNER JOIN {enrol} e
                         ON e.id = ue.enrolid
-                      INNER JOIN {threesixty} f
+                      INNER JOIN {threesixo} f
                         ON f.course = e.courseid AND f.id = :threesixtyid
                       WHERE
                         u.id <> :fromuser
                         AND u.id NOT IN (
                           SELECT
                             fs.touser
-                          FROM {threesixty_submission} fs
-                          WHERE fs.threesixty = f.id AND fs.fromuser = :fromuser2
+                          FROM {threesixo_submission} fs
+                          WHERE fs.threesixo = f.id AND fs.fromuser = :fromuser2
                         )';
         $params = array("threesixtyid" => $this->threesixtyid, "fromuser" => $this->userid, "fromuser2" => $this->userid);
         if ($users = $DB->get_records_sql($usersql, $params)) {
             foreach ($users as $user) {
                 $status = new stdClass();
-                $status->threesixty = $this->threesixtyid;
+                $status->threesixo = $this->threesixtyid;
                 $status->fromuser = $this->userid;
                 $status->touser = $user->id;
 
-                $DB->insert_record('threesixty_submission', $status);
+                $DB->insert_record('threesixo_submission', $status);
             }
         }
     }

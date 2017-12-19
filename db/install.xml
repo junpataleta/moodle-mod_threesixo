@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/threesixty/db" VERSION="20170816" COMMENT="XMLDB file for Moodle mod/threesixty"
+<XMLDB PATH="mod/threesixo/db" VERSION="20170816" COMMENT="XMLDB file for Moodle mod/threesixo"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="threesixty" COMMENT="All 360-degree feedback instances">
+    <TABLE NAME="threesixo" COMMENT="All 360-degree feedback instances">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -28,19 +28,19 @@
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="threesixty_item" COMMENT="360-degree feedback items">
+    <TABLE NAME="threesixo_item" COMMENT="360-degree feedback items">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="threesixty" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="threesixo" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="question" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="position" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for feedback_item"/>
-        <KEY NAME="threesixty" TYPE="foreign" FIELDS="threesixty" REFTABLE="threesixty" REFFIELDS="id"/>
+        <KEY NAME="threesixo" TYPE="foreign" FIELDS="threesixo" REFTABLE="threesixo" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="threesixty_question" COMMENT="360-degree feedback question bank">
+    <TABLE NAME="threesixo_question" COMMENT="360-degree feedback question bank">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="question" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
@@ -50,10 +50,10 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for the question item."/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="threesixty_submission" COMMENT="Contains all the statuses for the 360 feedback.">
+    <TABLE NAME="threesixo_submission" COMMENT="Contains all the statuses for the 360 feedback.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="threesixty" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID from feedback table."/>
+        <FIELD NAME="threesixo" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID from feedback table."/>
         <FIELD NAME="fromuser" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="User ID of the one giving feedback. 0 if anonymous mode."/>
         <FIELD NAME="touser" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="User ID of the user that is being given feedback on."/>
         <FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 for unanswered, 1 for in progress, 2 for completed, 3 for declined"/>
@@ -61,13 +61,13 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="threesixty" TYPE="foreign" FIELDS="threesixty" REFTABLE="threesixty" REFFIELDS="id"/>
+        <KEY NAME="threesixo" TYPE="foreign" FIELDS="threesixo" REFTABLE="threesixo" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="threesixty_response" COMMENT="Contains all the responses for the 360 feedback items.">
+    <TABLE NAME="threesixo_response" COMMENT="Contains all the responses for the 360 feedback items.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="threesixty" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID from feedback table."/>
+        <FIELD NAME="threesixo" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID from feedback table."/>
         <FIELD NAME="item" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID from feedback_item table."/>
         <FIELD NAME="fromuser" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Hashed user ID of the one giving feedback."/>
         <FIELD NAME="touser" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Hashed user ID of the user that is being given feedback on."/>
@@ -76,8 +76,8 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="threesixty" TYPE="foreign" FIELDS="threesixty" REFTABLE="threesixty" REFFIELDS="id"/>
-        <KEY NAME="item" TYPE="foreign" FIELDS="item" REFTABLE="threesixty_item" REFFIELDS="id"/>
+        <KEY NAME="threesixo" TYPE="foreign" FIELDS="threesixo" REFTABLE="threesixo" REFFIELDS="id"/>
+        <KEY NAME="item" TYPE="foreign" FIELDS="item" REFTABLE="threesixo_item" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>

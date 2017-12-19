@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_threesixty/questionnaire
+    @template mod_threesixo/questionnaire
 
     Moodle template to the template library
 
@@ -68,7 +68,7 @@
 </div>
 <div class="card">
     <div class="card-header">
-        <h4>{{#str}}ratings, mod_threesixty{{/str}}</h4>
+        <h4>{{#str}}ratings, mod_threesixo{{/str}}</h4>
     </div>
     <div class="card-block">
         <ul class="list-group list-group-flush">
@@ -81,7 +81,7 @@
                         <div class="row">
                             <div class="col-md-3" id="item-{{id}}">
                                 <p class="text-right">
-                                    {{#str}}averagerating, mod_threesixty, <strong>{{averagerating}}</strong>{{/str}}
+                                    {{#str}}averagerating, mod_threesixo, <strong>{{averagerating}}</strong>{{/str}}
                                 </p>
                             </div>
                             <div class="col-md-9">
@@ -90,7 +90,7 @@
                         </div>
                     {{/averagerating}}
                     {{^averagerating}}
-                        <p class="font-italic">{{#str}}notapplicableabbr, mod_threesixty{{/str}}</p>
+                        <p class="font-italic">{{#str}}notapplicableabbr, mod_threesixo{{/str}}</p>
                     {{/averagerating}}
                 </li>
             {{/ratings}}
@@ -99,7 +99,7 @@
 </div>
 <div class="card">
     <div class="card-header">
-        <h4>{{#str}}comments, mod_threesixty{{/str}}</h4>
+        <h4>{{#str}}comments, mod_threesixo{{/str}}</h4>
     </div>
     <div class="card-block">
         {{#commentitems}}
@@ -115,7 +115,7 @@
                         </blockquote>
                     {{/comments}}
                     {{^comments}}
-                        <p class="font-italic">{{#str}}notapplicableabbr, mod_threesixty{{/str}}</p>
+                        <p class="font-italic">{{#str}}notapplicableabbr, mod_threesixo{{/str}}</p>
                     {{/comments}}
                 </li>
             </ul>

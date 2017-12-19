@@ -17,11 +17,11 @@
 /**
  * Renderer class for template library.
  *
- * @package    mod_threesixty
+ * @package    mod_threesixo
  * @copyright  2015 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_threesixty\output;
+namespace mod_threesixo\output;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -43,7 +43,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_list_participants($page) {
         $data = $page->export_for_template($this);
-        return parent::render_from_template('mod_threesixty/list_participants', $data);
+        return parent::render_from_template('mod_threesixo/list_participants', $data);
     }
 
     /**
@@ -53,7 +53,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_questionnaire($page) {
         $data = $page->export_for_template($this);
-        return parent::render_from_template('mod_threesixty/questionnaire', $data);
+        return parent::render_from_template('mod_threesixo/questionnaire', $data);
     }
 
     /**
@@ -63,7 +63,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_list_360_items($page) {
         $data = $page->export_for_template($this);
-        return parent::render_from_template('mod_threesixty/list_360_items', $data);
+        return parent::render_from_template('mod_threesixo/list_360_items', $data);
     }
 
     /**
@@ -73,6 +73,6 @@ class renderer extends plugin_renderer_base {
      */
     public function render_report($page) {
         $data = $page->export_for_template($this);
-        return parent::render_from_template('mod_threesixty/report', $data);
+        return parent::render_from_template('mod_threesixo/report', $data);
     }
 }

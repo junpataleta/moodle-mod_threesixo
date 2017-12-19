@@ -34,7 +34,7 @@
 // Please do not forget to use upgrade_set_timeout()
 // before any action that may take longer time to finish.
 
-function xmldb_threesixty_upgrade($oldversion) {
+function xmldb_threesixo_upgrade($oldversion) {
     global $CFG, $DB;
 
     $dbman = $DB->get_manager();
@@ -44,8 +44,8 @@ function xmldb_threesixty_upgrade($oldversion) {
 
     if ($oldversion < 2016021900.09) {
 
-        // Changing type of field fromuser on table threesixty_response to int.
-        $table = new xmldb_table('threesixty_response');
+        // Changing type of field fromuser on table threesixo_response to int.
+        $table = new xmldb_table('threesixo_response');
         $field = new xmldb_field('fromuser', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'item');
         // Launch change of type for field fromuser.
         $dbman->change_field_type($table, $field);
@@ -54,27 +54,27 @@ function xmldb_threesixty_upgrade($oldversion) {
         // Launch change of type for field touser.
         $dbman->change_field_type($table, $field);
 
-        // Threesixty savepoint reached.
-        upgrade_mod_savepoint(true, 2016021900.09, 'threesixty');
+        // threesixo savepoint reached.
+        upgrade_mod_savepoint(true, 2016021900.09, 'threesixo');
     }
 
     if ($oldversion < 2017020200.00) {
 
-        // Changing nullability of field value on table threesixty_response to null.
-        $table = new xmldb_table('threesixty_response');
+        // Changing nullability of field value on table threesixo_response to null.
+        $table = new xmldb_table('threesixo_response');
         $field = new xmldb_field('value', XMLDB_TYPE_TEXT, null, null, null, null, null, 'salt');
 
         // Launch change of nullability for field value.
         $dbman->change_field_notnull($table, $field);
 
-        // Threesixty savepoint reached.
-        upgrade_mod_savepoint(true, 2017020200.00, 'threesixty');
+        // threesixo savepoint reached.
+        upgrade_mod_savepoint(true, 2017020200.00, 'threesixo');
     }
 
     if ($oldversion < 2017020200.01) {
 
-        // Define field participantrole to be added to threesixty.
-        $table = new xmldb_table('threesixty');
+        // Define field participantrole to be added to threesixo.
+        $table = new xmldb_table('threesixo');
         $field = new xmldb_field('participantrole', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'anonymous');
 
         // Conditionally launch add field participantrole.
@@ -82,14 +82,14 @@ function xmldb_threesixty_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Threesixty savepoint reached.
-        upgrade_mod_savepoint(true, 2017020200.01, 'threesixty');
+        // threesixo savepoint reached.
+        upgrade_mod_savepoint(true, 2017020200.01, 'threesixo');
     }
 
     if ($oldversion < 2017081600) {
 
-        // Define field publish_responses to be added to threesixty.
-        $table = new xmldb_table('threesixty');
+        // Define field publish_responses to be added to threesixo.
+        $table = new xmldb_table('threesixo');
 
         // Conditionally launch drop field status.
         $field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'email_notification');
@@ -139,8 +139,8 @@ function xmldb_threesixty_upgrade($oldversion) {
             $dbman->drop_field($table, $field);
         }
 
-        // Threesixty savepoint reached.
-        upgrade_mod_savepoint(true, 2017081600, 'threesixty');
+        // threesixo savepoint reached.
+        upgrade_mod_savepoint(true, 2017081600, 'threesixo');
     }
 
     return true;
