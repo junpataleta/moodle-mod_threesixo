@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_threesixty/list_participants
+    @template mod_threesixo/list_participants
 
     Moodle template to the template library
 
@@ -51,9 +51,9 @@
         <table class="flexible generaltable generalbox">
             <thead>
                 <tr>
-                    <th>{{#str}}name, mod_threesixty{{/str}}</th>
-                    <th>{{#str}}status, mod_threesixty{{/str}}</th>
-                    <th>{{#str}}labelactions, mod_threesixty{{/str}}</th>
+                    <th>{{#str}}name, mod_threesixo{{/str}}</th>
+                    <th>{{#str}}status, mod_threesixo{{/str}}</th>
+                    <th>{{#str}}labelactions, mod_threesixo{{/str}}</th>
                 </tr>
             </thead>
             <tbody>
@@ -69,27 +69,27 @@
                             {{#statusviewonly}}label-info{{/statusviewonly}}
                             {{#statuscompleted}}label-success{{/statuscompleted}}
                             {{#statusdeclined}}label-warning{{/statusdeclined}}">
-                            {{#statuspending}}{{#str}}statuspending, mod_threesixty{{/str}}{{/statuspending}}
-                            {{#statusinprogress}}{{#str}}statusinprogress, mod_threesixty{{/str}}{{/statusinprogress}}
-                            {{#statuscompleted}}{{#str}}statuscompleted, mod_threesixty{{/str}}{{/statuscompleted}}
-                            {{#statusdeclined}}{{#str}}statusdeclined, mod_threesixty{{/str}}{{/statusdeclined}}
-                            {{#statusviewonly}}{{#str}}statusviewonly, mod_threesixty{{/str}}{{/statusviewonly}}
+                            {{#statuspending}}{{#str}}statuspending, mod_threesixo{{/str}}{{/statuspending}}
+                            {{#statusinprogress}}{{#str}}statusinprogress, mod_threesixo{{/str}}{{/statusinprogress}}
+                            {{#statuscompleted}}{{#str}}statuscompleted, mod_threesixo{{/str}}{{/statuscompleted}}
+                            {{#statusdeclined}}{{#str}}statusdeclined, mod_threesixo{{/str}}{{/statusdeclined}}
+                            {{#statusviewonly}}{{#str}}statusviewonly, mod_threesixo{{/str}}{{/statusviewonly}}
                         </span>
                     </td>
                     <td>
                         {{#respondlink}}
-                            <a class="btn btn-link" href="{{{respondlink}}}" title="{{#str}}providefeedback, mod_threesixty{{/str}}">
-                                {{#pix}} t/editstring, core, {{#str}}providefeedback, mod_threesixty{{/str}} {{/pix}}
+                            <a class="btn btn-link" href="{{{respondlink}}}" title="{{#str}}providefeedback, mod_threesixo{{/str}}">
+                                {{#pix}} t/editstring, core, {{#str}}providefeedback, mod_threesixo{{/str}} {{/pix}}
                             </a>
                         {{/respondlink}}
                         {{#reportslink}}
-                            <a class="btn btn-link" href="{{{reportslink}}}" data-action="view-report" data-id="{{id}}" data-userid="{{userid}}" title="{{#str}}view, mod_threesixty{{/str}}">
-                                {{#pix}} t/preview, core, {{#str}}viewfeedbackforuser, mod_threesixty{{/str}} {{/pix}}
+                            <a class="btn btn-link" href="{{{reportslink}}}" data-action="view-report" data-id="{{id}}" data-userid="{{userid}}" title="{{#str}}view, mod_threesixo{{/str}}">
+                                {{#pix}} t/preview, core, {{#str}}viewfeedbackforuser, mod_threesixo{{/str}} {{/pix}}
                             </a>
                         {{/reportslink}}
                         {{#declinelink}}
-                            <a class="btn btn-link" href="#" data-action="decline-feedback" data-statusid="{{statusid}}" data-userid="{{userid}}" data-name="{{name}}" title="{{#str}}decline, mod_threesixty{{/str}}">
-                                {{#pix}} t/delete, core, {{#str}}decline, mod_threesixty{{/str}} {{/pix}}
+                            <a class="btn btn-link" href="#" data-action="decline-feedback" data-statusid="{{statusid}}" data-userid="{{userid}}" data-name="{{name}}" title="{{#str}}decline, mod_threesixo{{/str}}">
+                                {{#pix}} t/delete, core, {{#str}}decline, mod_threesixo{{/str}} {{/pix}}
                             </a>
                         {{/declinelink}}
                     </td>
@@ -100,7 +100,7 @@
     </div>
 </div>
 {{#js}}
-    require(['mod_threesixty/view'], function(mod) {
+    require(['mod_threesixo/view'], function(mod) {
         new mod({{threesixtyid}});
     });
 {{/js}}

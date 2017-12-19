@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'threesixty', language 'en', branch 'MOODLE_30_STABLE'
+ * Strings for component 'threesixo', language 'en', branch 'MOODLE_30_STABLE'
  *
- * @package mod_threesixty
+ * @package mod_threesixo
  * @copyright 2015 Jun Pataleta
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -101,15 +101,15 @@ $string['statusinprogress'] = 'In progress';
 $string['statuspending'] = 'Pending';
 $string['statusviewonly'] = 'View only';
 $string['switchtouser'] = 'Switch to user...';
-$string['threesixty:addinstance'] = 'Add a new 360° feedback instance';
-$string['threesixty:complete'] = 'Complete a 360° feedback';
-$string['threesixty:edititems'] = 'Edit 360° feedback items';
-$string['threesixty:editquestions'] = 'Edit 360° feedback questions';
-$string['threesixty:mapcourse'] = 'Map 360° feedback to course';
-$string['threesixty:receivemail'] = 'Receive 360° feedback email';
-$string['threesixty:view'] = 'View 360° feedback';
-$string['threesixty:viewanalysepage'] = 'View 360° feedback analysis';
-$string['threesixty:viewreports'] = 'View 360° feedback reports';
+$string['threesixo:addinstance'] = 'Add a new 360° feedback instance';
+$string['threesixo:complete'] = 'Complete a 360° feedback';
+$string['threesixo:edititems'] = 'Edit 360° feedback items';
+$string['threesixo:editquestions'] = 'Edit 360° feedback questions';
+$string['threesixo:mapcourse'] = 'Map 360° feedback to course';
+$string['threesixo:receivemail'] = 'Receive 360° feedback email';
+$string['threesixo:view'] = 'View 360° feedback';
+$string['threesixo:viewanalysepage'] = 'View 360° feedback analysis';
+$string['threesixo:viewreports'] = 'View 360° feedback reports';
 $string['title'] = '360° feedback';
 $string['titlemanageitems'] = 'Manage 360° feedback items';
 $string['todo'] = 'To Do';

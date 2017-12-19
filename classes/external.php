@@ -5,7 +5,7 @@
  * Date: 15/02/16
  * Time: 3:19 PM
  */
-namespace mod_threesixty;
+namespace mod_threesixo;
 
 use context_module;
 use context_user;
@@ -16,7 +16,7 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use external_warnings;
-use mod_threesixty\output\list_participants;
+use mod_threesixo\output\list_participants;
 use moodle_url;
 use stdClass;
 
@@ -25,7 +25,7 @@ use stdClass;
  *
  * The external API for the 360-degree feedback module.
  *
- * @package mod_threesixty
+ * @package mod_threesixo
  */
 class external extends external_api {
     /**
@@ -88,7 +88,7 @@ class external extends external_api {
         $context = context_user::instance($USER->id);
         self::validate_context($context);
 
-        require_capability('mod/threesixty:editquestions', $context);
+        require_capability('mod/threesixo:editquestions', $context);
 
         $dataobj = new stdClass();
         $dataobj->question = $params['question'];
@@ -145,7 +145,7 @@ class external extends external_api {
         $context = context_user::instance($USER->id);
         self::validate_context($context);
 
-        require_capability('mod/threesixty:editquestions', $context);
+        require_capability('mod/threesixo:editquestions', $context);
 
         $dataobj = new stdClass();
         $dataobj->id = $params['id'];
@@ -204,7 +204,7 @@ class external extends external_api {
         $context = context_user::instance($USER->id);
         self::validate_context($context);
 
-        require_capability('mod/threesixty:editquestions', $context);
+        require_capability('mod/threesixo:editquestions', $context);
 
         $result = api::delete_question($id);
 
@@ -304,12 +304,12 @@ class external extends external_api {
         ]);
 
         // Validate context and capability.
-        list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixty');
+        list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
         $cmid = $cm->id;
         $context = context_module::instance($cmid);
         self::validate_context($context);
 
-        require_capability('mod/threesixty:edititems', $context);
+        require_capability('mod/threesixo:edititems', $context);
 
         $result = api::set_items($params['threesixtyid'], $params['questionids']);
 
@@ -398,12 +398,12 @@ class external extends external_api {
 
         // Validate context and capability.
         $item = api::get_item_by_id($id);
-        list($course, $cm) = get_course_and_cm_from_instance($item->threesixty, 'threesixty');
+        list($course, $cm) = get_course_and_cm_from_instance($item->threesixo, 'threesixo');
         $cmid = $cm->id;
         $context = context_module::instance($cmid);
         self::validate_context($context);
 
-        require_capability('mod/threesixty:edititems', $context);
+        require_capability('mod/threesixo:edititems', $context);
 
         $result = api::delete_item($id);
 
@@ -452,12 +452,12 @@ class external extends external_api {
 
         // Validate context and capability.
         $item = api::get_item_by_id($id);
-        list($course, $cm) = get_course_and_cm_from_instance($item->threesixty, 'threesixty');
+        list($course, $cm) = get_course_and_cm_from_instance($item->threesixo, 'threesixo');
         $cmid = $cm->id;
         $context = context_module::instance($cmid);
         self::validate_context($context);
 
-        require_capability('mod/threesixty:edititems', $context);
+        require_capability('mod/threesixo:edititems', $context);
 
         $result = api::move_item_up($id);
         if (!$result) {
@@ -509,12 +509,12 @@ class external extends external_api {
 
         // Validate context and capability.
         $item = api::get_item_by_id($id);
-        list($course, $cm) = get_course_and_cm_from_instance($item->threesixty, 'threesixty');
+        list($course, $cm) = get_course_and_cm_from_instance($item->threesixo, 'threesixo');
         $cmid = $cm->id;
         $context = context_module::instance($cmid);
         self::validate_context($context);
 
-        require_capability('mod/threesixty:edititems', $context);
+        require_capability('mod/threesixo:edititems', $context);
 
         $result = api::move_item_down($id);
         if (!$result) {
@@ -570,7 +570,7 @@ class external extends external_api {
 
         // Validate context.
         $submission = api::get_submission($statusid);
-        list($course, $cm) = get_course_and_cm_from_instance($submission->threesixty, 'threesixty');
+        list($course, $cm) = get_course_and_cm_from_instance($submission->threesixo, 'threesixo');
         $cmid = $cm->id;
         $context = context_module::instance($cmid);
         self::validate_context($context);
@@ -621,10 +621,10 @@ class external extends external_api {
         ]);
 
         $threesixtyid = $params['threesixtyid'];
-        $coursecm = get_course_and_cm_from_instance($threesixtyid, 'threesixty');
+        $coursecm = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
         $context = context_module::instance($coursecm[1]->id);
         self::validate_context($context);
-        $renderer = $PAGE->get_renderer('mod_threesixty');
+        $renderer = $PAGE->get_renderer('mod_threesixo');
         $threesixty = api::get_instance($threesixtyid);
         $participants = api::get_participants($threesixty->id, $USER->id);
         $listparticipants = new list_participants($threesixty, $USER->id, $participants);
@@ -701,11 +701,11 @@ class external extends external_api {
         global $USER;
         $warnings = [];
 
-        list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixty');
+        list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
         $cmid = $cm->id;
         $context = context_module::instance($cmid);
         self::validate_context($context);
-        $redirecturl = new moodle_url('/mod/threesixty/view.php');
+        $redirecturl = new moodle_url('/mod/threesixo/view.php');
         $redirecturl->param('id', $cmid);
 
         $params = external_api::validate_parameters(self::save_responses_parameters(), [
@@ -781,11 +781,11 @@ class external extends external_api {
     public static function get_responses($threesixtyid, $fromuserid, $touserid) {
         $warnings = [];
 
-        list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixty');
+        list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
         $cmid = $cm->id;
         $context = context_module::instance($cmid);
         self::validate_context($context);
-        $redirecturl = new moodle_url('/mod/threesixty/view.php');
+        $redirecturl = new moodle_url('/mod/threesixo/view.php');
         $redirecturl->param('id', $cmid);
 
         $params = external_api::validate_parameters(self::get_responses_parameters(), [

@@ -19,35 +19,35 @@
  *
  * @copyright 2017 Jun Pataleta
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package mod_threesixty
+ * @package mod_threesixo
  */
 require_once('../../config.php');
 
-$threesixtyid = required_param('threesixty', PARAM_INT);
+$threesixtyid = required_param('threesixo', PARAM_INT);
 $touserid = required_param('touser', PARAM_INT);
 
-list ($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixty');
+list ($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
 
 require_login($course, true, $cm);
 
 $context = context_module::instance($cm->id);
 
-require_capability('mod/threesixty:viewreports', $context);
+require_capability('mod/threesixo:viewreports', $context);
 
-$threesixty = \mod_threesixty\api::get_instance($threesixtyid);
+$threesixty = \mod_threesixo\api::get_instance($threesixtyid);
 
 $PAGE->set_context($context);
 $PAGE->set_cm($cm, $course);
 $PAGE->set_pagelayout('incourse');
 
-$PAGE->set_url('/mod/threesixty/view.php', ['id' => $cm->id]);
+$PAGE->set_url('/mod/threesixo/view.php', ['id' => $cm->id]);
 $PAGE->set_heading($course->fullname);
 $title = format_string($threesixty->name);
 $PAGE->set_title($title);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($title));
-echo $OUTPUT->heading(get_string('viewfeedbackforuser', 'mod_threesixty'), 3);
+echo $OUTPUT->heading(get_string('viewfeedbackforuser', 'mod_threesixo'), 3);
 
 // Render user heading.
 if ($touserid > 0) {
@@ -61,12 +61,12 @@ if ($touserid > 0) {
     echo html_writer::div($contextheader, 'card card-block');
 }
 
-$includeself = \mod_threesixty\api::can_respond($threesixtyid, $USER->id, $context) === true;
-$participants = \mod_threesixty\api::get_participants($threesixtyid, $USER->id, $includeself);
+$includeself = \mod_threesixo\api::can_respond($threesixtyid, $USER->id, $context) === true;
+$participants = \mod_threesixo\api::get_participants($threesixtyid, $USER->id, $includeself);
 
-$responses = mod_threesixty\api::get_feedback_for_user($threesixtyid, $touserid);
-$responselist = new mod_threesixty\output\report($cm->id, $threesixtyid, $responses, $participants);
-$renderer = $PAGE->get_renderer('mod_threesixty');
+$responses = mod_threesixo\api::get_feedback_for_user($threesixtyid, $touserid);
+$responselist = new mod_threesixo\output\report($cm->id, $threesixtyid, $responses, $participants);
+$renderer = $PAGE->get_renderer('mod_threesixo');
 echo $renderer->render($responselist);
 
 echo $OUTPUT->footer();

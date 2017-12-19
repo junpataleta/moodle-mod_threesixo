@@ -1,6 +1,6 @@
 <?php
 
-namespace mod_threesixty;
+namespace mod_threesixo;
 
 use context_module;
 use moodle_exception;
@@ -39,7 +39,7 @@ class api {
     public static function get_instance($threesixtyid) {
         global $DB;
 
-        return $DB->get_record('threesixty', ['id' => $threesixtyid], '*', MUST_EXIST);
+        return $DB->get_record('threesixo', ['id' => $threesixtyid], '*', MUST_EXIST);
     }
 
     /**
@@ -47,14 +47,14 @@ class api {
      */
     public static function get_questions() {
         global $DB;
-        $questions = $DB->get_records('threesixty_question');
+        $questions = $DB->get_records('threesixo_question');
         foreach ($questions as $question) {
             switch ($question->type) {
                 case api::QTYPE_RATED:
-                    $question->typeName = get_string('qtyperated', 'mod_threesixty');
+                    $question->typeName = get_string('qtyperated', 'mod_threesixo');
                     break;
                 case api::QTYPE_COMMENT:
-                    $question->typeName = get_string('qtypecomment', 'mod_threesixty');
+                    $question->typeName = get_string('qtypecomment', 'mod_threesixo');
                     break;
                 default:
                     break;
@@ -70,7 +70,7 @@ class api {
      */
     public static function add_question(stdClass $data) {
         global $DB;
-        return $DB->insert_record('threesixty_question', $data);
+        return $DB->insert_record('threesixo_question', $data);
     }
 
     /**
@@ -79,7 +79,7 @@ class api {
      */
     public static function update_question(stdClass $data) {
         global $DB;
-        return $DB->update_record('threesixty_question', $data);
+        return $DB->update_record('threesixo_question', $data);
     }
 
     /**
@@ -88,7 +88,7 @@ class api {
      */
     public static function delete_question($id) {
         global $DB;
-        return $DB->delete_records('threesixty_question', ['id' => $id]);
+        return $DB->delete_records('threesixo_question', ['id' => $id]);
     }
 
     /**
@@ -99,15 +99,15 @@ class api {
         global $DB;
 
         $sql = "SELECT i.id,
-                       i.threesixty as threesixtyid,
+                       i.threesixo as threesixtyid,
                        i.question as questionid,
                        i.position,
                        q.question,
                        q.type
-                  FROM {threesixty_item} i
-            INNER JOIN {threesixty_question} q
+                  FROM {threesixo_item} i
+            INNER JOIN {threesixo_question} q
                     ON i.question = q.id
-                 WHERE i.threesixty = :threesixtyid
+                 WHERE i.threesixo = :threesixtyid
               ORDER BY i.position;";
         $params = [
             'threesixtyid' => $threesixtyid
@@ -118,10 +118,10 @@ class api {
             // Question type.
             switch ($item->type) {
                 case api::QTYPE_RATED:
-                    $qtype = get_string('qtyperated', 'threesixty');
+                    $qtype = get_string('qtyperated', 'threesixo');
                     break;
                 case api::QTYPE_COMMENT:
-                    $qtype = get_string('qtypecomment', 'threesixty');
+                    $qtype = get_string('qtypecomment', 'threesixo');
                     break;
                 default:
                     $qtype = '';
@@ -138,12 +138,12 @@ class api {
         global $DB;
 
         $params = [
-            'threesixty' => $threesixtyid,
+            'threesixo' => $threesixtyid,
             'fromuser' => $fromuser,
             'touser' => $touser
         ];
 
-        return $DB->get_records('threesixty_response', $params, 'item ASC', 'id, item, value');
+        return $DB->get_records('threesixo_response', $params, 'item ASC', 'id, item, value');
     }
 
     /**
@@ -157,8 +157,8 @@ class api {
         global $DB;
 
         // Delete existing, but were unselected, items.
-        $select = 'threesixty = :threesixty';
-        $params = ['threesixty' => $threesixtyid];
+        $select = 'threesixo = :threesixo';
+        $params = ['threesixo' => $threesixtyid];
         if (!empty($questionids)) {
             $subselect = ' AND question NOT IN (';
             $index = 1;
@@ -174,17 +174,17 @@ class api {
             $subselect .= ')';
             $select .= $subselect;
         }
-        $DB->delete_records_select('threesixty_item', $select, $params);
+        $DB->delete_records_select('threesixo_item', $select, $params);
 
         // Get remaining items.
-        $existingitems = $DB->get_records('threesixty_item', ['threesixty' => $threesixtyid], 'position ASC', '*');
+        $existingitems = $DB->get_records('threesixo_item', ['threesixo' => $threesixtyid], 'position ASC', '*');
         // Reorder positions.
         $position = 1;
         $selectedquestions = [];
         foreach ($existingitems as $existingitem) {
             if ($existingitem->position != $position) {
                 $existingitem->position = $position;
-                $DB->update_record('threesixty_item', $existingitem);
+                $DB->update_record('threesixo_item', $existingitem);
             }
             $position++;
             $selectedquestions[] = $existingitem->question;
@@ -199,11 +199,11 @@ class api {
             }
             $data = new stdClass();
             $data->question = $id;
-            $data->threesixty = $threesixtyid;
+            $data->threesixo = $threesixtyid;
             $data->position = $position++;
             $records[] = $data;
         }
-        $DB->insert_records('threesixty_item', $records);
+        $DB->insert_records('threesixo_item', $records);
         return true;
     }
 
@@ -212,14 +212,14 @@ class api {
      */
     public static function get_question_types() {
         return [
-            self::QTYPE_RATED => get_string('qtyperated', 'mod_threesixty'),
-            self::QTYPE_COMMENT => get_string('qtypecomment', 'mod_threesixty')
+            self::QTYPE_RATED => get_string('qtyperated', 'mod_threesixo'),
+            self::QTYPE_COMMENT => get_string('qtypecomment', 'mod_threesixo')
         ];
     }
 
     public static function get_item_by_id($itemid) {
         global $DB;
-        return $DB->get_record('threesixty_item', ['id' => $itemid], '*', MUST_EXIST);
+        return $DB->get_record('threesixo_item', ['id' => $itemid], '*', MUST_EXIST);
     }
 
     /**
@@ -255,9 +255,9 @@ class api {
         $result = false;
 
         // Get the feedback item.
-        if ($item = $DB->get_record('threesixty_item', ['id' => $itemid])) {
+        if ($item = $DB->get_record('threesixo_item', ['id' => $itemid])) {
             $oldposition = $item->position;
-            $itemcount = $DB->count_records('threesixty_item', ['threesixty' => $item->threesixty]);
+            $itemcount = $DB->count_records('threesixo_item', ['threesixo' => $item->threesixo]);
 
             switch ($direction) {
                 case self::MOVE_UP:
@@ -274,12 +274,12 @@ class api {
                     break;
             }
             // Update the item to be swapped.
-            if ($swapitem = $DB->get_record('threesixty_item', ['threesixty' => $item->threesixty, 'position' => $item->position])) {
+            if ($swapitem = $DB->get_record('threesixo_item', ['threesixo' => $item->threesixo, 'position' => $item->position])) {
                 $swapitem->position = $oldposition;
-                $result = $DB->update_record('threesixty_item', $swapitem);
+                $result = $DB->update_record('threesixo_item', $swapitem);
             }
             // Update the item being moved.
-            $result = $result && $DB->update_record('threesixty_item', $item);
+            $result = $result && $DB->update_record('threesixo_item', $item);
         } else {
             throw new moodle_exception('erroritemnotfound');
         }
@@ -295,15 +295,15 @@ class api {
      */
     public static function delete_item($itemid) {
         global $DB;
-        if ($itemtobedeleted = $DB->get_record('threesixty_item', ['id' => $itemid])) {
-            $itemstobemoved = $DB->get_recordset_select('threesixty_item', 'position > ?', [$itemtobedeleted->position], 'position');
+        if ($itemtobedeleted = $DB->get_record('threesixo_item', ['id' => $itemid])) {
+            $itemstobemoved = $DB->get_recordset_select('threesixo_item', 'position > ?', [$itemtobedeleted->position], 'position');
             $offset = 0;
             foreach ($itemstobemoved as $item) {
                 $item->position = $itemtobedeleted->position + $offset;
-                $DB->update_record('threesixty_item', $item);
+                $DB->update_record('threesixo_item', $item);
                 $offset++;
             }
-            return $DB->delete_records('threesixty_item', ['id' => $itemid]);
+            return $DB->delete_records('threesixo_item', ['id' => $itemid]);
         }
 
         return false;
@@ -315,11 +315,11 @@ class api {
         // Delete responses, if necessary.
         $submission = self::get_submission($submissionid);
         $params = [
-            'threesixty' => $submission->threesixty,
+            'threesixo' => $submission->threesixo,
             'fromuser' => $submission->fromuser,
             'touser' => $submission->touser
         ];
-        $result = $DB->delete_records('threesixty_response', $params);
+        $result = $DB->delete_records('threesixo_response', $params);
 
         // Set declined status.
         $result &= self::set_completion($submissionid, self::STATUS_DECLINED, $reason);
@@ -337,12 +337,12 @@ class api {
     public static function set_completion($submissionid, $status, $remarks = null) {
         global $DB;
 
-        if ($statusrecord = $DB->get_record('threesixty_submission', array('id' => $submissionid))) {
+        if ($statusrecord = $DB->get_record('threesixo_submission', array('id' => $submissionid))) {
             $statusrecord->status = $status;
             if (!empty($remarks)) {
                 $statusrecord->remarks = $remarks;
             }
-            return $DB->update_record('threesixty_submission', $statusrecord);
+            return $DB->update_record('threesixo_submission', $statusrecord);
         }
 
         return false;
@@ -368,23 +368,23 @@ class api {
             $userssqlparams['userid2'] = $userid;
         }
 
-        $cm = get_coursemodule_from_instance('threesixty', $threesixtyid);
+        $cm = get_coursemodule_from_instance('threesixo', $threesixtyid);
         $context = context_module::instance($cm->id);
         $canviewreports = self::can_view_reports($context);
         if (!$canviewreports) {
-            $role = $DB->get_field('threesixty', 'participantrole', ['id' => $threesixtyid]);
+            $role = $DB->get_field('threesixo', 'participantrole', ['id' => $threesixtyid]);
             if ($role != 0) {
                 $rolecondition = "u.id IN (
                                   SELECT ra.userid 
                                     FROM {role_assignments} ra
-                              INNER JOIN {threesixty} ff
+                              INNER JOIN {threesixo} ff
                                       ON ra.roleid = ff.participantrole
                                          AND ff.id = :threesixtyid2
                               )
                               AND :user3 IN (
                                   SELECT ra.userid 
                                     FROM {role_assignments} ra
-                              INNER JOIN {threesixty} ff
+                              INNER JOIN {threesixo} ff
                                       ON ra.roleid = ff.participantrole
                                          AND ff.id = :threesixtyid3
                               )";
@@ -431,11 +431,11 @@ class api {
                          ON u.id = ue.userid
                  INNER JOIN {enrol} e 
                          ON e.id = ue.enrolid
-                 INNER JOIN {threesixty} f 
+                 INNER JOIN {threesixo} f 
                          ON f.course = e.courseid 
                             AND f.id = :threesixtyid
-                  LEFT JOIN {threesixty_submission} fs
-                         ON f.id = fs.threesixty 
+                  LEFT JOIN {threesixo_submission} fs
+                         ON f.id = fs.threesixo 
                             AND fs.touser = u.id 
                             AND fs.fromuser = :userid
                       $wherecondition
@@ -447,7 +447,7 @@ class api {
     }
 
     /**
-     * Generate default records for the table threesixty_submission.
+     * Generate default records for the table threesixo_submission.
      *
      * @param int $threesixtyid The 360 instance ID.
      * @param int $userid The user ID of the respondent.
@@ -455,7 +455,7 @@ class api {
     public static function generate_360_feedback_statuses($threesixtyid, $userid) {
         global $DB;
 
-        $role = $DB->get_field('threesixty', 'participantrole', ['id' => $threesixtyid]);
+        $role = $DB->get_field('threesixo', 'participantrole', ['id' => $threesixtyid]);
         $rolecondition = '';
         $params = [
             'threesixtyid' => $threesixtyid,
@@ -466,14 +466,14 @@ class api {
             $rolecondition = "AND u.id IN (
                                   SELECT ra.userid 
                                     FROM {role_assignments} ra
-                              INNER JOIN {threesixty} ff
+                              INNER JOIN {threesixo} ff
                                       ON ra.roleid = ff.participantrole
                                          AND ff.id = :threesixtyid2
                               )
                               AND :fromuser3 IN (
                                   SELECT ra.userid 
                                     FROM {role_assignments} ra
-                              INNER JOIN {threesixty} ff
+                              INNER JOIN {threesixo} ff
                                       ON ra.roleid = ff.participantrole
                                          AND ff.id = :threesixtyid3
                               )";
@@ -482,7 +482,7 @@ class api {
             $params['fromuser3'] = $userid;
         }
 
-        $cm = get_coursemodule_from_instance('threesixty', $threesixtyid);
+        $cm = get_coursemodule_from_instance('threesixo', $threesixtyid);
         $groupmode = groups_get_activity_groupmode($cm);
         $groupcondition = '';
         if ($groupmode != NOGROUPS) {
@@ -504,13 +504,13 @@ class api {
                                  ON u.id = ue.userid
                          INNER JOIN {enrol} e
                                  ON e.id = ue.enrolid
-                         INNER JOIN {threesixty} f
+                         INNER JOIN {threesixo} f
                                  ON f.course = e.courseid AND f.id = :threesixtyid
                               WHERE u.id <> :fromuser
                                     AND u.id NOT IN (
                                         SELECT fs.touser
-                                          FROM {threesixty_submission} fs
-                                         WHERE fs.threesixty = f.id 
+                                          FROM {threesixo_submission} fs
+                                         WHERE fs.threesixo = f.id 
                                                AND fs.fromuser = :fromuser2
                                     )
                                     $rolecondition
@@ -519,10 +519,10 @@ class api {
         if ($users = $DB->get_records_sql($usersql, $params)) {
             foreach ($users as $user) {
                 $status = new stdClass();
-                $status->threesixty = $threesixtyid;
+                $status->threesixo = $threesixtyid;
                 $status->fromuser = $userid;
                 $status->touser = $user->id;
-                $DB->insert_record('threesixty_submission', $status);
+                $DB->insert_record('threesixo_submission', $status);
             }
         }
     }
@@ -540,7 +540,7 @@ class api {
 
         // User can't participate if not enrolled in the course.
         if ($context !== null && !is_enrolled($context)) {
-            return get_string('errornotenrolled', 'mod_threesixty');
+            return get_string('errornotenrolled', 'mod_threesixo');
         }
 
         // Get 360 ID and participant role.
@@ -550,7 +550,7 @@ class api {
             $participantrole = $threesixty->participantrole;
         } else {
             $threesixtyid = $threesixtyorid;
-            $participantrole = $DB->get_field('threesixty', 'participantrole', ['id' => $threesixtyid]);
+            $participantrole = $DB->get_field('threesixo', 'participantrole', ['id' => $threesixtyid]);
         }
 
         // The user is enrolled and the 360 activity is open to all course members, so return true.
@@ -561,7 +561,7 @@ class api {
         // Check if user's role is the same as the activity's participant role setting.
         $sql = "SELECT ra.userid
                   FROM {role_assignments} ra
-            INNER JOIN {threesixty} t
+            INNER JOIN {threesixo} t
                     ON ra.roleid = t.participantrole
                        AND t.id = :threesixtyid
                  WHERE ra.userid = :userid";
@@ -575,7 +575,7 @@ class api {
             return true;
         }
 
-        return get_string('errorcannotparticipate', 'mod_threesixty');
+        return get_string('errorcannotparticipate', 'mod_threesixo');
     }
 
     /**
@@ -585,7 +585,7 @@ class api {
      * @return bool
      */
     public static function can_view_reports(context_module $context) {
-        return has_capability('mod/threesixty:viewreports', $context);
+        return has_capability('mod/threesixo:viewreports', $context);
     }
 
     /**
@@ -604,13 +604,13 @@ class api {
         if (!empty($fromuser)) {
             $params['fromuser'] = $fromuser;
         }
-        return $DB->get_record('threesixty_submission', $params, $fields, MUST_EXIST);
+        return $DB->get_record('threesixo_submission', $params, $fields, MUST_EXIST);
     }
 
     public static function get_submission_by_params($threesixtyid, $fromuser, $touser) {
         global $DB;
-        return $DB->get_record('threesixty_submission', [
-            'threesixty' => $threesixtyid,
+        return $DB->get_record('threesixo_submission', [
+            'threesixo' => $threesixtyid,
             'fromuser' => $fromuser,
             'touser' => $touser,
         ]);
@@ -626,37 +626,37 @@ class api {
         $s0 = new stdClass();
         $s0->scale = 0;
         $s0->scalelabel = 'N/A';
-        $s0->description = get_string('scalenotapplicable', 'mod_threesixty');
+        $s0->description = get_string('scalenotapplicable', 'mod_threesixo');
 
         $s1 = new stdClass();
         $s1->scale = 1;
         $s1->scalelabel = '1';
-        $s1->description = get_string('scalestronglydisagree', 'mod_threesixty');
+        $s1->description = get_string('scalestronglydisagree', 'mod_threesixo');
 
         $s2 = new stdClass();
         $s2->scale = 2;
         $s2->scalelabel = '2';
-        $s2->description = get_string('scaledisagree', 'mod_threesixty');
+        $s2->description = get_string('scaledisagree', 'mod_threesixo');
 
         $s3 = new stdClass();
         $s3->scale = 3;
         $s3->scalelabel = '3';
-        $s3->description = get_string('scalesomewhatdisagree', 'mod_threesixty');
+        $s3->description = get_string('scalesomewhatdisagree', 'mod_threesixo');
 
         $s4 = new stdClass();
         $s4->scale = 4;
         $s4->scalelabel = '4';
-        $s4->description = get_string('scalesomewhatagree', 'mod_threesixty');
+        $s4->description = get_string('scalesomewhatagree', 'mod_threesixo');
 
         $s5 = new stdClass();
         $s5->scale = 5;
         $s5->scalelabel = '5';
-        $s5->description = get_string('scaleagree', 'mod_threesixty');
+        $s5->description = get_string('scaleagree', 'mod_threesixo');
 
         $s6 = new stdClass();
         $s6->scale = 6;
         $s6->scalelabel = '6';
-        $s6->description = get_string('scalestronglyagree', 'mod_threesixty');
+        $s6->description = get_string('scalestronglyagree', 'mod_threesixo');
 
         return [$s1, $s2, $s3, $s4, $s5, $s6, $s0];
     }
@@ -665,8 +665,8 @@ class api {
         global $DB, $USER;
 
         $fromuser = $USER->id; 
-        $savedresponses = $DB->get_records('threesixty_response', [
-            'threesixty' => $threesixty,
+        $savedresponses = $DB->get_records('threesixo_response', [
+            'threesixo' => $threesixty,
             'fromuser' => $fromuser,
             'touser' => $touser,
         ]);
@@ -685,16 +685,16 @@ class api {
             } 
             
             if (empty($response->id)) {
-                $response->threesixty = $threesixty;
+                $response->threesixo = $threesixty;
                 $response->item = $key;
                 $response->touser = $touser;
                 $response->fromuser = $fromuser;
                 $response->value = $value;
                 $response->salt = '';
-                $result &= $DB->insert_record('threesixty_response', $response);
+                $result &= $DB->insert_record('threesixo_response', $response);
             } else {
                 $response->value = $value;
-                $result &= $DB->update_record('threesixty_response', $response);
+                $result &= $DB->update_record('threesixo_response', $response);
             }
         }
         return $result;
@@ -716,13 +716,13 @@ class api {
             return true;
         }
         $params = [
-            'threesixty' => $threesixtyid,
+            'threesixo' => $threesixtyid,
             'fromuser' => $fromuser,
             'touser' => $touser
         ];
-        $updatesql = "UPDATE {threesixty_response}
+        $updatesql = "UPDATE {threesixo_response}
                          SET fromuser = 0
-                       WHERE threesixty = :threesixty
+                       WHERE threesixo = :threesixo
                              AND fromuser = :fromuser
                              AND touser = :touser";
         return $DB->execute($updatesql, $params);
@@ -732,10 +732,10 @@ class api {
         global $DB;
 
         $params = [
-            'threesixty' => $threesixtyid,
+            'threesixo' => $threesixtyid,
             'touser' => $touser
         ];
-        $responses = $DB->get_records('threesixty_response', $params, 'item ASC', 'id, item, fromuser, value');
+        $responses = $DB->get_records('threesixo_response', $params, 'item ASC', 'id, item, fromuser, value');
 
         $items = api::get_items($threesixtyid);
         foreach ($items as $item) {
@@ -766,7 +766,7 @@ class api {
                         $fromuser = \core_user::get_user($response->fromuser);
                         $fromusername = fullname($fromuser);
                     } else {
-                        $fromusername = get_string('anonymous', 'mod_threesixty');
+                        $fromusername = get_string('anonymous', 'mod_threesixo');
                     }
                     $comments[] = (object)[
                         'fromuser' => $fromusername,
@@ -801,7 +801,7 @@ class api {
             $threesixtyid = $threesixtyorid;
         }
         if (!empty($threesixtyid) && empty($status)) {
-            $status = $DB->get_field('threesixty', 'status', ['id' => $threesixtyid]);
+            $status = $DB->get_field('threesixo', 'status', ['id' => $threesixtyid]);
         }
         return $status == self::INSTANCE_READY;
     }
@@ -814,10 +814,10 @@ class api {
      */
     public static function can_edit_items($threesixtyid, $context = null) {
         if (empty($context)) {
-            list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixty');
+            list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
             $context = context_module::instance($cm->id);
         }
-        return has_capability('mod/threesixty:edititems', $context);
+        return has_capability('mod/threesixo:edititems', $context);
     }
 
     /**
@@ -829,12 +829,12 @@ class api {
      */
     public static function make_ready($threesixtyid) {
         global $DB;
-        list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixty');
+        list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
         $context = context_module::instance($cm->id);
         if (!self::can_edit_items($threesixtyid, $context)) {
-            $url = new moodle_url('/mod/threesixty/view.php', ['id' => $cm->id]);
-            throw new moodle_exception('nocaptoedititems', 'mod_threesixty', $url);
+            $url = new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]);
+            throw new moodle_exception('nocaptoedititems', 'mod_threesixo', $url);
         }
-        return $DB->set_field('threesixty', 'status', self::INSTANCE_READY, ['id' => $threesixtyid]);
+        return $DB->set_field('threesixo', 'status', self::INSTANCE_READY, ['id' => $threesixtyid]);
     }
 }

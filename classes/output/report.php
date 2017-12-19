@@ -17,16 +17,16 @@
 /**
  * Class containing data for rendering the 360 feedback report page for a participant.
  *
- * @package    mod_threesixty
+ * @package    mod_threesixo
  * @copyright  2017 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_threesixty\output;
+namespace mod_threesixo\output;
 
 defined('MOODLE_INTERNAL') || die();
 
 use action_link;
-use mod_threesixty\api;
+use mod_threesixo\api;
 use moodle_url;
 use renderable;
 use renderer_base;
@@ -70,27 +70,27 @@ class report implements renderable, templatable {
         $participantslist = [];
         foreach ($participants as $participant) {
             // Module URL.
-            $urlparams = ['threesixty' => $this->threesixtyid, 'touser' => $participant->userid];
-            $linkurl = new moodle_url('/mod/threesixty/report.php', $urlparams);
+            $urlparams = ['threesixo' => $this->threesixtyid, 'touser' => $participant->userid];
+            $linkurl = new moodle_url('/mod/threesixo/report.php', $urlparams);
             // Add module URL (as key) and name (as value) to the activity list array.
             $participantslist[$linkurl->out(false)] = fullname($participant);
         }
 
         if (!empty($participantslist)) {
-            $select = new url_select($participantslist, '', array('' => get_string('switchtouser', 'mod_threesixty')));
+            $select = new url_select($participantslist, '', array('' => get_string('switchtouser', 'mod_threesixo')));
             $select->set_label(get_string('jumpto'), array('class' => 'sr-only'));
             $select->attributes = array('id' => 'jump-to-user-report');
             $this->userselect = $select;
         }
 
         // Activity link.
-        $linkname = get_string('backto360dashboard', 'mod_threesixty');
+        $linkname = get_string('backto360dashboard', 'mod_threesixo');
         $attributes = [
             'classes' => 'btn btn-link',
             'id' => 'back-to-dashboard',
             'title' => $linkname,
         ];
-        $activitylinkurl = new moodle_url('/mod/threesixty/view.php', ['id' => $cmid]);
+        $activitylinkurl = new moodle_url('/mod/threesixo/view.php', ['id' => $cmid]);
         $this->activitylink = new action_link($activitylinkurl, $linkname, null, $attributes);
     }
 

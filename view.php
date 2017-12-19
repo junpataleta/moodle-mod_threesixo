@@ -19,68 +19,68 @@
  *
  * @copyright 2015 Jun Pataleta
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package mod_threesixty
+ * @package mod_threesixo
  */
 require_once('../../config.php');
 require_once('lib.php');
 
 $id = required_param('id', PARAM_INT);
 $makeavailable = optional_param('makeavailable', false, PARAM_BOOL);
-list ($course, $cm) = get_course_and_cm_from_cmid($id, 'threesixty');
+list ($course, $cm) = get_course_and_cm_from_cmid($id, 'threesixo');
 
 require_login($course, true, $cm);
 
 $context = context_module::instance($cm->id);
-$threesixty = \mod_threesixty\api::get_instance($cm->instance);
+$threesixty = \mod_threesixo\api::get_instance($cm->instance);
 
 $PAGE->set_context($context);
 $PAGE->set_cm($cm, $course);
 $PAGE->set_pagelayout('incourse');
 
-$PAGE->set_url('/mod/threesixty/view.php', array('id' => $cm->id, 'do_show' => 'view'));
+$PAGE->set_url('/mod/threesixo/view.php', array('id' => $cm->id, 'do_show' => 'view'));
 $title = format_string($threesixty->name);
 $PAGE->set_title($title);
 $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 
 echo $OUTPUT->heading($title);
-echo $OUTPUT->heading(get_string('participants', 'mod_threesixty'), 3);
+echo $OUTPUT->heading(get_string('participants', 'mod_threesixo'), 3);
 
 if ($makeavailable) {
-    if (\mod_threesixty\api::make_ready($threesixty->id)) {
-        \core\notification::success(get_string('instancenowready', 'mod_threesixty'));
+    if (\mod_threesixo\api::make_ready($threesixty->id)) {
+        \core\notification::success(get_string('instancenowready', 'mod_threesixo'));
     }
 }
 // Edit items.
-$instanceready = \mod_threesixty\api::is_ready($threesixty->id);
-if (\mod_threesixty\api::can_edit_items($threesixty->id, $context)) {
+$instanceready = \mod_threesixo\api::is_ready($threesixty->id);
+if (\mod_threesixo\api::can_edit_items($threesixty->id, $context)) {
     $edititemsurl = new moodle_url('edit_items.php');
     $edititemsurl->param('id', $cm->id);
-    echo html_writer::link($edititemsurl, get_string('edititems', 'threesixty'), ['class' => 'btn btn-default']);
+    echo html_writer::link($edititemsurl, get_string('edititems', 'threesixo'), ['class' => 'btn btn-default']);
     if (!$instanceready) {
         $url = $PAGE->url;
         $url->param('makeavailable', true);
-        echo html_writer::link($url, get_string('makeavailable', 'threesixty'), ['class' => 'btn btn-default pull-right']);
+        echo html_writer::link($url, get_string('makeavailable', 'threesixo'), ['class' => 'btn btn-default pull-right']);
     }
 }
 
 if ($instanceready) {
-    $canparticipate = mod_threesixty\api::can_respond($threesixty, $USER->id, $context);
+    $canparticipate = mod_threesixo\api::can_respond($threesixty, $USER->id, $context);
     if ($canparticipate !== true) {
         \core\notification::warning($canparticipate);
     }
 
-    \mod_threesixty\api::generate_360_feedback_statuses($threesixty->id, $USER->id);
-    $participants = \mod_threesixty\api::get_participants($threesixty->id, $USER->id);
-    $canviewreports = \mod_threesixty\api::can_view_reports($context);
+    \mod_threesixo\api::generate_360_feedback_statuses($threesixty->id, $USER->id);
+    $participants = \mod_threesixo\api::get_participants($threesixty->id, $USER->id);
+    $canviewreports = \mod_threesixo\api::can_view_reports($context);
 
     // 360-degree feedback To-do list.
-    $memberslist = new mod_threesixty\output\list_participants($threesixty, $USER->id, $participants, $canviewreports);
-    $memberslistoutput = $PAGE->get_renderer('mod_threesixty');
+    $memberslist = new mod_threesixo\output\list_participants($threesixty, $USER->id, $participants, $canviewreports);
+    $memberslistoutput = $PAGE->get_renderer('mod_threesixo');
     echo $memberslistoutput->render($memberslist);
 
 } else {
-    \core\notification::error(get_string('instancenotready', 'mod_threesixty'));
+    \core\notification::error(get_string('instancenotready', 'mod_threesixo'));
 }
 
 echo $OUTPUT->footer();

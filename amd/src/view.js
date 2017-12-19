@@ -16,7 +16,7 @@
 /**
  * AMD code for the frequently used comments chooser for the marking guide grading form.
  *
- * @module     mod_threesixty/view
+ * @module     mod_threesixo/view
  * @class      view
  * @package    core
  * @copyright  2016 Jun Pataleta <jun@moodle.com>
@@ -50,10 +50,10 @@ define([
     function refreshParticipantsList() {
         // Refresh the list of participants thru AJAX.
         var promises = ajax.call([
-            {methodname: 'mod_threesixty_data_for_participant_list', args: {threesixtyid: threesixtyid}}
+            {methodname: 'mod_threesixo_data_for_participant_list', args: {threesixtyid: threesixtyid}}
         ]);
         $.when(promises[0]).then(function(response) {
-            return Templates.render('mod_threesixty/list_participants', response);
+            return Templates.render('mod_threesixo/list_participants', response);
 
         }).done(function(compiledSource, js) {
             $('[data-region="participantlist"]').replaceWith(compiledSource);
@@ -77,8 +77,8 @@ define([
                 statusid: statusid,
                 name: name
             };
-            var declineTemplatePromise = Templates.render('mod_threesixty/decline_feedback', context);
-            var titlePromise = Str.get_string('declinefeedback', 'mod_threesixty');
+            var declineTemplatePromise = Templates.render('mod_threesixo/decline_feedback', context);
+            var titlePromise = Str.get_string('declinefeedback', 'mod_threesixo');
 
             $.when(titlePromise).then(function(title) {
                 return ModalFactory.create({
@@ -105,7 +105,7 @@ define([
                         declinereason: reason
                     };
 
-                    var method = 'mod_threesixty_decline_feedback';
+                    var method = 'mod_threesixo_decline_feedback';
 
                     // Refresh the list of questions thru AJAX.
                     var promises = ajax.call([

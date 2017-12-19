@@ -17,7 +17,7 @@
 /**
  * Plugin capabilities
  *
- * @package    mod_threesixty
+ * @package    mod_threesixo
  * @copyright  Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
 
-    'mod/threesixty:addinstance' => array(
+    'mod/threesixo:addinstance' => array(
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
@@ -37,7 +37,7 @@ $capabilities = array(
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
     ),
 
-    'mod/threesixty:edititems' => array(
+    'mod/threesixo:edititems' => array(
         'riskbitmask' => RISK_SPAM | RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -47,7 +47,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/threesixty:editquestions' => array(
+    'mod/threesixo:editquestions' => array(
         'riskbitmask' => RISK_SPAM | RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -57,7 +57,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/threesixty:view' => array(
+    'mod/threesixo:view' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
@@ -69,7 +69,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/threesixty:viewreports' => array(
+    'mod/threesixo:viewreports' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -80,7 +80,7 @@ $capabilities = array(
         )
     ),
 
-    'mod/threesixty:receivemail' => array(
+    'mod/threesixo:receivemail' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,

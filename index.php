@@ -19,7 +19,7 @@
  *
  * @author Jun Pataleta
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package mod_threesixty
+ * @package mod_threesixo
  */
 
 require_once('../../config.php');
