@@ -33,15 +33,15 @@
 
     Example context (json):
     {
-        "threesixtyid": threesixtyid,
+        "threesixtyid": 1,
         "participants": [
             {
                 "name" : "Kurdapyo Dimagiba",
-                "actions" : "Aksyon!"
+                "statuspending" : true
             },
             {
                 "name" : "Kurdapya Dimagiba",
-                "actions" : "Aksyon na!"
+                "statusinprogress" : true
             }
         ]
     }
@@ -100,7 +100,7 @@
     </div>
 </div>
 {{#js}}
-    require(['mod_threesixo/view'], function(mod) {
-        new mod({{threesixtyid}});
+    require(['mod_threesixo/view'], function(View) {
+        new View({{threesixtyid}});
     });
 {{/js}}

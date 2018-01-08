@@ -23,7 +23,7 @@
  */
 
 if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.');    ///  It must be included from a Moodle page
+    die('Direct access to this script is forbidden.');    // It must be included from a Moodle page.
 }
 
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
@@ -34,9 +34,10 @@ class mod_threesixo_mod_form extends moodleform_mod {
     /**
      * Form definition.
      *
+     * @throws HTML_QuickForm_Error
      * @throws coding_exception
      */
-    function definition() {
+    public function definition() {
 
         $mform =& $this->_form;
 

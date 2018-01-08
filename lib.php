@@ -34,6 +34,8 @@ require_once($CFG->libdir.'/formslib.php');
  *
  * @param stdClass $threesixty
  * @return bool|int The ID of the created 360-degree feedback or false if the insert failed.
+ * @throws coding_exception
+ * @throws dml_exception
  */
 function threesixo_add_instance($threesixty) {
     global $DB;
@@ -60,6 +62,7 @@ function threesixo_add_instance($threesixty) {
  *
  * @param stdClass $threesixty
  * @return bool
+ * @throws dml_exception
  */
 function threesixo_update_instance($threesixty) {
     global $DB;
@@ -71,7 +74,7 @@ function threesixo_update_instance($threesixty) {
         $threesixty->site_after_submit = '';
     }
 
-    // save the feedback into the db
+    // Save the feedback into the db.
     return $DB->update_record("threesixo", $threesixty);
 }
 
@@ -80,22 +83,23 @@ function threesixo_update_instance($threesixty) {
  *
  * @param int $id The ID of the 360-degree feedback to be deleted.
  * @return bool
+ * @throws dml_exception
  */
 function threesixo_delete_instance($id) {
     global $DB;
 
     // Delete responses.
-    $DB->delete_records("threesixo_response", array("threesixo"=>$id));
+    $DB->delete_records("threesixo_response", ["threesixo" => $id]);
 
     // Delete statuses.
-    $DB->delete_records("threesixo_submission", array("threesixo"=>$id));
+    $DB->delete_records("threesixo_submission", ["threesixo" => $id]);
 
     // Delete items.
-    $DB->delete_records('threesixo_item', array('threesixo'=>$id));
+    $DB->delete_records('threesixo_item', ['threesixo' => $id]);
 
     // Delete events.
-    $DB->delete_records('event', array('modulename'=>'threesixo', 'instance'=>$id));
+    $DB->delete_records('event', ['modulename' => 'threesixo', 'instance' => $id]);
 
     // Finally, delete the 360-degree feedback.
-    return $DB->delete_records("threesixo", array("id"=>$id));
+    return $DB->delete_records("threesixo", ["id" => $id]);
 }

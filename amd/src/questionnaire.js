@@ -241,7 +241,7 @@ define(['jquery',
      * @param {string} confirmationMessage
      * @param {number} threesixtyId
      * @param {number} toUser
-     * @param {number} responses
+     * @param {Array} responses
      * @param {boolean} finalise
      */
     function showConfirmationDialogue(title, confirmationMessage, threesixtyId, toUser, responses, finalise) {
