@@ -36,6 +36,7 @@
         "threesixtyid" : 1,
         "allitems": [
             {
+                "id": 1,
                 "question" : "Is reliable.",
                 "type" : "Rated",
                 "deletebutton" : true,
@@ -43,6 +44,7 @@
                 "movedownbutton" : true
             },
             {
+                "id": 2,
                 "question" : "Has high technical skills.",
                 "type" : "Rated",
                 "deletebutton" : "Delete",
@@ -50,6 +52,7 @@
                 "movedownbutton" : true
             },
             {
+                "id": 3,
                 "question" : "What can you say about him?",
                 "type" : "Comment",
                 "deletebutton" : "Delete",
@@ -105,7 +108,7 @@
     </div>
 </div>
 {{#js}}
-    require(['mod_threesixo/edit_items'], function(mod) {
-        new mod({{threesixtyid}});
+    require(['mod_threesixo/edit_items'], function(EditItems) {
+        new EditItems({{threesixtyid}});
     });
 {{/js}}

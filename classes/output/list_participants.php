@@ -25,6 +25,7 @@ namespace mod_threesixo\output;
 
 defined('MOODLE_INTERNAL') || die();
 
+use coding_exception;
 use mod_threesixo\api;
 use moodle_url;
 use renderable;
@@ -41,7 +42,7 @@ use templatable;
 class list_participants implements renderable, templatable {
 
     /** @var stdClass The 360 instance.  */
-    protected $threesixty;
+    protected $threesixo;
 
     /** @var int The user ID of the respondent. */
     protected $userid;
@@ -49,13 +50,15 @@ class list_participants implements renderable, templatable {
     /** @var array The array of participants for the 360 feedback, excluding the respondent. */
     protected $participants = [];
 
+    /** @var bool Whether the user has the capability to view reports. */
     protected $canviewreports = false;
 
     /**
      * list_participants constructor.
      * @param stdClass $threesixty The 360 instance.
      * @param int $userid The respondent's user ID.
-     * @param bool $init
+     * @param array $participants The array of participants for the 360 feedback, excluding the respondent.
+     * @param bool $canviewreports Whether the user has the capability to view reports.
      */
     public function __construct($threesixty, $userid, $participants, $canviewreports = false) {
         $this->userid = $userid;
@@ -72,6 +75,7 @@ class list_participants implements renderable, templatable {
      *
      * @param renderer_base $output Used to do a final render of any components that need to be rendered for export.
      * @return stdClass|array
+     * @throws coding_exception
      */
     public function export_for_template(renderer_base $output) {
         $data = new stdClass();

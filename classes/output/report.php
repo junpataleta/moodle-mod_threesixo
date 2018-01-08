@@ -61,6 +61,7 @@ class report implements renderable, templatable {
      * @param int $threesixtyid The 360 instance ID.
      * @param array $items List of items with the average rating/comments given to the user.
      * @param array $participants List of participants for the 360 activity.
+     * @throws \coding_exception
      */
     public function __construct($cmid, $threesixtyid, $items, $participants) {
         $this->threesixtyid = $threesixtyid;

@@ -25,6 +25,7 @@ namespace mod_threesixo\output;
 
 defined('MOODLE_INTERNAL') || die;
 
+use moodle_exception;
 use plugin_renderer_base;
 
 /**
@@ -40,6 +41,7 @@ class renderer extends plugin_renderer_base {
      *
      * @param list_participants $page
      * @return string html for the page
+     * @throws moodle_exception
      */
     public function render_list_participants($page) {
         $data = $page->export_for_template($this);
@@ -49,7 +51,7 @@ class renderer extends plugin_renderer_base {
     /**
      * @param questionnaire $page
      * @return bool|string
-     * @throws \moodle_exception
+     * @throws moodle_exception
      */
     public function render_questionnaire($page) {
         $data = $page->export_for_template($this);
@@ -59,7 +61,7 @@ class renderer extends plugin_renderer_base {
     /**
      * @param list_360_items $page
      * @return bool|string html for the page.
-     * @throws \moodle_exception
+     * @throws moodle_exception
      */
     public function render_list_360_items($page) {
         $data = $page->export_for_template($this);
@@ -69,7 +71,7 @@ class renderer extends plugin_renderer_base {
     /**
      * @param report $page
      * @return bool|string html for the page.
-     * @throws \moodle_exception
+     * @throws moodle_exception
      */
     public function render_report($page) {
         $data = $page->export_for_template($this);

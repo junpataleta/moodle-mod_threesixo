@@ -25,13 +25,10 @@ namespace mod_threesixo\output;
 
 defined('MOODLE_INTERNAL') || die();
 
-use renderable;
-use renderer_base;
-use templatable;
-use stdClass;
-use moodle_url;
+use dml_exception;
 use mod_threesixo\api;
-use html_writer;
+use renderer_base;
+use stdClass;
 
 /**
  * Class containing data for users that need to be given with 360 feedback.
@@ -45,6 +42,14 @@ class list_360_items implements \renderable, \templatable {
     private $threesixtyid;
     private $userid;
 
+    /**
+     * list_360_items constructor.
+     *
+     * @param int $cmid The context module ID.
+     * @param int $courseid The course ID.
+     * @param int $threesixtyid Thre 360-degree feedback instance ID.
+     * @throws dml_exception
+     */
     public function __construct($cmid, $courseid, $threesixtyid) {
         global $USER;
 
@@ -63,6 +68,8 @@ class list_360_items implements \renderable, \templatable {
      *
      * @param renderer_base $output Used to do a final render of any components that need to be rendered for export.
      * @return stdClass|array
+     * @throws \coding_exception
+     * @throws dml_exception
      */
     public function export_for_template(renderer_base $output) {
         $data = new stdClass();
@@ -83,7 +90,7 @@ class list_360_items implements \renderable, \templatable {
                 // Question type.
                 $listitem->type = $item->typetext;
 
-                // Action buttons column
+                // Action buttons column.
                 // Move up and move down button display flags.
                 $listitem->moveupbutton = false;
                 $listitem->movedownbutton = false;
@@ -98,7 +105,7 @@ class list_360_items implements \renderable, \templatable {
                     }
                 }
 
-                // Delete action
+                // Delete action.
                 $listitem->deletebutton = true;
 
                 $data->allitems[] = $listitem;
@@ -110,6 +117,8 @@ class list_360_items implements \renderable, \templatable {
 
     /**
      * Generate default records for the table threesixo_submission.
+     *
+     * @throws dml_exception
      */
     private function generate_360_feedback_statuses() {
         global $DB;

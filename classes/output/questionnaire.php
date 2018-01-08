@@ -25,7 +25,9 @@ namespace mod_threesixo\output;
 
 defined('MOODLE_INTERNAL') || die();
 
+use coding_exception;
 use core_user;
+use dml_exception;
 use mod_threesixo\api;
 use renderable;
 use renderer_base;
@@ -53,6 +55,8 @@ class questionnaire implements renderable, templatable {
      *
      * @param renderer_base $output Used to do a final render of any components that need to be rendered for export.
      * @return stdClass|array
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function export_for_template(renderer_base $output) {
         global $PAGE;

@@ -126,7 +126,7 @@
     <a class="btn btn-default" id="cancel-feedback" href="{{returnurl}}">{{#str}}cancel{{/str}}</a>
 </div>
 {{#js}}
-    require(['mod_threesixo/questionnaire'], function(mod) {
-        new mod();
+    require(['mod_threesixo/questionnaire'], function(Questionnaire) {
+        new Questionnaire();
     });
 {{/js}}
