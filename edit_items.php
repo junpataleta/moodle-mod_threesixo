@@ -64,7 +64,7 @@ $PAGE->set_heading($course->fullname);
 $PAGE->set_title($threesixty->name);
 
 echo $OUTPUT->header();
-/// Print the main part of the page.
+// Print the main part of the page.
 echo $OUTPUT->heading(format_string($threesixty->name));
 echo $OUTPUT->heading(get_string('edititems', 'mod_threesixo'), 3);
 

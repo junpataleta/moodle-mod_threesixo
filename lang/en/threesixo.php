@@ -84,6 +84,7 @@ $string['providefeedback'] = 'Provide feedback';
 $string['qtypecomment'] = 'Comment';
 $string['qtyperated'] = 'Rated';
 $string['questiontext'] = 'Question text';
+$string['questiontype'] = 'Question type';
 $string['ratings'] = 'Ratings';
 $string['responsessaved'] = 'Your responses have been saved.';
 $string['scaleagree'] = 'Agree';

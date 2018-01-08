@@ -15,11 +15,9 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_threesixo/questionnaire
+    @template mod_threesixo/report
 
-    Moodle template to the template library
-
-    The purpose of this template is build the entire page for the template library (by including smaller templates).
+    Renders the report page containing the feedback for a specific user.
 
     Classes required for JS:
     * none
@@ -28,31 +26,36 @@
     * none
 
     Context variables required for this template:
-    * status
-    * statusclass
-    * scalelabels
-    * ratedquestions
-    * scales
+    * userselect {Object} URL select context data
+    * activitylink {Object} Action link context data
+    * ratings {Array} List of rated questions and their average ratings.
+    * commentitems {Array} List of responses to the comment-type questions.
 
     Example context (json):
     {
-        "status": "In progress",
-        "statusclass": "label-info",
-        "ratedquestions": [
-            { "questionid" : 1, "question": "Treats co-workers with courtesy and respect." },
-            { "questionid" : 2, "question": "Has a positive attitude." },
-            { "questionid" : 3, "question": "Has initiative needed without relying on co-workers unnecessarily." },
-            { "questionid" : 4, "question": "Can capably lead projects effectively." },
-            { "questionid" : 5, "question": "Possesses strong technical skills for their position." }
+        "userselect": null,
+        "activitylink": null,
+        "ratings": [
+            {
+                "question": "Question 1",
+                "averagerating": 5,
+                "progresspercentage": 83.33
+            }
         ],
-        "scales": [
-            { "scale" : 1, "scalelabel": "1", "description": "Strongly disagree" },
-            { "scale" : 2, "scalelabel": "2", "description": "Disagree" },
-            { "scale" : 3, "scalelabel": "3", "description": "Somewhat disagree" },
-            { "scale" : 4, "scalelabel": "4", "description": "Somewhat agree" },
-            { "scale" : 5, "scalelabel": "5", "description": "Agree"},
-            { "scale" : 6, "scalelabel": "6", "description": "Strongly agree" },
-            { "scale" : 0, "scalelabel": "N/A", "description": "Not applicable" }
+        "commentitems": [
+            {
+                "question": "In which area do you think I need more improvement?",
+                "comments": [
+                    {
+                        "comment": "You should pay more attention to detail",
+                        "fromuser": "John Doe"
+                    },
+                    {
+                        "comment": "You're perfect for me!",
+                        "fromuser": "Jane Doe"
+                    }
+                ]
+            }
         ]
     }
 }}

@@ -1,14 +1,33 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Created by PhpStorm.
- * User: jun
- * Date: 15/02/16
- * Time: 3:19 PM
+ * Class containing the external API functions functions for the 360-degree feedback module.
+ *
+ * @package    mod_threesixo
+ * @copyright  2017 Jun Pataleta
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_threesixo;
+defined('MOODLE_INTERNAL') || die();
 
+use coding_exception;
 use context_module;
 use context_user;
+use dml_exception;
 use external_api;
 use external_description;
 use external_function_parameters;
@@ -16,8 +35,12 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use external_warnings;
+use invalid_parameter_exception;
 use mod_threesixo\output\list_participants;
+use moodle_exception;
 use moodle_url;
+use required_capability_exception;
+use restricted_context_exception;
 use stdClass;
 
 /**
@@ -25,11 +48,14 @@ use stdClass;
  *
  * The external API for the 360-degree feedback module.
  *
- * @package mod_threesixo
+ * @copyright  2017 Jun Pataleta
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class external extends external_api {
+
     /**
-     * Returns description of method parameters
+     * Parameter description for get_questions().
+     *
      * @return external_function_parameters
      */
     public static function get_questions_parameters() {
@@ -37,8 +63,11 @@ class external extends external_api {
     }
 
     /**
-     * The function itself
-     * @return string welcome message
+     * Fetches the questions from the 360-degree feedback question bank.
+     *
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function get_questions() {
         $warnings = [];
@@ -52,7 +81,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method result value
+     * Method results description for get_questions().
+     *
      * @return external_description
      */
     public static function get_questions_returns() {
@@ -74,8 +104,15 @@ class external extends external_api {
     }
 
     /**
-     * The function itself
-     * @return string welcome message
+     * Adds a question into the 360-degree feedback question bank.
+     *
+     * @param string $question The question text.
+     * @param int $type The question type.
+     * @return array
+     * @throws invalid_parameter_exception
+     * @throws required_capability_exception
+     * @throws restricted_context_exception
+     * @throws dml_exception
      */
     public static function add_question($question, $type) {
         global $USER;
@@ -102,7 +139,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method parameters
+     * Parameter description for add_question().
+     *
      * @return external_function_parameters
      */
     public static function add_question_parameters() {
@@ -113,7 +151,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method result value
+     * Method results description for add_question().
+     *
      * @return external_description
      */
     public static function add_question_returns() {
@@ -126,8 +165,16 @@ class external extends external_api {
     }
 
     /**
-     * The function itself
-     * @return string welcome message
+     * Updates a question in the 360-degree feedback question bank.
+     *
+     * @param int $id The question ID.
+     * @param string $question The question text.
+     * @param int $type The question type.
+     * @return array
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws required_capability_exception
+     * @throws restricted_context_exception
      */
     public static function update_question($id, $question, $type) {
         global $USER;
@@ -161,7 +208,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method parameters
+     * Parameter description for update_question().
+     *
      * @return external_function_parameters
      */
     public static function update_question_parameters() {
@@ -173,7 +221,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method result value
+     * Method results description for update_question().
+     *
      * @return external_description
      */
     public static function update_question_returns() {
@@ -190,6 +239,10 @@ class external extends external_api {
      *
      * @param int $id The question ID.
      * @return array
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws required_capability_exception
+     * @throws restricted_context_exception
      */
     public static function delete_question($id) {
         global $USER;
@@ -215,7 +268,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method parameters
+     * Parameter description for delete_question().
+     *
      * @return external_function_parameters
      */
     public static function delete_question_parameters() {
@@ -225,7 +279,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method result value
+     * Method results description for delete_question().
+     *
      * @return external_description
      */
     public static function delete_question_returns() {
@@ -238,9 +293,13 @@ class external extends external_api {
     }
 
     /**
-     * @param $threesixtyid
+     * Fetches the questions assigned to a 360-degree feedback instance.
+     *
+     * @param int $threesixtyid The 360-degree feedback ID.
      * @return array
-     * @throws \invalid_parameter_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
      */
     public static function get_items($threesixtyid) {
         $warnings = [];
@@ -255,7 +314,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method parameters
+     * Parameter description for get_items().
+     *
      * @return external_function_parameters
      */
     public static function get_items_parameters() {
@@ -267,7 +327,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method result value
+     * Method results description for get_items().
+     *
      * @return external_description
      */
     public static function get_items_returns() {
@@ -292,9 +353,17 @@ class external extends external_api {
     }
 
     /**
-     * @param $threesixtyid
+     * Sets the questions for the 360 activity.
+     *
+     * @param int $threesixtyid The 360-degree feedback instance.
+     * @param int[] $questionids The list of question IDs from the question bank being assigned to the feedback instance.
      * @return array
-     * @throws \invalid_parameter_exception
+     * @throws moodle_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws required_capability_exception
+     * @throws restricted_context_exception
      */
     public static function set_items($threesixtyid, $questionids) {
         $warnings = [];
@@ -304,7 +373,7 @@ class external extends external_api {
         ]);
 
         // Validate context and capability.
-        list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
+        $cm = get_coursemodule_from_instance('threesixo', $threesixtyid);
         $cmid = $cm->id;
         $context = context_module::instance($cmid);
         self::validate_context($context);
@@ -320,7 +389,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method parameters
+     * Parameter description for set_items().
+     *
      * @return external_function_parameters
      */
     public static function set_items_parameters() {
@@ -335,7 +405,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method result value
+     * Method results description for set_items().
+     *
      * @return external_description
      */
     public static function set_items_returns() {
@@ -348,7 +419,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method parameters
+     * Parameter description for get_question_types().
+     *
      * @return external_function_parameters
      */
     public static function get_question_types_parameters() {
@@ -356,9 +428,10 @@ class external extends external_api {
     }
 
     /**
-     * @param $threesixtyid
+     * Fetches the list of question types supported by the 360-degree feedback activity.
+     *
      * @return array
-     * @throws \invalid_parameter_exception
+     * @throws coding_exception
      */
     public static function get_question_types() {
         $warnings = [];
@@ -370,7 +443,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method result value
+     * Method results description for get_question_types().
+     *
      * @return external_description
      */
     public static function get_question_types_returns() {
@@ -386,8 +460,15 @@ class external extends external_api {
     }
 
     /**
-     * The function itself
-     * @return string welcome message
+     * Deletes a question item from the 360 feedback activity.
+     *
+     * @param int $id The item ID.
+     * @return array
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     * @throws required_capability_exception
+     * @throws restricted_context_exception
      */
     public static function delete_item($id) {
         $warnings = [];
@@ -398,7 +479,7 @@ class external extends external_api {
 
         // Validate context and capability.
         $item = api::get_item_by_id($id);
-        list($course, $cm) = get_course_and_cm_from_instance($item->threesixo, 'threesixo');
+        $cm = get_coursemodule_from_instance('threesixo', $item->threesixo);
         $cmid = $cm->id;
         $context = context_module::instance($cmid);
         self::validate_context($context);
@@ -414,7 +495,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method parameters
+     * Parameter description for delete_item().
+     *
      * @return external_function_parameters
      */
     public static function delete_item_parameters() {
@@ -426,7 +508,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method result value
+     * Method results description for delete_item().
+     *
      * @return external_description
      */
     public static function delete_item_returns() {
@@ -441,7 +524,13 @@ class external extends external_api {
     /**
      * Move an item up.
      *
+     * @param int $id The item ID.
      * @return array
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     * @throws required_capability_exception
+     * @throws restricted_context_exception
      */
     public static function move_item_up($id) {
         $warnings = [];
@@ -452,7 +541,7 @@ class external extends external_api {
 
         // Validate context and capability.
         $item = api::get_item_by_id($id);
-        list($course, $cm) = get_course_and_cm_from_instance($item->threesixo, 'threesixo');
+        $cm = get_coursemodule_from_instance('threesixo', $item->threesixo);
         $cmid = $cm->id;
         $context = context_module::instance($cmid);
         self::validate_context($context);
@@ -471,7 +560,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method parameters
+     * Parameter description for move_item_up().
+     *
      * @return external_function_parameters
      */
     public static function move_item_up_parameters() {
@@ -483,7 +573,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method result value
+     * Method results description for move_item_up().
+     *
      * @return external_description
      */
     public static function move_item_up_returns() {
@@ -498,7 +589,13 @@ class external extends external_api {
     /**
      * Move an item down.
      *
+     * @param int $id The item ID.
      * @return array
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     * @throws required_capability_exception
+     * @throws restricted_context_exception
      */
     public static function move_item_down($id) {
         $warnings = [];
@@ -509,7 +606,7 @@ class external extends external_api {
 
         // Validate context and capability.
         $item = api::get_item_by_id($id);
-        list($course, $cm) = get_course_and_cm_from_instance($item->threesixo, 'threesixo');
+        $cm = get_coursemodule_from_instance('threesixo', $item->threesixo);
         $cmid = $cm->id;
         $context = context_module::instance($cmid);
         self::validate_context($context);
@@ -528,7 +625,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method parameters
+     * Parameter description for move_item_down().
+     *
      * @return external_function_parameters
      */
     public static function move_item_down_parameters() {
@@ -540,7 +638,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method result value
+     * Method results description for move_item_down().
+     *
      * @return external_description
      */
     public static function move_item_down_returns() {
@@ -555,7 +654,13 @@ class external extends external_api {
     /**
      * Decline a feedback.
      *
+     * @param int $statusid The submission ID.
+     * @param string $reason The reason why the feedback is being declined.
      * @return array
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     * @throws restricted_context_exception
      */
     public static function decline_feedback($statusid, $reason) {
         $warnings = [];
@@ -570,7 +675,7 @@ class external extends external_api {
 
         // Validate context.
         $submission = api::get_submission($statusid);
-        list($course, $cm) = get_course_and_cm_from_instance($submission->threesixo, 'threesixo');
+        $cm = get_coursemodule_from_instance('threesixo', $submission->threesixo);
         $cmid = $cm->id;
         $context = context_module::instance($cmid);
         self::validate_context($context);
@@ -583,20 +688,22 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method parameters
+     * Parameter description for decline_feedback().
+     *
      * @return external_function_parameters
      */
     public static function decline_feedback_parameters() {
         return new external_function_parameters(
             [
-                'statusid' => new external_value(PARAM_INT, 'The item ID.'),
+                'statusid' => new external_value(PARAM_INT, 'The submission ID.'),
                 'declinereason' => new external_value(PARAM_TEXT, 'The reason for declining the feedback request.', VALUE_DEFAULT)
             ]
         );
     }
 
     /**
-     * Returns description of method result value
+     * Method results description for decline_feedback().
+     *
      * @return external_description
      */
     public static function decline_feedback_returns() {
@@ -609,9 +716,15 @@ class external extends external_api {
     }
 
     /**
-     * @param $threesixtyid
+     * Fetches template data for the list participants the user will provide feedback to.
+     *
+     * @param int $threesixtyid The 360-degree feedback instance ID.
      * @return array
-     * @throws \invalid_parameter_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     * @throws restricted_context_exception
      */
     public static function data_for_participant_list($threesixtyid) {
         global $PAGE, $USER;
@@ -637,7 +750,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method parameters
+     * Parameter description for data_for_participant_list().
+     *
      * @return external_function_parameters
      */
     public static function data_for_participant_list_parameters() {
@@ -649,7 +763,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method result value
+     * Method results description for data_for_participant_list().
+     *
      * @return external_description
      */
     public static function data_for_participant_list_returns() {
@@ -677,13 +792,14 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method parameters
+     * Parameter description for save_responses().
+     *
      * @return external_function_parameters
      */
     public static function save_responses_parameters() {
         return new external_function_parameters(
             [
-                'threesixtyid' =>  new external_value(PARAM_INT, 'The 360-degree feedback identifier.'),
+                'threesixtyid' => new external_value(PARAM_INT, 'The 360-degree feedback identifier.'),
                 'touserid' => new external_value(PARAM_INT, 'The user identifier for the feedback subject.'),
                 'responses' => new external_multiple_structure(
                     new external_value(PARAM_TEXT, 'The response value with the key as the item ID.')
@@ -694,14 +810,24 @@ class external extends external_api {
     }
 
     /**
-     * The function itself
-     * @return string welcome message
+     * Save a user's responses to the feedback questions for another user.
+     *
+     * @param int $threesixtyid The 360-degree feedback instance ID.
+     * @param int $touserid The recipient of the feedback responses.
+     * @param array $responses The responses data.
+     * @param bool $complete Whether to mark the submission as complete.
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     * @throws restricted_context_exception
      */
     public static function save_responses($threesixtyid, $touserid, $responses, $complete) {
         global $USER;
         $warnings = [];
 
-        list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
+        $cm = get_coursemodule_from_instance('threesixo', $threesixtyid);
         $cmid = $cm->id;
         $context = context_module::instance($cmid);
         self::validate_context($context);
@@ -747,7 +873,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method result value
+     * Method results description for save_responses().
+     *
      * @return external_description
      */
     public static function save_responses_returns() {
@@ -761,13 +888,14 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method parameters
+     * Parameter description for get_responses().
+     *
      * @return external_function_parameters
      */
     public static function get_responses_parameters() {
         return new external_function_parameters(
             [
-                'threesixtyid' =>  new external_value(PARAM_INT, 'The 360-degree feedback identifier.'),
+                'threesixtyid' => new external_value(PARAM_INT, 'The 360-degree feedback identifier.'),
                 'fromuserid' => new external_value(PARAM_INT, 'The user identifier of the respondent.'),
                 'touserid' => new external_value(PARAM_INT, 'The user identifier for the feedback subject.'),
             ]
@@ -775,13 +903,21 @@ class external extends external_api {
     }
 
     /**
-     * The function itself
-     * @return string welcome message
+     * Fetches the user's responses to a feedback for a specific user.
+     *
+     * @param int $threesixtyid The 360-degree feedback ID.
+     * @param int $fromuserid The ID of the user who is responding to the feedback.
+     * @param int $touserid The user ID of the recipient of the feedback.
+     * @return array
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     * @throws restricted_context_exception
      */
     public static function get_responses($threesixtyid, $fromuserid, $touserid) {
         $warnings = [];
 
-        list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
+        $cm = get_coursemodule_from_instance('threesixo', $threesixtyid);
         $cmid = $cm->id;
         $context = context_module::instance($cmid);
         self::validate_context($context);
@@ -808,7 +944,8 @@ class external extends external_api {
     }
 
     /**
-     * Returns description of method result value
+     * Method results description for get_responses().
+     *
      * @return external_description
      */
     public static function get_responses_returns() {

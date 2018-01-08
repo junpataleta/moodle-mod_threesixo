@@ -1,33 +1,69 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Class for performing DB actions for the mod_threesixo activity module.
+ *
+ * @package    mod_threesixo
+ * @copyright  2017 Jun Pataleta
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 namespace mod_threesixo;
+defined('MOODLE_INTERNAL') || die();
 
+use coding_exception;
 use context_module;
+use dml_exception;
 use moodle_exception;
 use moodle_url;
 use stdClass;
 
+/**
+ * Class for performing DB actions for the mod_threesixo activity module.
+ *
+ * @copyright  2017 Jun Pataleta
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class api {
-    const TYPE_DEFAULT = 0;
-    const TYPE_360 = 1;
 
+    /** @const Rated question type. */
     const QTYPE_RATED = 0;
+    /** @const Comment question type. */
     const QTYPE_COMMENT = 1;
 
+    /** @const Status when a user has not yet provided feedback to another user. */
     const STATUS_PENDING = 0;
+    /** @const Status when a user has begun providing feedback to another user. */
     const STATUS_IN_PROGRESS = 1;
+    /** @const Status when a user has completed providing feedback to another user. */
     const STATUS_COMPLETE = 2;
+    /** @const Status when a user has declined to provide feedback to another user. */
     const STATUS_DECLINED = 3;
 
-    const QBANK_MODE_DEFAULT = 0;
-    const QBANK_MODE_PICKER = 1;
-
+    /** @const Move a question item up. */
     const MOVE_UP = 1;
+    /** @const Move a question item down. */
     const MOVE_DOWN = 2;
 
+    /** @const Indicates all course participants regardless of role are the participants of the feedback activity. */
     const PARTICIPANT_ROLE_ALL = 0;
 
+    /** @const Indicates that the feedback instance is not yet ready to be completed by the participants. */
     const INSTANCE_NOT_READY = 0;
+    /** @const Indicates that the feedback instance is now ready to be completed by the participants. */
     const INSTANCE_READY = 1;
 
     /**
@@ -35,6 +71,7 @@ class api {
      *
      * @param int $threesixtyid The 360-degree feedback ID.
      * @return mixed
+     * @throws dml_exception
      */
     public static function get_instance($threesixtyid) {
         global $DB;
@@ -43,17 +80,21 @@ class api {
     }
 
     /**
+     * Fetches the questions from the 360-degree feedback question bank.
+     *
      * @return array
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function get_questions() {
         global $DB;
         $questions = $DB->get_records('threesixo_question');
         foreach ($questions as $question) {
             switch ($question->type) {
-                case api::QTYPE_RATED:
+                case self::QTYPE_RATED:
                     $question->typeName = get_string('qtyperated', 'mod_threesixo');
                     break;
-                case api::QTYPE_COMMENT:
+                case self::QTYPE_COMMENT:
                     $question->typeName = get_string('qtypecomment', 'mod_threesixo');
                     break;
                 default:
@@ -65,8 +106,11 @@ class api {
     }
 
     /**
-     * @param stdClass $data
-     * @return bool|int
+     * Adds a question into the 360-degree feedback question bank.
+     *
+     * @param stdClass $data The question aata.
+     * @return bool|int The ID of the inserted question item. False, otherwise.
+     * @throws dml_exception
      */
     public static function add_question(stdClass $data) {
         global $DB;
@@ -74,8 +118,11 @@ class api {
     }
 
     /**
-     * @param stdClass $data
+     * Updates a question in the 360-degree feedback question bank.
+     *
+     * @param stdClass $data The updated question aata.
      * @return bool
+     * @throws dml_exception
      */
     public static function update_question(stdClass $data) {
         global $DB;
@@ -83,8 +130,11 @@ class api {
     }
 
     /**
-     * @param int $id
+     * Deletes a question from the 360-degree feedback question bank.
+     *
+     * @param int $id The question ID.
      * @return bool
+     * @throws dml_exception
      */
     public static function delete_question($id) {
         global $DB;
@@ -92,8 +142,12 @@ class api {
     }
 
     /**
-     * @param int $threesixtyid
-     * @return array
+     * Fetches the questions assigned to a 360-degree feedback instance.
+     *
+     * @param int $threesixtyid The 360-degree feedback ID.
+     * @return array The results.
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function get_items($threesixtyid) {
         global $DB;
@@ -117,10 +171,10 @@ class api {
         foreach ($items as $item) {
             // Question type.
             switch ($item->type) {
-                case api::QTYPE_RATED:
+                case self::QTYPE_RATED:
                     $qtype = get_string('qtyperated', 'threesixo');
                     break;
-                case api::QTYPE_COMMENT:
+                case self::QTYPE_COMMENT:
                     $qtype = get_string('qtypecomment', 'threesixo');
                     break;
                 default:
@@ -132,7 +186,13 @@ class api {
     }
 
     /**
-     * Fetches the user's responses.
+     * Fetches the user's responses to a feedback for a specific user.
+     *
+     * @param int $threesixtyid The 360-degree feedback ID.
+     * @param int $fromuser The ID of the user who is responding to the feedback.
+     * @param int $touser The user ID of the recipient of the feedback.
+     * @return array The list of the user's responses.
+     * @throws dml_exception
      */
     public static function get_responses($threesixtyid, $fromuser, $touser) {
         global $DB;
@@ -152,6 +212,8 @@ class api {
      * @param int $threesixtyid The 360 ID.
      * @param int[] $questionids The array of question IDs.
      * @return bool True on success. False, otherwise.
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function set_items($threesixtyid, $questionids) {
         global $DB;
@@ -209,6 +271,9 @@ class api {
 
     /**
      * Returns an array of question types with key as the question type and value as the question type text.
+     *
+     * @return array The list of question types.
+     * @throws coding_exception
      */
     public static function get_question_types() {
         return [
@@ -217,6 +282,13 @@ class api {
         ];
     }
 
+    /**
+     * Fetches an item from the 360-degree feedback instance by ID.
+     *
+     * @param int $itemid The item ID.
+     * @return stdClass The item data.
+     * @throws dml_exception
+     */
     public static function get_item_by_id($itemid) {
         global $DB;
         return $DB->get_record('threesixo_item', ['id' => $itemid], '*', MUST_EXIST);
@@ -227,6 +299,7 @@ class api {
      *
      * @param int $itemid The item ID.
      * @return bool
+     * @throws moodle_exception
      */
     public static function move_item_up($itemid) {
         return self::move_item($itemid, self::MOVE_UP);
@@ -237,6 +310,7 @@ class api {
      *
      * @param int $itemid The item ID.
      * @return bool
+     * @throws moodle_exception
      */
     public static function move_item_down($itemid) {
         return self::move_item($itemid, self::MOVE_DOWN);
@@ -292,6 +366,7 @@ class api {
      *
      * @param int $itemid The item ID.
      * @return bool
+     * @throws dml_exception
      */
     public static function delete_item($itemid) {
         global $DB;
@@ -309,6 +384,14 @@ class api {
         return false;
     }
 
+    /**
+     * Decline responding to a 360-degree feedback for a user.
+     *
+     * @param int $submissionid The submission ID.
+     * @param string $reason The reason why the feedback is being declined.
+     * @return bool
+     * @throws dml_exception
+     */
     public static function decline_feedback($submissionid, $reason) {
         global $DB;
 
@@ -329,10 +412,11 @@ class api {
     /**
      * Sets the current completion status of a 360-feedback status record.
      *
-     * @param int $submissionid
-     * @param int $status
-     * @param string $remarks
+     * @param int $submissionid The submission ID.
+     * @param int $status The status. See the STATUS_* constants.
+     * @param string $remarks Any comment about the completion. Usually used when the user declines to provide a feedback.
      * @return bool True if status record was successfully updated. False, otherwise.
+     * @throws dml_exception
      */
     public static function set_completion($submissionid, $status, $remarks = null) {
         global $DB;
@@ -355,6 +439,8 @@ class api {
      * @param int $userid The respondent's user ID.
      * @param bool $includeself Whether to include the respondent in the list.
      * @return array
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function get_participants($threesixtyid, $userid, $includeself = false) {
         global $DB;
@@ -375,14 +461,14 @@ class api {
             $role = $DB->get_field('threesixo', 'participantrole', ['id' => $threesixtyid]);
             if ($role != 0) {
                 $rolecondition = "u.id IN (
-                                  SELECT ra.userid 
+                                  SELECT ra.userid
                                     FROM {role_assignments} ra
                               INNER JOIN {threesixo} ff
                                       ON ra.roleid = ff.participantrole
                                          AND ff.id = :threesixtyid2
                               )
                               AND :user3 IN (
-                                  SELECT ra.userid 
+                                  SELECT ra.userid
                                     FROM {role_assignments} ra
                               INNER JOIN {threesixo} ff
                                       ON ra.roleid = ff.participantrole
@@ -401,9 +487,9 @@ class api {
             $usergroups = groups_get_user_groups($cm->course)['0'];
             list($sql, $params) = $DB->get_in_or_equal($usergroups, SQL_PARAMS_NAMED);
             $groupcondition = "u.id IN (
-                SELECT gm.userid 
+                SELECT gm.userid
                   FROM {groups_members} gm
-                 WHERE gm.groupid $sql 
+                 WHERE gm.groupid $sql
             )";
             $userssqlparams = array_merge($userssqlparams, $params);
             $wheres[] = $groupcondition;
@@ -427,16 +513,16 @@ class api {
                             fs.id AS statusid,
                             fs.status
                        FROM {user} u
-                 INNER JOIN {user_enrolments} ue 
+                 INNER JOIN {user_enrolments} ue
                          ON u.id = ue.userid
-                 INNER JOIN {enrol} e 
+                 INNER JOIN {enrol} e
                          ON e.id = ue.enrolid
-                 INNER JOIN {threesixo} f 
-                         ON f.course = e.courseid 
+                 INNER JOIN {threesixo} f
+                         ON f.course = e.courseid
                             AND f.id = :threesixtyid
                   LEFT JOIN {threesixo_submission} fs
-                         ON f.id = fs.threesixo 
-                            AND fs.touser = u.id 
+                         ON f.id = fs.threesixo
+                            AND fs.touser = u.id
                             AND fs.fromuser = :userid
                       $wherecondition
                    ORDER BY fs.status ASC,
@@ -451,6 +537,8 @@ class api {
      *
      * @param int $threesixtyid The 360 instance ID.
      * @param int $userid The user ID of the respondent.
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function generate_360_feedback_statuses($threesixtyid, $userid) {
         global $DB;
@@ -464,14 +552,14 @@ class api {
         ];
         if ($role != 0) {
             $rolecondition = "AND u.id IN (
-                                  SELECT ra.userid 
+                                  SELECT ra.userid
                                     FROM {role_assignments} ra
                               INNER JOIN {threesixo} ff
                                       ON ra.roleid = ff.participantrole
                                          AND ff.id = :threesixtyid2
                               )
                               AND :fromuser3 IN (
-                                  SELECT ra.userid 
+                                  SELECT ra.userid
                                     FROM {role_assignments} ra
                               INNER JOIN {threesixo} ff
                                       ON ra.roleid = ff.participantrole
@@ -490,9 +578,9 @@ class api {
             if (!empty($usergroups)) {
                 list($sql, $groupparams) = $DB->get_in_or_equal($usergroups, SQL_PARAMS_NAMED);
                 $groupcondition = "AND u.id IN (
-                            SELECT gm.userid 
+                            SELECT gm.userid
                               FROM {groups_members} gm
-                             WHERE gm.groupid $sql 
+                             WHERE gm.groupid $sql
                         )";
                 $params = array_merge($params, $groupparams);
             }
@@ -510,7 +598,7 @@ class api {
                                     AND u.id NOT IN (
                                         SELECT fs.touser
                                           FROM {threesixo_submission} fs
-                                         WHERE fs.threesixo = f.id 
+                                         WHERE fs.threesixo = f.id
                                                AND fs.fromuser = :fromuser2
                                     )
                                     $rolecondition
@@ -534,6 +622,8 @@ class api {
      * @param int $userid The user ID.
      * @param context_module $context
      * @return bool|string True if the user can participate. An error message if not.
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function can_respond($threesixtyorid, $userid, context_module $context = null) {
         global $DB;
@@ -583,18 +673,20 @@ class api {
      *
      * @param context_module $context
      * @return bool
+     * @throws coding_exception
      */
     public static function can_view_reports(context_module $context) {
         return has_capability('mod/threesixo:viewreports', $context);
     }
 
     /**
-     * Retrieves the submission record of a respondent's feedback to another user.
+     * Retrieves the submission record of a respondent's feedback to another user by submission ID.
      *
      * @param int $id The submission ID.
      * @param int $fromuser The respondent's ID.
      * @param string $fields The fields to be retrieved for the submission.
      * @return mixed
+     * @throws dml_exception
      */
     public static function get_submission($id, $fromuser = 0, $fields = '*') {
         global $DB;
@@ -607,6 +699,15 @@ class api {
         return $DB->get_record('threesixo_submission', $params, $fields, MUST_EXIST);
     }
 
+    /**
+     * Retrieves the submission record of a respondent's feedback to another user by instance ID, respondent and feedback recipient.
+     *
+     * @param int $threesixtyid The 360-degree feedback instance ID.
+     * @param int $fromuser The respondent's user ID.
+     * @param int $touser The feedback recipient's user ID.
+     * @return stdClass
+     * @throws dml_exception
+     */
     public static function get_submission_by_params($threesixtyid, $fromuser, $touser) {
         global $DB;
         return $DB->get_record('threesixo_submission', [
@@ -620,6 +721,7 @@ class api {
      * Get scales for rated questions.
      *
      * @return array
+     * @throws coding_exception
      */
     public static function get_scales() {
 
@@ -661,16 +763,25 @@ class api {
         return [$s1, $s2, $s3, $s4, $s5, $s6, $s0];
     }
 
+    /**
+     * Save a user's responses to the feedback questions for another user.
+     *
+     * @param int $threesixty The 360-degree feedback ID.
+     * @param int $touser The recipient of the feedback responses.
+     * @param array $responses The responses data.
+     * @return bool|int
+     * @throws dml_exception
+     */
     public static function save_responses($threesixty, $touser, $responses) {
         global $DB, $USER;
 
-        $fromuser = $USER->id; 
+        $fromuser = $USER->id;
         $savedresponses = $DB->get_records('threesixo_response', [
             'threesixo' => $threesixty,
             'fromuser' => $fromuser,
             'touser' => $touser,
         ]);
-        
+
         $result = true;
         foreach ($responses as $key => $value) {
             if ($key == 0) {
@@ -682,8 +793,8 @@ class api {
                     $response = $savedresponse;
                     break;
                 }
-            } 
-            
+            }
+
             if (empty($response->id)) {
                 $response->threesixo = $threesixty;
                 $response->item = $key;
@@ -703,10 +814,11 @@ class api {
     /**
      * Anonymises the responses for a feedback submission. This is simply done by setting the fromuser field to 0.
      *
-     * @param $threesixtyid
-     * @param $fromuser
-     * @param $touser
+     * @param int $threesixtyid The 360-degree feedback ID.
+     * @param int $fromuser The respondent.
+     * @param int $touser The recipient of the feedback.
      * @return bool
+     * @throws dml_exception
      */
     public static function anonymise_responses($threesixtyid, $fromuser, $touser) {
         global $DB;
@@ -728,6 +840,15 @@ class api {
         return $DB->execute($updatesql, $params);
     }
 
+    /**
+     * Fetches the feedback data for a user.
+     *
+     * @param int $threesixtyid The 360-degree feedback ID.
+     * @param int $touser The recipient of the feedback.
+     * @return array The array of feedback responses for each item in the 360-degree feedback instance.
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public static function get_feedback_for_user($threesixtyid, $touser) {
         global $DB;
 
@@ -737,7 +858,7 @@ class api {
         ];
         $responses = $DB->get_records('threesixo_response', $params, 'item ASC', 'id, item, fromuser, value');
 
-        $items = api::get_items($threesixtyid);
+        $items = self::get_items($threesixtyid);
         foreach ($items as $item) {
             if ($item->type == self::QTYPE_RATED) {
                 $ratings = [];
@@ -786,6 +907,7 @@ class api {
      *
      * @param stdClass|int $threesixtyorid The 360 object or ID.
      * @return bool
+     * @throws dml_exception
      */
     public static function is_ready($threesixtyorid) {
         global $DB;
@@ -810,11 +932,14 @@ class api {
      * Whether the user has the capability to edit items.
      *
      * @param int $threesixtyid The 360 instance ID.
+     * @param context_module $context
      * @return bool
+     * @throws coding_exception
+     * @throws moodle_exception
      */
     public static function can_edit_items($threesixtyid, $context = null) {
         if (empty($context)) {
-            list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
+            $cm = get_coursemodule_from_instance('threesixo', $threesixtyid);
             $context = context_module::instance($cm->id);
         }
         return has_capability('mod/threesixo:edititems', $context);
@@ -829,7 +954,7 @@ class api {
      */
     public static function make_ready($threesixtyid) {
         global $DB;
-        list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
+        $cm = get_coursemodule_from_instance('threesixo', $threesixtyid);
         $context = context_module::instance($cm->id);
         if (!self::can_edit_items($threesixtyid, $context)) {
             $url = new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]);
