@@ -17,7 +17,7 @@
 /**
  * Print the form to add or edit a 360-degree feedback instance.
  *
- * @author Jun Pataleta
+ * @copyright 2017 Jun Pataleta
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  * @package mod_threesixo
  */
@@ -29,6 +29,13 @@ if (!defined('MOODLE_INTERNAL')) {
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
 require_once($CFG->dirroot . '/mod/threesixo/lib.php');
 
+/**
+ * Class mod_threesixo_mod_form.
+ *
+ * @copyright 2017 Jun Pataleta
+ * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @package mod_threesixo
+ */
 class mod_threesixo_mod_form extends moodleform_mod {
 
     /**

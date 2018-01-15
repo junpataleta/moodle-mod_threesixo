@@ -34,6 +34,24 @@
 // Please do not forget to use upgrade_set_timeout()
 // before any action that may take longer time to finish.
 
+defined('MOODLE_INTERNAL') || die;
+
+/**
+ * Upgrade code for the 360-degree feedback activity plugin.
+ *
+ * @package    mod_threesixo
+ * @copyright  2017 Jun Pataleta
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/**
+ * mod_threesixo upgrade function.
+ *
+ * @param int $oldversion The old version number.
+ * @return bool
+ * @throws downgrade_exception
+ * @throws upgrade_exception
+ */
 function xmldb_threesixo_upgrade($oldversion) {
 
     if ($oldversion < 2017081601) {

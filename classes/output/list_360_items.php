@@ -37,9 +37,17 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class list_360_items implements \renderable, \templatable {
+
+    /** @var int The context module ID. */
     private $cmid;
+
+    /** @var int The course ID. */
     private $courseid;
+
+    /** @var int The 360-degree feedback instance ID. */
     private $threesixtyid;
+
+    /** @var int The user ID of the user giving the feedback. */
     private $userid;
 
     /**
@@ -47,7 +55,7 @@ class list_360_items implements \renderable, \templatable {
      *
      * @param int $cmid The context module ID.
      * @param int $courseid The course ID.
-     * @param int $threesixtyid Thre 360-degree feedback instance ID.
+     * @param int $threesixtyid The 360-degree feedback instance ID.
      * @throws dml_exception
      */
     public function __construct($cmid, $courseid, $threesixtyid) {

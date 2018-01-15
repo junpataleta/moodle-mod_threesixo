@@ -15,8 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Library of functions and constants for module threesixo
- * includes the main-part of threesixo-functions
+ * Library of functions and constants for module threesixo.
+ *
+ * Includes the main-part of threesixo-functions
  *
  * @package mod_threesixo
  * @copyright 2017 Jun Pataleta
