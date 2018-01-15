@@ -17,7 +17,7 @@
 /**
  * 360-degree feedback items management page.
  *
- * @author Jun Pataleta
+ * @copyright 2017 Jun Pataleta
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  * @package mod_threesixo
  */
