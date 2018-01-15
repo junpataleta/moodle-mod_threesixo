@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Class containing data for users that need to be given with 360 feedback.
+ * Class containing data to render the questionnaire page.
  *
  * @package    mod_threesixo
  * @copyright  2015 Jun Pataleta
@@ -35,14 +35,21 @@ use stdClass;
 use templatable;
 
 /**
- * Class containing data for users that need to be given with 360 feedback.
+ * Class containing data to render the questionnaire page.
  *
  * @copyright  2015 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class questionnaire implements renderable, templatable {
+
+    /** @var stdClass The feedback submission data. */
     protected $submission;
 
+    /**
+     * questionnaire constructor.
+     *
+     * @param stdClass $submission The feedback submission data.
+     */
     public function __construct($submission) {
         $this->submission = $submission;
     }

@@ -29,7 +29,7 @@ use moodle_exception;
 use plugin_renderer_base;
 
 /**
- * Renderer class for 360 users.
+ * Renderer class for the 360 module.
  *
  * @copyright  2015 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -49,6 +49,8 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Renders the questionnaire page.
+     *
      * @param questionnaire $page
      * @return bool|string
      * @throws moodle_exception
@@ -59,6 +61,8 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Renders the items list page for a 360-degree feedback instance.
+     *
      * @param list_360_items $page
      * @return bool|string html for the page.
      * @throws moodle_exception
@@ -69,6 +73,8 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Renders the reports page for a feedback recipient.
+     *
      * @param report $page
      * @return bool|string html for the page.
      * @throws moodle_exception

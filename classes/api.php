@@ -39,31 +39,31 @@ use stdClass;
  */
 class api {
 
-    /** @const Rated question type. */
+    /** Rated question type. */
     const QTYPE_RATED = 0;
-    /** @const Comment question type. */
+    /** Comment question type. */
     const QTYPE_COMMENT = 1;
 
-    /** @const Status when a user has not yet provided feedback to another user. */
+    /** Status when a user has not yet provided feedback to another user. */
     const STATUS_PENDING = 0;
-    /** @const Status when a user has begun providing feedback to another user. */
+    /** Status when a user has begun providing feedback to another user. */
     const STATUS_IN_PROGRESS = 1;
-    /** @const Status when a user has completed providing feedback to another user. */
+    /** Status when a user has completed providing feedback to another user. */
     const STATUS_COMPLETE = 2;
-    /** @const Status when a user has declined to provide feedback to another user. */
+    /** Status when a user has declined to provide feedback to another user. */
     const STATUS_DECLINED = 3;
 
-    /** @const Move a question item up. */
+    /** Move a question item up. */
     const MOVE_UP = 1;
-    /** @const Move a question item down. */
+    /** Move a question item down. */
     const MOVE_DOWN = 2;
 
-    /** @const Indicates all course participants regardless of role are the participants of the feedback activity. */
+    /** Indicates all course participants regardless of role are the participants of the feedback activity. */
     const PARTICIPANT_ROLE_ALL = 0;
 
-    /** @const Indicates that the feedback instance is not yet ready to be completed by the participants. */
+    /** Indicates that the feedback instance is not yet ready to be completed by the participants. */
     const INSTANCE_NOT_READY = 0;
-    /** @const Indicates that the feedback instance is now ready to be completed by the participants. */
+    /** Indicates that the feedback instance is now ready to be completed by the participants. */
     const INSTANCE_READY = 1;
 
     /**
