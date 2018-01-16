@@ -11,6 +11,6 @@
     "grunt-load-gruntfile": "0.0.2"
   },
   "engines": {
-    "node": ">=4"
+    "node": "8.9"
   }
 }
