@@ -802,7 +802,8 @@ class api {
                 $response->fromuser = $fromuser;
                 $response->value = $value;
                 $response->salt = '';
-                $result &= $DB->insert_record('threesixo_response', $response);
+                $id = $DB->insert_record('threesixo_response', $response);
+                $result &= !empty($id);
             } else {
                 $response->value = $value;
                 $result &= $DB->update_record('threesixo_response', $response);
