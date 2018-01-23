@@ -955,7 +955,7 @@ class external extends external_api {
                     new external_single_structure(
                         [
                             'id' => new external_value(PARAM_INT, 'The response ID.'),
-                            'item' => new external_value(PARAM_TEXT, 'The item ID for the response.'),
+                            'item' => new external_value(PARAM_INT, 'The item ID for the response.'),
                             'value' => new external_value(PARAM_TEXT, 'The the value for the response.'),
                         ]
                     )
