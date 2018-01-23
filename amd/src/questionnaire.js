@@ -67,7 +67,7 @@ define(['jquery',
                             options.each(function() {
                                 // Mark selected option as selected.
                                 var selected = $(this).find('label');
-                                if (selected.data('value') === response.value) {
+                                if (selected.data('value') == response.value) {
                                     selected.removeClass('label-default');
                                     selected.removeClass('label-info');
                                     selected.addClass('label-success');
