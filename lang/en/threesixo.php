@@ -50,6 +50,7 @@ $string['errorcannotupdateitem'] = 'Cannot update the 360° feedback item.';
 $string['erroritemnotfound'] = 'The 360° feedback item was not found.';
 $string['errornocaptoedititems'] = 'Sorry, but you don\'t have the capability to edit 360° feedback items.';
 $string['errornotenrolled'] = 'You need to be enrolled in this course in order to be able to participate in this 360° feedback activity.';
+$string['errornotingroup'] = 'You need to be in a group in order to be able to participate in this 360° feedback activity. Please contact your course administrator.';
 $string['errornothingtodecline'] = 'There is no feedback to decline to.';
 $string['errorresponsesavefailed'] = 'An error has occured while the responses are being saved. Please try again later.';
 $string['feedbacksurvey'] = 'Feedback survey for {$a}';
