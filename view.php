@@ -71,13 +71,17 @@ if ($instanceready) {
     }
 
     \mod_threesixo\api::generate_360_feedback_statuses($threesixty->id, $USER->id);
-    $participants = \mod_threesixo\api::get_participants($threesixty->id, $USER->id);
-    $canviewreports = \mod_threesixo\api::can_view_reports($context);
+    try {
+        $participants = \mod_threesixo\api::get_participants($threesixty->id, $USER->id);
+        $canviewreports = \mod_threesixo\api::can_view_reports($context);
 
-    // 360-degree feedback To-do list.
-    $memberslist = new mod_threesixo\output\list_participants($threesixty, $USER->id, $participants, $canviewreports);
-    $memberslistoutput = $PAGE->get_renderer('mod_threesixo');
-    echo $memberslistoutput->render($memberslist);
+        // 360-degree feedback To-do list.
+        $memberslist = new mod_threesixo\output\list_participants($threesixty, $USER->id, $participants, $canviewreports);
+        $memberslistoutput = $PAGE->get_renderer('mod_threesixo');
+        echo $memberslistoutput->render($memberslist);
+    } catch (moodle_exception $e) {
+        \core\notification::error($e->getMessage());
+    }
 
 } else {
     \core\notification::error(get_string('instancenotready', 'mod_threesixo'));

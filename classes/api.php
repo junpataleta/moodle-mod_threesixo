@@ -441,6 +441,7 @@ class api {
      * @return array
      * @throws coding_exception
      * @throws dml_exception
+     * @throws moodle_exception
      */
     public static function get_participants($threesixtyid, $userid, $includeself = false) {
         global $DB;
@@ -485,6 +486,9 @@ class api {
         $groupmode = groups_get_activity_groupmode($cm);
         if ($groupmode != NOGROUPS && !has_capability('moodle/site:accessallgroups', $context)) {
             $usergroups = groups_get_user_groups($cm->course)['0'];
+            if (empty($usergroups)) {
+                throw new moodle_exception('errornotingroup', 'mod_threesixo');
+            }
             list($sql, $params) = $DB->get_in_or_equal($usergroups, SQL_PARAMS_NAMED);
             $groupcondition = "u.id IN (
                 SELECT gm.userid
