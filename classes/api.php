@@ -507,7 +507,7 @@ class api {
             }
         }
 
-        $userssql = "SELECT u.id AS userid,
+        $userssql = "SELECT DISTINCT u.id AS userid,
                             u.firstname,
                             u.lastname,
                             u.firstnamephonetic,
