@@ -24,9 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2017011600;        // The current module version (Date: YYYYMMDDXX)
+$plugin->version   = 2018012800;        // The current module version (Date: YYYYMMDDXX)
 $plugin->requires  = 2017110800.00;     // Requires this Moodle version.
 $plugin->component = 'mod_threesixo';   // Full name of the plugin (used for diagnostics).
 $plugin->cron      = 0;
-$plugin->release = 'v3.5-r3';
+$plugin->release = 'v3.5-r4';
 $plugin->maturity = MATURITY_ALPHA;
