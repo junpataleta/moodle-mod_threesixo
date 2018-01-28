@@ -34,6 +34,14 @@
 // Please do not forget to use upgrade_set_timeout()
 // before any action that may take longer time to finish.
 
+/**
+ * Upgrade code for the 360-degree feedback activity plugin.
+ *
+ * @package   mod_threesixo
+ * @copyright 2017 Jun Pataleta
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die;
 
 /**
