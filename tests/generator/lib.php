@@ -23,6 +23,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_threesixo\api;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -42,6 +44,49 @@ class mod_threesixo_generator extends testing_module_generator {
             $record->timemodified = time();
         }
 
-        return parent::create_instance($record, (array)$options);
+        $threesixo = parent::create_instance($record, (array)$options);
+
+        // Generate sample questions for this instance.
+        $ratedquestions = [
+            'Treats co-workers with courtesy and respect.',
+            'Has a positive attitude.',
+            'Has initiative needed without relying on co-workers unnecessarily.',
+            'Can capably lead projects effectively.',
+            'Possesses strong technical skills for their position.',
+            'Appears to be efficient and well organised.',
+            'Delivers on their commitments.',
+            'Contributes to the successful functioning of the team.',
+            'Has good communication skills both verbal and written.',
+            'Expresses thoughts, opinions, and ideas, in meetings and discussions.',
+            'Explains ideas clearly.',
+            'Makes an effort to listen and tries to understand other people\'s ideas.'
+        ];
+        $commentquestions = [
+            'What positive comments can you give me?',
+            'What are some things you encourage me to focus on?'
+        ];
+        $questions = [];
+        foreach ($ratedquestions as $question) {
+            $questions[] = (object)[
+                'question' => $question,
+                'type' => api::QTYPE_RATED
+            ];
+        }
+        foreach ($commentquestions as $question) {
+            $questions[] = (object)[
+                'question' => $question,
+                'type' => api::QTYPE_COMMENT
+            ];
+        }
+        $questionids = [];
+        foreach ($questions as $question) {
+            $questionids[] = api::add_question($question);
+        }
+        // Assign questions for this instance.
+        api::set_items($threesixo->id, $questionids);
+        // Make this instance ready to the users.
+        api::make_ready($threesixo->id);
+
+        return $threesixo;
     }
 }
