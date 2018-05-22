@@ -170,17 +170,7 @@ class api {
         $items = $DB->get_records_sql($sql, $params);
         foreach ($items as $item) {
             // Question type.
-            switch ($item->type) {
-                case self::QTYPE_RATED:
-                    $qtype = get_string('qtyperated', 'threesixo');
-                    break;
-                case self::QTYPE_COMMENT:
-                    $qtype = get_string('qtypecomment', 'threesixo');
-                    break;
-                default:
-                    $qtype = '';
-            }
-            $item->typetext = $qtype;
+            $item->typetext = helper::get_question_type_text($item->type);
         }
         return $items;
     }

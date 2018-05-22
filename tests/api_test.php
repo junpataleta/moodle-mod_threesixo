@@ -46,6 +46,7 @@ class mod_threesixo_api_testcase extends advanced_testcase {
     public function test_get_participants_with_multiple_enrol_methods() {
         global $CFG;
         $this->resetAfterTest();
+        $this->setAdminUser();
 
         $enrolmethods = ['manual', 'self'];
 
