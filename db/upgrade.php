@@ -61,12 +61,30 @@ defined('MOODLE_INTERNAL') || die;
  * @throws upgrade_exception
  */
 function xmldb_threesixo_upgrade($oldversion) {
+    global $DB;
+
+    $dbman = $DB->get_manager();
 
     if ($oldversion < 2017011100) {
         // Nothing to do here. Moodle Plugins site's just complaining about missing upgrade.php.
 
         // Savepoint reached.
         upgrade_mod_savepoint(true, 2017011100, 'threesixo');
+    }
+
+    if ($oldversion < 2018052601) {
+
+        // Define field with_self_review to be added to threesixo.
+        $table = new xmldb_table('threesixo');
+        $field = new xmldb_field('with_self_review', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'publish_responses');
+
+        // Conditionally launch add field with_self_review.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Threesixo savepoint reached.
+        upgrade_mod_savepoint(true, 2018052601, 'threesixo');
     }
 
     return true;

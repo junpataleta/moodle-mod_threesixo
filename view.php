@@ -66,13 +66,20 @@ if (\mod_threesixo\api::can_edit_items($threesixty->id, $context)) {
 
 if ($instanceready) {
     $canparticipate = mod_threesixo\api::can_respond($threesixty, $USER->id, $context);
+    // Whether to include self in the participants list.
+    $includeself = false;
     if ($canparticipate !== true) {
         \core\notification::warning($canparticipate);
+    } else {
+        // Include self on the list if you can give feedback to others and the instance allows self review.
+        $includeself = $threesixty->with_self_review;
+
+        // Generate statuses if you can respond to the feedback.
+        \mod_threesixo\api::generate_360_feedback_statuses($threesixty->id, $USER->id, $includeself);
     }
 
-    \mod_threesixo\api::generate_360_feedback_statuses($threesixty->id, $USER->id);
     try {
-        $participants = \mod_threesixo\api::get_participants($threesixty->id, $USER->id);
+        $participants = \mod_threesixo\api::get_participants($threesixty->id, $USER->id, $includeself);
         $canviewreports = \mod_threesixo\api::can_view_reports($context);
 
         // 360-degree feedback To-do list.
