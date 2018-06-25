@@ -40,6 +40,7 @@ $string['deleteitem'] = 'Delete item';
 $string['deletequestion'] = 'Delete question';
 $string['edititems'] = 'Edit 360° feedback items';
 $string['editquestion'] = 'Edit question';
+$string['enableselfreview'] = 'Enable self-review';
 $string['entercomment'] = 'Enter your comment here.';
 $string['error360notfound'] = '360° feedback not found.';
 $string['errorblankquestion'] = 'Required.';

@@ -531,34 +531,47 @@ class api {
      *
      * @param int $threesixtyid The 360 instance ID.
      * @param int $userid The user ID of the respondent.
+     * @param bool $includeself Whether to include self.
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function generate_360_feedback_statuses($threesixtyid, $userid) {
+    public static function generate_360_feedback_statuses($threesixtyid, $userid, $includeself = false) {
         global $DB;
 
         $role = $DB->get_field('threesixo', 'participantrole', ['id' => $threesixtyid]);
-        $rolecondition = '';
+        $wheres = [
+            'u.id NOT IN (
+                SELECT fs.touser
+                  FROM {threesixo_submission} fs
+                 WHERE fs.threesixo = f.id
+                       AND fs.fromuser = :fromuser2
+            )'
+        ];
         $params = [
             'threesixtyid' => $threesixtyid,
-            'fromuser' => $userid,
             'fromuser2' => $userid
         ];
+
+        if (!$includeself) {
+            $wheres[] = 'u.id <> :fromuser';
+            $params['fromuser'] = $userid;
+        }
+
         if ($role != 0) {
-            $rolecondition = "AND u.id IN (
-                                  SELECT ra.userid
-                                    FROM {role_assignments} ra
-                              INNER JOIN {threesixo} ff
-                                      ON ra.roleid = ff.participantrole
-                                         AND ff.id = :threesixtyid2
-                              )
-                              AND :fromuser3 IN (
-                                  SELECT ra.userid
-                                    FROM {role_assignments} ra
-                              INNER JOIN {threesixo} ff
-                                      ON ra.roleid = ff.participantrole
-                                         AND ff.id = :threesixtyid3
-                              )";
+            $wheres[] = "u.id IN (
+                          SELECT ra.userid
+                            FROM {role_assignments} ra
+                      INNER JOIN {threesixo} ff
+                              ON ra.roleid = ff.participantrole
+                                 AND ff.id = :threesixtyid2
+                      )
+                      AND :fromuser3 IN (
+                          SELECT ra.userid
+                            FROM {role_assignments} ra
+                      INNER JOIN {threesixo} ff
+                              ON ra.roleid = ff.participantrole
+                                 AND ff.id = :threesixtyid3
+                      )";
             $params['threesixtyid2'] = $threesixtyid;
             $params['threesixtyid3'] = $threesixtyid;
             $params['fromuser3'] = $userid;
@@ -566,12 +579,11 @@ class api {
 
         $cm = get_coursemodule_from_instance('threesixo', $threesixtyid);
         $groupmode = groups_get_activity_groupmode($cm);
-        $groupcondition = '';
         if ($groupmode != NOGROUPS) {
             $usergroups = groups_get_user_groups($cm->course)['0'];
             if (!empty($usergroups)) {
                 list($sql, $groupparams) = $DB->get_in_or_equal($usergroups, SQL_PARAMS_NAMED);
-                $groupcondition = "AND u.id IN (
+                $wheres[] = "u.id IN (
                             SELECT gm.userid
                               FROM {groups_members} gm
                              WHERE gm.groupid $sql
@@ -580,6 +592,7 @@ class api {
             }
         }
 
+        $whereclause = implode(' AND ', $wheres);
         $usersql = "SELECT DISTINCT u.id
                                FROM {user} u
                          INNER JOIN {user_enrolments} ue
@@ -588,15 +601,7 @@ class api {
                                  ON e.id = ue.enrolid
                          INNER JOIN {threesixo} f
                                  ON f.course = e.courseid AND f.id = :threesixtyid
-                              WHERE u.id <> :fromuser
-                                    AND u.id NOT IN (
-                                        SELECT fs.touser
-                                          FROM {threesixo_submission} fs
-                                         WHERE fs.threesixo = f.id
-                                               AND fs.fromuser = :fromuser2
-                                    )
-                                    $rolecondition
-                                    $groupcondition";
+                              WHERE {$whereclause}";
 
         if ($users = $DB->get_records_sql($usersql, $params)) {
             foreach ($users as $user) {
