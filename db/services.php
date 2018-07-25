@@ -123,14 +123,6 @@ $functions = [
         'ajax'          => true,
         'loginrequired' => false,
     ],
-    'mod_threesixo_submit_feedback' => [
-        'classname'     => 'mod_threesixo\external',
-        'methodname'    => 'submit_feedback',
-        'description'   => 'Submit feedback response.',
-        'type'          => 'write',
-        'ajax'          => true,
-        'loginrequired' => false,
-    ],
     'mod_threesixo_data_for_participant_list' => [
         'classname'     => 'mod_threesixo\external',
         'methodname'    => 'data_for_participant_list',
