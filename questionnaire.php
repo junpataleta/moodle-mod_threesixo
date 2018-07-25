@@ -58,7 +58,8 @@ if (\mod_threesixo\api::is_ready($threesixty)) {
         ];
 
         $contextheader = $OUTPUT->context_header($userheading, 3);
-        echo html_writer::div($contextheader, 'card card-block');
+        $container = html_writer::div($contextheader, 'card-body');
+        echo html_writer::div($container, 'card');
     }
 
     // Set status to in progress if pending.
