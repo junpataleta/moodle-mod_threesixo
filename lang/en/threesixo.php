@@ -80,6 +80,7 @@ $string['modulenameplural'] = '360° feedbacks';
 $string['moveitemdown'] = 'Move item down';
 $string['moveitemup'] = 'Move item up';
 $string['name'] = 'Name';
+$string['noitemsyet'] = 'The 360° feedback activity doesn\'t have items yet. Add items by clicking on "Edit 360° feedback items".';
 $string['notapplicableabbr'] = 'N/A';
 $string['participants'] = 'Participants';
 $string['placeholderquestion'] = "Enter question text";

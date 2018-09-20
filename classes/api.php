@@ -88,7 +88,7 @@ class api {
      */
     public static function get_questions() {
         global $DB;
-        $questions = $DB->get_records('threesixo_question');
+        $questions = $DB->get_records('threesixo_question', null, 'type ASC, question ASC');
         foreach ($questions as $question) {
             switch ($question->type) {
                 case self::QTYPE_RATED:
@@ -912,20 +912,38 @@ class api {
     public static function is_ready($threesixtyorid) {
         global $DB;
         $status = null;
-        $threesixtyid = null;
+        $threesixtyid = $threesixtyorid;
         if (is_object($threesixtyorid)) {
+            $threesixtyid = $threesixtyorid->id;
             if (isset($threesixtyorid->status)) {
                 $status = $threesixtyorid->status;
-            } else {
-                $threesixtyid = $threesixtyorid->id;
             }
-        } else {
-            $threesixtyid = $threesixtyorid;
         }
-        if (!empty($threesixtyid) && empty($status)) {
+
+        // Check if this instance already has items.
+        if (!self::has_items($threesixtyid)) {
+            // An instance is not yet ready if doesn't have any item yet.
+            return false;
+        }
+
+        // If it has items already, proceed to check the status.
+        if (empty($status)) {
             $status = $DB->get_field('threesixo', 'status', ['id' => $threesixtyid]);
         }
+
+        // An instance is ready if its status has been set to ready and it already has items.
         return $status == self::INSTANCE_READY;
+    }
+
+    /**
+     * Checks whether a given 360 instance already has items.
+     *
+     * @param int $threesixtyid The 360 instance ID.
+     * @return bool
+     */
+    public static function has_items($threesixtyid) {
+        global $DB;
+        return $DB->record_exists('threesixo_item', ['threesixo' => $threesixtyid]);
     }
 
     /**
@@ -956,9 +974,12 @@ class api {
         global $DB;
         $cm = get_coursemodule_from_instance('threesixo', $threesixtyid);
         $context = context_module::instance($cm->id);
+        $url = new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]);
         if (!self::can_edit_items($threesixtyid, $context)) {
-            $url = new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]);
             throw new moodle_exception('nocaptoedititems', 'mod_threesixo', $url);
+        }
+        if (!self::has_items($threesixtyid)) {
+            throw new moodle_exception('noitemsyet', 'mod_threesixo', $url);
         }
         return $DB->set_field('threesixo', 'status', self::INSTANCE_READY, ['id' => $threesixtyid]);
     }
