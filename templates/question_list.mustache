@@ -87,10 +87,10 @@
             </td>
             <td>
                 {{#pickerMode}}
-                    <button class="btn btn-link edit-question-button" id="edit-question-{{id}}" data-questionid="{{id}}" title="{{#str}}editquestion, mod_threesixo{{/str}}">
+                    <button class="btn btn-link edit-question-button" id="edit-question-{{id}}" data-threesixtyid="{{pickerMode}}" data-questionid="{{id}}" title="{{#str}}editquestion, mod_threesixo{{/str}}">
                         {{#pix }} t/edit, core, {{#str}}editquestion, mod_threesixo{{/str}} {{/pix}}
                     </button>
-                    <button class="btn btn-link delete-question-button" id="delete-question-{{id}}" data-questionid="{{id}}" title="{{#str}}deletequestion, mod_threesixo{{/str}}">
+                    <button class="btn btn-link delete-question-button" id="delete-question-{{id}}" data-threesixtyid="{{pickerMode}}" data-questionid="{{id}}" title="{{#str}}deletequestion, mod_threesixo{{/str}}">
                         {{#pix }} t/delete, core, {{#str}}deletequestion, mod_threesixo{{/str}} {{/pix}}
                     </button>
                 {{/pickerMode}}
