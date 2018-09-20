@@ -37,7 +37,7 @@
 }}
 <div class="container-fluid">
     <div class="row m-b-1" id="question-edit-form-container">
-        <button class="btn btn-default" id="btn-question-bank-add">
+        <button class="btn btn-default" id="btn-question-bank-add" data-threesixtyid="{{pickerMode}}">
             {{#pix }} t/add, core, {{#str}}addanewquestion, mod_threesixo{{/str}} {{/pix }}
         </button>
     </div>
@@ -48,7 +48,8 @@
 {{#js}}
     require(['jquery', 'mod_threesixo/question_bank'], function($, qb) {
         $("#btn-question-bank-add").click(function() {
-            qb.displayInputDialogue();
+            var id = $(this).data('threesixtyid');
+            qb.displayInputDialogue(id);
         });
     });
 {{/js}}

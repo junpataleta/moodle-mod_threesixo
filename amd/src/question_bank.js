@@ -25,16 +25,15 @@
  * @copyright  2016 Jun Pataleta <jun@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(
-    [
-        'jquery',
-        'core/templates',
-        'core/notification',
-        'core/ajax',
-        'core/str',
-        'core/modal_factory',
-        'core/modal_events'
-    ], function($, templates, notification, ajax, str, ModalFactory, ModalEvents) {
+define([
+    'jquery',
+    'core/templates',
+    'core/notification',
+    'core/ajax',
+    'core/str',
+    'core/modal_factory',
+    'core/modal_events'
+], function($, templates, notification, ajax, str, ModalFactory, ModalEvents) {
 
     // Private variables and functions.
     var selectedQuestionsOld,
@@ -53,9 +52,6 @@ define(
      */
     function getQuestionTypeOptions(selectedId) {
         var questionTypeOptions = [];
-        if (typeof selectedId === 'undefined') {
-            selectedId = false;
-        }
         // Get question type options.
         for (var key in questionTypes) {
             if (!questionTypes.hasOwnProperty(key)) {
@@ -66,10 +62,8 @@ define(
                 typeName: questionTypes[key]
             };
 
-            if (selectedId !== false) {
-                if (key === selectedId) {
-                    questionType.selected = true;
-                }
+            if (typeof selectedId !== 'undefined' && key == selectedId) {
+                questionType.selected = true;
             }
 
             questionTypeOptions.push(questionType);
@@ -79,53 +73,20 @@ define(
     }
 
     /**
-     * Refreshes the list of questions in the question bank.
+     * Loops over the list of questions and marks a question as checked if it belongs to the list of selected questions.
+     *
+     * @param {Object[]} questions The questions to be checked.
+     * @returns {Object[]} The list of checked questions.
      */
-    function refreshQuestionsList() {
-        // Get list of questions thru AJAX.
-        var promises = ajax.call([
-            {
-                methodname: 'mod_threesixo_get_questions',
-                args: {}
+    function checkQuestions(questions) {
+        for (var i in questions) {
+            var question = questions[i];
+            if (selectedQuestions.indexOf(questions[i].id) !== -1) {
+                question.checked = true;
             }
-        ]);
-        promises[0].done(function(response) {
-            questions = response.questions;
-            var data = {
-                pickerMode: threeSixtyId,
-                questions: checkQuestions(questions)
-            };
-
-            templates.render('mod_threesixo/question_list', data)
-                .done(function(compiledSource) {
-                    $("#questionListWrapper").html(compiledSource);
-                    bindItemActionEvents();
-                })
-                .fail(notification.exception);
-        }).fail(notification.exception);
+        }
+        return questions;
     }
-
-    var displayInputDialogue = function(questionId) {
-        str.get_string('addanewquestion', 'mod_threesixo').done(function(title) {
-            var data = {};
-
-            if (typeof questionId !== 'undefined') {
-                data.questionid = questionId;
-                for (var i in questions) {
-                    var question = questions[i];
-                    if (question.id === questionId) {
-                        data.question = question.question;
-                        data.type = question.type;
-                        break;
-                    }
-                }
-            }
-
-            data.questionTypes = getQuestionTypeOptions(data.type);
-            var body = templates.render('mod_threesixo/item_edit', data);
-            renderInputDialogue(title, body);
-        }).fail(notification.exception);
-    };
 
     /**
      * Renders the question input dialogue.
@@ -178,10 +139,12 @@ define(
                         return;
                     }
                     var qtype = $("#question-type-select").val();
+                    var threesixtyid = $("#threesixtyid").val();
 
                     var data = {
                         question: question,
-                        type: qtype
+                        type: qtype,
+                        threesixtyid: threesixtyid,
                     };
 
                     var method = 'mod_threesixo_add_question';
@@ -204,20 +167,34 @@ define(
     }
 
     /**
-     * Loops over the list of questions and marks a question as checked if it belongs to the list of selected questions.
+     * Function that displays the input dialogue.
      *
-     * @param {Object[]} questions The questions to be checked.
-     * @returns {Object[]} The list of checked questions.
+     * @param {Number} threesixtyId The 360 instance ID.
+     * @param {Number} questionId The question ID.
      */
-    function checkQuestions(questions) {
-        for (var i in questions) {
-            var question = questions[i];
-            if (selectedQuestions.indexOf(questions[i].id) !== -1) {
-                question.checked = true;
+    var displayInputDialogue = function(threesixtyId, questionId) {
+        str.get_string('addanewquestion', 'mod_threesixo').done(function(title) {
+            var data = {
+                threesixtyid: threesixtyId
+            };
+
+            if (typeof questionId !== 'undefined') {
+                data.questionid = questionId;
+                for (var i in questions) {
+                    var question = questions[i];
+                    if (question.id === questionId) {
+                        data.question = question.question;
+                        data.type = question.type;
+                        break;
+                    }
+                }
             }
-        }
-        return questions;
-    }
+
+            data.questionTypes = getQuestionTypeOptions(data.type);
+            var body = templates.render('mod_threesixo/item_edit', data);
+            renderInputDialogue(title, body);
+        }).fail(notification.exception);
+    };
 
     /**
      * Displays the question bank dialogue.
@@ -293,6 +270,67 @@ define(
     }
 
     /**
+     * Refreshes the list of questions in the question bank.
+     */
+    function refreshQuestionsList() {
+        // Get list of questions thru AJAX.
+        var promises = ajax.call([
+            {
+                methodname: 'mod_threesixo_get_questions',
+                args: {}
+            }
+        ]);
+        promises[0].done(function(response) {
+            questions = response.questions;
+            var data = {
+                pickerMode: threeSixtyId,
+                questions: checkQuestions(questions)
+            };
+
+            templates.render('mod_threesixo/question_list', data)
+                .done(function(compiledSource) {
+                    $("#questionListWrapper").html(compiledSource);
+                    bindItemActionEvents();
+                })
+                .fail(notification.exception);
+        }).fail(notification.exception);
+    }
+
+    /**
+     * Handles item deletion.
+     *
+     * @param {Number} questionId The question ID.
+     * @param {Number} threesixtyId The 360 instance ID.
+     */
+    function handleDeletion(questionId, threesixtyId) {
+        str.get_string('deletequestion', 'mod_threesixo').done(function(title) {
+            ModalFactory.create({
+                title: title,
+                body: str.get_string('confirmquestiondeletion', 'mod_threesixo'),
+                type: ModalFactory.types.CONFIRM
+            }).done(function(modal) {
+                modal.getRoot().on(ModalEvents.yes, function() {
+
+                    // Get list of questions thru AJAX.
+                    var promises = ajax.call([
+                        {
+                            methodname: 'mod_threesixo_delete_question',
+                            args: {
+                                id: questionId,
+                                threesixtyid: threesixtyId,
+                            }
+                        }
+                    ]);
+                    promises[0].done(function() {
+                        refreshQuestionsList();
+                    }).fail(notification.exception);
+                });
+                modal.show();
+            });
+        });
+    }
+
+    /**
      * Binds the event listeners to question items such as edit, delete, checking.
      */
     var bindItemActionEvents = function() {
@@ -310,37 +348,16 @@ define(
         });
 
         $(".edit-question-button").click(function() {
+            var threesixtyId = $(this).data('threesixtyid');
             var questionId = $(this).data('questionid');
-            displayInputDialogue(questionId);
+            displayInputDialogue(threesixtyId, questionId);
         });
 
         $(".delete-question-button").click(function() {
-            var deleteButton = this;
-            str.get_string('deletequestion', 'mod_threesixo').done(function(title) {
-                ModalFactory.create({
-                    title: title,
-                    body: str.get_string('confirmquestiondeletion', 'mod_threesixo'),
-                    type: ModalFactory.types.CONFIRM
-                }).done(function(modal) {
-                    modal.getRoot().on(ModalEvents.yes, function() {
-                        var questionId = deleteButton.getAttribute('data-questionid');
-
-                        // Get list of questions thru AJAX.
-                        var promises = ajax.call([
-                            {
-                                methodname: 'mod_threesixo_delete_question',
-                                args: {
-                                    id: questionId
-                                }
-                            }
-                        ]);
-                        promises[0].done(function() {
-                            refreshQuestionsList();
-                        }).fail(notification.exception);
-                    });
-                    modal.show();
-                });
-            });
+            var deleteButton = $(this);
+            var threesixtyId = deleteButton.data('threesixtyid');
+            var questionId = deleteButton.data('questionid');
+            handleDeletion(questionId, threesixtyId);
         });
     };
 

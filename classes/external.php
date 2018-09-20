@@ -108,21 +108,26 @@ class external extends external_api {
      *
      * @param string $question The question text.
      * @param int $type The question type.
+     * @param int $threesixtyid The 360 instance ID, for capability checking.
      * @return array
      * @throws invalid_parameter_exception
      * @throws required_capability_exception
      * @throws restricted_context_exception
      * @throws dml_exception
      */
-    public static function add_question($question, $type) {
-        global $USER;
-
+    public static function add_question($question, $type, $threesixtyid) {
         $warnings = [];
 
-        $params = external_api::validate_parameters(self::add_question_parameters(), ['question' => $question, 'type' => $type]);
+        $params = external_api::validate_parameters(self::add_question_parameters(), [
+            'question' => $question,
+            'type' => $type,
+            'threesixtyid' => $threesixtyid,
+        ]);
 
         // Validate context and capability.
-        $context = context_user::instance($USER->id);
+        $threesixtyid = $params['threesixtyid'];
+        $coursecm = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
+        $context = context_module::instance($coursecm[1]->id);
         self::validate_context($context);
 
         require_capability('mod/threesixo:editquestions', $context);
@@ -146,7 +151,8 @@ class external extends external_api {
     public static function add_question_parameters() {
         return new external_function_parameters([
             'question' => new external_value(PARAM_TEXT, 'The question text.'),
-            'type' => new external_value(PARAM_INT, 'The question type.')
+            'type' => new external_value(PARAM_INT, 'The question type.'),
+            'threesixtyid' => new external_value(PARAM_INT, 'The threesixty instance ID. For capability checking.'),
         ]);
     }
 
@@ -170,26 +176,28 @@ class external extends external_api {
      * @param int $id The question ID.
      * @param string $question The question text.
      * @param int $type The question type.
+     * @param int $threesixtyid The 360 instance ID, for capability checking.
      * @return array
      * @throws dml_exception
      * @throws invalid_parameter_exception
      * @throws required_capability_exception
      * @throws restricted_context_exception
      */
-    public static function update_question($id, $question, $type) {
-        global $USER;
-
+    public static function update_question($id, $question, $type, $threesixtyid) {
         $warnings = [];
 
         $params = external_api::validate_parameters(self::update_question_parameters(), [
                 'id' => $id,
                 'question' => $question,
-                'type' => $type
+                'type' => $type,
+                'threesixtyid' => $threesixtyid,
             ]
         );
 
         // Validate context and capability.
-        $context = context_user::instance($USER->id);
+        $threesixtyid = $params['threesixtyid'];
+        $coursecm = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
+        $context = context_module::instance($coursecm[1]->id);
         self::validate_context($context);
 
         require_capability('mod/threesixo:editquestions', $context);
@@ -216,7 +224,8 @@ class external extends external_api {
         return new external_function_parameters([
             'id' => new external_value(PARAM_INT, 'The question ID.'),
             'question' => new external_value(PARAM_TEXT, 'The question text.'),
-            'type' => new external_value(PARAM_INT, 'The question type.')
+            'type' => new external_value(PARAM_INT, 'The question type.'),
+            'threesixtyid' => new external_value(PARAM_INT, 'The threesixty instance ID. For capability checking.'),
         ]);
     }
 
@@ -238,23 +247,27 @@ class external extends external_api {
      * Delete a question from the question bank.
      *
      * @param int $id The question ID.
+     * @param int $threesixtyid The 360 instance ID, for capability checking.
      * @return array
      * @throws dml_exception
      * @throws invalid_parameter_exception
      * @throws required_capability_exception
      * @throws restricted_context_exception
      */
-    public static function delete_question($id) {
-        global $USER;
-
+    public static function delete_question($id, $threesixtyid) {
         $warnings = [];
 
-        $params = external_api::validate_parameters(self::delete_question_parameters(), ['id' => $id]);
+        $params = external_api::validate_parameters(self::delete_question_parameters(), [
+            'id' => $id,
+            'threesixtyid' => $threesixtyid,
+        ]);
 
         $id = $params['id'];
+        $threesixtyid = $params['threesixtyid'];
 
         // Validate context and capability.
-        $context = context_user::instance($USER->id);
+        $coursecm = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
+        $context = context_module::instance($coursecm[1]->id);
         self::validate_context($context);
 
         require_capability('mod/threesixo:editquestions', $context);
@@ -274,7 +287,8 @@ class external extends external_api {
      */
     public static function delete_question_parameters() {
         return new external_function_parameters([
-            'id' => new external_value(PARAM_INT, 'The question ID.')
+            'id' => new external_value(PARAM_INT, 'The question ID.'),
+            'threesixtyid' => new external_value(PARAM_INT, 'The threesixty instance ID. For capability checking.'),
         ]);
     }
 
