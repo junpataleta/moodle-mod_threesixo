@@ -87,5 +87,18 @@ function xmldb_threesixo_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017081605, 'threesixo');
     }
 
+    if ($oldversion < 2017081606) {
+
+        // Changing type of field type on table threesixo_question to int.
+        $table = new xmldb_table('threesixo_question');
+        $field = new xmldb_field('type', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '0', 'question');
+
+        // Launch change of type for field type.
+        $dbman->change_field_type($table, $field);
+
+        // Threesixo savepoint reached.
+        upgrade_mod_savepoint(true, 2017081606, 'threesixo');
+    }
+
     return true;
 }
