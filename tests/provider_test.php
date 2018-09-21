@@ -257,6 +257,8 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
 
     /**
      * Generate a course, enrol users and a 360-degree feedback instance.
+     *
+     * @param bool $anonymous Whether to set up an anonymous feedback.
      */
     protected function setup_data($anonymous = true) {
         global $DB;
@@ -310,6 +312,8 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
 
     /**
      * Simulate the user giving feedback to another user.
+     *
+     * @param int $recipientid The recipient ID.
      */
     protected function give_feedback_to_user($recipientid) {
         $id = $this->threesixo->id;
