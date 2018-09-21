@@ -37,6 +37,14 @@ defined('MOODLE_INTERNAL') || die();
  */
 class mod_threesixo_generator extends testing_module_generator {
 
+    /**
+     * Creates a 360 degree feedback instance based on the record given.
+     *
+     * @param stdClass $record Data for module being generated. Requires 'course' key (an id or the full object).
+     *                         Also can have any fields from add module form.
+     * @param array $options General options for course module. Optional.
+     * @return stdClass Record from the threesixo table with additional field cmid (corresponding id in course_modules table)
+     */
     public function create_instance($record = null, array $options = null) {
         $record = (object)(array)$record;
 
