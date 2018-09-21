@@ -61,11 +61,13 @@
 }}
 <div class="card">
     <div class="card-block">
-        <div class="pull-left">
-            {{#userselect}}{{> core/url_select }}{{/userselect}}
-        </div>
-        <div class="pull-right m-t-1">
-            {{#activitylink}}{{> core/action_link }}{{/activitylink}}
+        <div class="row m-l-1">
+            <div class="pull-left">
+                {{#userselect}}{{> core/url_select }}{{/userselect}}
+            </div>
+            <div class="pull-right">
+                {{#activitylink}}{{> core/action_link }}{{/activitylink}}
+            </div>
         </div>
     </div>
 </div>
@@ -82,12 +84,12 @@
                     </p>
                     {{#averagerating}}
                         <div class="row">
-                            <div class="col-md-3" id="item-{{id}}">
+                            <div class="col-md-3 span3" id="item-{{id}}">
                                 <p class="text-right">
                                     {{#str}}averagerating, mod_threesixo, <strong>{{averagerating}}</strong>{{/str}}
                                 </p>
                             </div>
-                            <div class="col-md-9">
+                            <div class="col-md-9 span9">
                                 <progress class="progress" aria-describedby="item-{{id}}" value="{{progresspercentage}}" max="100"></progress>
                             </div>
                         </div>

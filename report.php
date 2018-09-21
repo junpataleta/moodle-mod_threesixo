@@ -58,7 +58,7 @@ if ($touserid > 0) {
         'usercontext' => context_user::instance($touserid)
     ];
     $contextheader = $OUTPUT->context_header($userheading, 3);
-    echo html_writer::div($contextheader, 'card card-block');
+    echo html_writer::div($contextheader, 'card card-block p-1');
 }
 
 $includeself = \mod_threesixo\api::can_respond($threesixtyid, $USER->id, $context) === true;

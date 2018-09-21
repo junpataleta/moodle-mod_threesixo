@@ -87,7 +87,7 @@ class report implements renderable, templatable {
         // Activity link.
         $linkname = get_string('backto360dashboard', 'mod_threesixo');
         $attributes = [
-            'classes' => 'btn btn-link',
+            'class' => 'btn btn-link',
             'id' => 'back-to-dashboard',
             'title' => $linkname,
         ];

@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use dml_exception;
 use mod_threesixo\api;
+use moodle_url;
 use renderer_base;
 use stdClass;
 
@@ -50,22 +51,30 @@ class list_360_items implements \renderable, \templatable {
     /** @var int The user ID of the user giving the feedback. */
     private $userid;
 
+    /** @var moodle_url The URL to the view.php page. */
+    protected $viewurl;
+
+    /** @var moodle_url The URL to the view.php page with the make available parameter set to true. */
+    protected $makeavailableurl;
+
     /**
      * list_360_items constructor.
      *
      * @param int $cmid The context module ID.
      * @param int $courseid The course ID.
      * @param int $threesixtyid The 360-degree feedback instance ID.
-     * @throws dml_exception
+     * @param moodle_url $viewurl The URL to the view.php page.
+     * @param moodle_url $makeavailableurl The URL to the view.php page with the make available parameter set to true.
      */
-    public function __construct($cmid, $courseid, $threesixtyid) {
+    public function __construct($cmid, $courseid, $threesixtyid, $viewurl, $makeavailableurl = null) {
         global $USER;
 
         $this->cmid = $cmid;
         $this->courseid = $courseid;
         $this->threesixtyid = $threesixtyid;
         $this->userid = $USER->id;
-        $this->generate_360_feedback_statuses();
+        $this->viewurl = $viewurl;
+        $this->makeavailableurl = $makeavailableurl;
     }
 
     /**
@@ -83,6 +92,8 @@ class list_360_items implements \renderable, \templatable {
         $data = new stdClass();
         $data->allitems = array();
         $data->threesixtyid = $this->threesixtyid;
+        $data->viewurl = $this->viewurl;
+        $data->makeavailableurl = $this->makeavailableurl;
 
         if ($items = api::get_items($this->threesixtyid)) {
             $itemcount = count($items);
@@ -121,41 +132,5 @@ class list_360_items implements \renderable, \templatable {
         }
 
         return $data;
-    }
-
-    /**
-     * Generate default records for the table threesixo_submission.
-     *
-     * @throws dml_exception
-     */
-    private function generate_360_feedback_statuses() {
-        global $DB;
-        $usersql = 'SELECT DISTINCT u.id
-                      FROM {user} u
-                      INNER JOIN {user_enrolments} ue
-                        ON u.id = ue.userid
-                      INNER JOIN {enrol} e
-                        ON e.id = ue.enrolid
-                      INNER JOIN {threesixo} f
-                        ON f.course = e.courseid AND f.id = :threesixtyid
-                      WHERE
-                        u.id <> :fromuser
-                        AND u.id NOT IN (
-                          SELECT
-                            fs.touser
-                          FROM {threesixo_submission} fs
-                          WHERE fs.threesixo = f.id AND fs.fromuser = :fromuser2
-                        )';
-        $params = array("threesixtyid" => $this->threesixtyid, "fromuser" => $this->userid, "fromuser2" => $this->userid);
-        if ($users = $DB->get_records_sql($usersql, $params)) {
-            foreach ($users as $user) {
-                $status = new stdClass();
-                $status->threesixo = $this->threesixtyid;
-                $status->fromuser = $this->userid;
-                $status->touser = $user->id;
-
-                $DB->insert_record('threesixo_submission', $status);
-            }
-        }
     }
 }

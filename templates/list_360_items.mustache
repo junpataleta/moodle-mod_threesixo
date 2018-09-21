@@ -64,7 +64,15 @@
 }}
 <div class="container-fluid" data-region="itemlist">
     <div class="row m-t-1 m-b-1">
-        <button class="btn btn-default" id="btn-question-bank">{{#str}}labelpickfromquestionbank, mod_threesixo{{/str}}</button>
+        <div class="span6 col-md-6">
+            <button class="btn btn-default" id="btn-question-bank">{{#str}}labelpickfromquestionbank, mod_threesixo{{/str}}</button>
+        </div>
+        <div class="span6 col-md-6">
+            <a class="btn btn-link pull-right" href="{{{viewurl}}}">{{#str}}backto360dashboard, mod_threesixo{{/str}}</a>
+            {{#makeavailableurl}}
+                <a class="btn btn-default pull-right" href="{{{makeavailableurl}}}">{{#str}}makeavailable, mod_threesixo{{/str}}</a>
+            {{/makeavailableurl}}
+        </div>
     </div>
     <div class="row">
         <table class="flexible generaltable generalbox">

@@ -24,19 +24,20 @@
 
 require_once("../../config.php");
 
-$instanceid = required_param('id', PARAM_INT);
+$cmid = required_param('id', PARAM_INT);
 $itemid = optional_param('itemid', 0, PARAM_INT);
+$makeavailable = optional_param('makeavailable', false, PARAM_BOOL);
 
 $viewurl = new moodle_url('view.php');
-$viewurl->param('id', $instanceid);
+$viewurl->param('id', $cmid);
 
-if ($instanceid == 0) {
+if ($cmid == 0) {
     print_error('error360notfound', 'mod_threesixo', $viewurl);
 }
 
-$PAGE->set_url('/mod/threesixo/edit_items.php', ['id' => $instanceid]);
+$PAGE->set_url('/mod/threesixo/edit_items.php', ['id' => $cmid]);
 
-if (!$cm = get_coursemodule_from_id('threesixo', $instanceid)) {
+if (!$cm = get_coursemodule_from_id('threesixo', $cmid)) {
     print_error('invalidcoursemodule');
 }
 
@@ -69,10 +70,19 @@ echo $OUTPUT->heading(format_string($threesixty->name));
 echo $OUTPUT->heading(get_string('edititems', 'mod_threesixo'), 3);
 
 $viewurl = new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]);
-echo html_writer::link($viewurl,  get_string('backto360dashboard', 'mod_threesixo'), ['class' => 'pull-right']);
+// Check if we can make the activity avaialble from here.
+$instanceready = \mod_threesixo\api::is_ready($threesixty->id);
+$makeavailableurl = null;
+if (!$instanceready) {
+    // Check if we can make the instance available to the respondents.
+    if (\mod_threesixo\api::has_items($threesixty->id)) {
+        $makeavailableurl = clone $viewurl;
+        $makeavailableurl->param('makeavailable', true);
+    }
+}
 
 // 360-degree feedback item list.
-$itemslist = new mod_threesixo\output\list_360_items($instanceid, $course->id, $threesixty->id);
+$itemslist = new mod_threesixo\output\list_360_items($cmid, $course->id, $threesixty->id, $viewurl, $makeavailableurl);
 $itemslistoutput = $PAGE->get_renderer('mod_threesixo');
 echo $itemslistoutput->render($itemslist);
 

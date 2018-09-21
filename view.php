@@ -46,11 +46,6 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($title);
 echo $OUTPUT->heading(get_string('participants', 'mod_threesixo'), 3);
 
-if ($makeavailable) {
-    if (\mod_threesixo\api::make_ready($threesixty->id)) {
-        \core\notification::success(get_string('instancenowready', 'mod_threesixo'));
-    }
-}
 // Edit items.
 $instanceready = \mod_threesixo\api::is_ready($threesixty->id);
 if (\mod_threesixo\api::can_edit_items($threesixty->id, $context)) {
@@ -58,14 +53,27 @@ if (\mod_threesixo\api::can_edit_items($threesixty->id, $context)) {
     $edititemsurl->param('id', $cm->id);
     echo html_writer::link($edititemsurl, get_string('edititems', 'threesixo'), ['class' => 'btn btn-default']);
     if (!$instanceready) {
-        $url = $PAGE->url;
-        $url->param('makeavailable', true);
-        echo html_writer::link($url, get_string('makeavailable', 'threesixo'), ['class' => 'btn btn-default pull-right']);
+        // Check if we can make the instance available to the respondents.
+        if (\mod_threesixo\api::has_items($threesixty->id)) {
+            if ($makeavailable) {
+                if (\mod_threesixo\api::make_ready($threesixty->id)) {
+                    \core\notification::success(get_string('instancenowready', 'mod_threesixo'));
+                    // Instance is now ready once made available.
+                    $instanceready = true;
+                }
+            } else {
+                $url = $PAGE->url;
+                $url->param('makeavailable', true);
+                echo html_writer::link($url, get_string('makeavailable', 'threesixo'), ['class' => 'btn btn-default pull-right']);
+            }
+        } else {
+            \core\notification::warning(get_string('noitemsyet', 'mod_threesixo'));
+        }
     }
 }
 
+$canparticipate = mod_threesixo\api::can_respond($threesixty, $USER->id, $context);
 if ($instanceready) {
-    $canparticipate = mod_threesixo\api::can_respond($threesixty, $USER->id, $context);
     // Whether to include self in the participants list.
     $includeself = false;
     if ($canparticipate !== true) {
@@ -91,7 +99,10 @@ if ($instanceready) {
     }
 
 } else {
-    \core\notification::error(get_string('instancenotready', 'mod_threesixo'));
+    // Show error to respondents that indicate that the activity is not yet ready.
+    if ($canparticipate === true) {
+        \core\notification::error(get_string('instancenotready', 'mod_threesixo'));
+    }
 }
 
 echo $OUTPUT->footer();
