@@ -41,7 +41,11 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provider_testcase {
-    /** @var stdClass The student object. */
+
+    /** @var stdClass The teacher in the course. */
+    protected $teacher;
+
+    /** @var stdClass The student that is gonna be providing a feedback. */
     protected $student;
 
     /** @var stdClass The threesixo object. */
@@ -49,6 +53,9 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
 
     /** @var stdClass The course object. */
     protected $course;
+
+    /** @var array Students enrolled in the course. */
+    protected $students = [];
 
     /**
      * Test for provider::get_metadata().
@@ -109,7 +116,11 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
      * Test for provider::export_user_data().
      */
     public function test_export_user_data() {
-        $this->setup_data();
+        global $DB;
+
+        $studentrole = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+
+        $this->setup_data(true, $studentrole->id);
 
         $id = $this->threesixo->id;
         $cm = get_coursemodule_from_instance('threesixo', $id);
@@ -118,7 +129,7 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
         $participants = api::get_participants($id, $this->student->id);
         // Get a feedback recipient.
         $recipient = reset($participants);
-        $this->give_feedback_to_user($recipient->userid);
+        $this->give_feedback_to_user($this->student->id, $recipient->userid);
 
         // Export all of the data for the context.
         $this->export_context_data_for_user($this->student->id, $cmcontext, 'mod_threesixo');
@@ -182,14 +193,16 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
     public function test_delete_data_for_all_users_in_context() {
         global $DB;
 
-        $this->setup_data();
+        $studentrole = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+
+        $this->setup_data(true, $studentrole->id);
 
         $id = $this->threesixo->id;
 
         $participants = api::get_participants($id, $this->student->id);
         // Get a feedback recipient.
         $recipient = reset($participants);
-        $this->give_feedback_to_user($recipient->userid);
+        $this->give_feedback_to_user($this->student->id, $recipient->userid);
 
         // Before deletion, we should have 6 responses.
         $count = $DB->count_records('threesixo_submission', ['threesixo' => $id]);
@@ -216,17 +229,19 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
     /**
      * Test for provider::delete_data_for_user().
      */
-    public function test_delete_data_for_user_() {
+    public function test_delete_data_for_user() {
         global $DB;
 
-        $this->setup_data(false);
+        $studentrole = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+
+        $this->setup_data(false, $studentrole->id);
 
         $id = $this->threesixo->id;
 
         $participants = api::get_participants($id, $this->student->id);
         // Get a feedback recipient.
         $recipient = reset($participants);
-        $this->give_feedback_to_user($recipient->userid);
+        $this->give_feedback_to_user($this->student->id, $recipient->userid);
 
         // Before deletion, we should have 6 responses.
         $count = $DB->count_records('threesixo_submission', ['threesixo' => $id]);
@@ -256,11 +271,129 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
     }
 
     /**
+     * Test for \mod_threesixo\privacy\provider::get_users_in_context()
+     */
+    public function test_get_users_in_context() {
+        global $DB;
+
+        $studentrole = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+
+        // Create a 360 activity in a course with students.
+        $this->setup_data(true, $studentrole->id);
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+
+        // Create another course.
+        $course = $generator->create_course();
+
+        // Create a 360-degree feedback instance in the course.
+        $record = [
+            'course' => $course->id,
+            'participantrole' => $studentrole->id, // Only for students.
+            'anonymous' => false,
+        ];
+        $threesixo = $this->getDataGenerator()->create_module('threesixo', $record);
+
+        // Create a teacher.
+        $teacher = $generator->create_user();
+        // Enrol the teacher to the course.
+        $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
+
+        // Create a new student.
+        $newstudent = $generator->create_user();
+        // Enrol the new student manually to the course.
+        $generator->enrol_user($newstudent->id, $course->id, 'student');
+
+        // Generate feedback statuses for each student.
+        foreach ($this->students as $id) {
+            // Enrol the student manually to the course.
+            $generator->enrol_user($id, $course->id, 'student');
+
+            api::generate_360_feedback_statuses($threesixo->id, $id);
+        }
+
+        // Get the user IDs for the 360 instance that we're testing.
+        $cm = get_coursemodule_from_instance('threesixo', $this->threesixo->id);
+        $cmcontext = context_module::instance($cm->id);
+        $userlist = new \core_privacy\local\request\userlist($cmcontext, 'mod_threesixo');
+        \mod_threesixo\privacy\provider::get_users_in_context($userlist);
+        $userids = $userlist->get_userids();
+        // This should match the participants list of the first 360 instance.
+        $this->assertEquals($this->students, $userids, '', 0.0, 10, true);
+        // And definitely not include user from the other 360 instance.
+        $this->assertNotContains($newstudent->id, $userids);
+    }
+
+    /**
+     * Test for \mod_threesixo\privacy\provider::delete_data_for_users()
+     */
+    public function test_delete_data_for_users() {
+        global $DB;
+
+        // Create an anonymous 360 instance with all course participants.
+        $this->setup_data();
+
+        $participants = api::get_participants($this->threesixo->id, $this->student->id);
+        foreach ($participants as $participant) {
+            $this->give_feedback_to_user($this->student->id, $participant->userid);
+        }
+
+        // Log in as the teacher and give feedbacks to the participants.
+        $this->setUser($this->teacher);
+        $participants = api::get_participants($this->threesixo->id, $this->teacher->id);
+        foreach ($participants as $participant) {
+            $this->give_feedback_to_user($this->teacher->id, $participant->userid);
+        }
+
+        $cm = get_coursemodule_from_instance('threesixo', $this->threesixo->id);
+        $context = context_module::instance($cm->id);
+
+        $userids = [$this->student->id];
+
+        $approveduserlist = new \core_privacy\local\request\approved_userlist($context, 'mod_threesixo', $userids);
+        provider::delete_data_for_users($approveduserlist);
+
+        // Confirm that the submission/responses the student provided have been deleted.
+        list($sqlfrom, $paramsfrom) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        list($sqlto, $paramsto) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+
+        $select = "threesixo = :threesixo AND (fromuser $sqlfrom OR touser $sqlto)";
+        $params = ['threesixo' => $cm->instance] + $paramsfrom + $paramsto;
+
+        $submissionscount = $DB->count_records_select('threesixo_submission', $select, $params);
+        $responsescount = $DB->count_records_select('threesixo_response', $select, $params);
+        $this->assertEquals(0, $submissionscount);
+        $this->assertEquals(0, $responsescount);
+
+        // Confirm that the submission/responses the teacher provided have not been deleted.
+        list($sqlfrom, $paramsfrom) = $DB->get_in_or_equal([$this->teacher->id], SQL_PARAMS_NAMED);
+        list($sqlto, $paramsto) = $DB->get_in_or_equal([$this->teacher->id], SQL_PARAMS_NAMED);
+
+        $select = "threesixo = :threesixo AND (fromuser $sqlfrom OR touser $sqlto)";
+        $params = ['threesixo' => $cm->instance] + $paramsfrom + $paramsto;
+
+        $submissionscount = $DB->count_records_select('threesixo_submission', $select, $params);
+        $responsescount = $DB->count_records_select('threesixo_response', $select, $params);
+        $this->assertGreaterThan(0, $submissionscount);
+        $this->assertGreaterThan(0, $responsescount);
+
+        // Confirm though that the responses provided to the student got deleted as well.
+        $params = [
+            'threesixo' => $cm->instance,
+            'fromuser' => $this->teacher->id,
+            'touser' => $this->student->id
+        ];
+        $this->assertFalse($DB->record_exists('threesixo_submission', $params));
+        $this->assertFalse($DB->record_exists('threesixo_response', $params));
+    }
+
+    /**
      * Generate a course, enrol users and a 360-degree feedback instance.
      *
      * @param bool $anonymous Whether to set up an anonymous feedback.
+     * @param int $roleid The role ID for the participants.
      */
-    protected function setup_data($anonymous = true) {
+    protected function setup_data($anonymous = true, $roleid = 0) {
         global $DB;
 
         $this->resetAfterTest();
@@ -272,10 +405,9 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
         $course = $generator->create_course();
 
         // Create a 360-degree feedback instance in the course.
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
         $record = [
             'course' => $course->id,
-            'participantrole' => $studentrole->id, // Only for students.
+            'participantrole' => $roleid,
             'anonymous' => $anonymous,
         ];
         $threesixo = $this->getDataGenerator()->create_module('threesixo', $record);
@@ -284,6 +416,9 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
         $teacher = $generator->create_user();
         // Enrol the teacher to the course.
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $this->teacher = $teacher;
+
+        // Create students.
         $studentids = [];
         for ($i = 0; $i < 3; $i++) {
             // Create a student.
@@ -294,10 +429,19 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
 
             $studentids[] = $student->id;
         }
+        $this->students = $studentids;
 
-        // Generate feedback statuses for each student.
-        foreach ($studentids as $id) {
-            api::generate_360_feedback_statuses($threesixo->id, $id);
+        $studentrole = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+        $teacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'), '*', MUST_EXIST);
+
+        // Generate feedback statuses for participants.
+        if (empty($roleid) || $roleid == $teacherrole->id) {
+            api::generate_360_feedback_statuses($threesixo->id, $teacher->id);
+        }
+        if (empty($roleid) || $roleid == $studentrole->id) {
+            foreach ($studentids as $id) {
+                api::generate_360_feedback_statuses($threesixo->id, $id);
+            }
         }
 
         // Set the last student as our subject user.
@@ -315,7 +459,7 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
      *
      * @param int $recipientid The recipient ID.
      */
-    protected function give_feedback_to_user($recipientid) {
+    protected function give_feedback_to_user($participantid, $recipientid) {
         $id = $this->threesixo->id;
 
         $items = api::get_items($this->threesixo->id);
@@ -328,7 +472,7 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
             $responses[$item->id] = $response;
         }
         api::save_responses($id, $recipientid, $responses);
-        $submission = api::get_submission_by_params($id, $this->student->id, $recipientid);
+        $submission = api::get_submission_by_params($id, $participantid, $recipientid);
         api::set_completion($submission->id, api::STATUS_COMPLETE);
     }
 }
