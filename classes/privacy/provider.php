@@ -27,8 +27,10 @@ namespace mod_threesixo\privacy;
 use context_module;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\transform;
+use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 use mod_threesixo\api;
 use mod_threesixo\helper;
@@ -46,7 +48,10 @@ class provider implements
         \core_privacy\local\metadata\provider,
 
         // This plugin is a core_user_data_provider.
-        \core_privacy\local\request\plugin\provider {
+        \core_privacy\local\request\plugin\provider,
+
+        // This plugin is capable of determining which users have data within it.
+        \core_privacy\local\request\core_userlist_provider {
     /**
      * Return the fields which contain personal data.
      *
@@ -324,7 +329,7 @@ class provider implements
     public static function delete_data_for_all_users_in_context(\context $context) {
         global $DB;
 
-        if (!$context instanceof \context_module) {
+        if (!$context instanceof context_module) {
             return;
         }
 
@@ -349,7 +354,7 @@ class provider implements
         $userid = $contextlist->get_user()->id;
         foreach ($contextlist->get_contexts() as $context) {
 
-            if (!$context instanceof \context_module) {
+            if (!$context instanceof context_module) {
                 continue;
             }
             $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
@@ -358,5 +363,106 @@ class provider implements
             $DB->delete_records_select('threesixo_response', $select, $params);
             $DB->delete_records_select('threesixo_submission', $select, $params);
         }
+    }
+
+    /**
+     * Get the list of users who have data within a context.
+     *
+     * @param   userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
+     */
+    public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+
+        if (!$context instanceof context_module) {
+            return;
+        }
+
+        $params = [
+            'cmid'      => $context->instanceid,
+            'modname'   => 'threesixo',
+        ];
+
+        // Fetch all users who gave non-anonymous feedback to other users.
+        $fromsql = "
+            SELECT DISTINCT ts.fromuser
+                       FROM {course_modules} cm
+                       JOIN {modules} m
+                         ON m.id = cm.module AND m.name = :modname
+                       JOIN {threesixo} t
+                         ON t.id = cm.instance
+                       JOIN {threesixo_submission} ts
+                         ON ts.threesixo = t.id
+                      WHERE cm.id = :cmid";
+        $userlist->add_from_sql('fromuser', $fromsql, $params);
+
+        $fromsql = "
+            SELECT DISTINCT tr.fromuser
+                       FROM {course_modules} cm
+                       JOIN {modules} m
+                         ON m.id = cm.module AND m.name = :modname
+                       JOIN {threesixo} t
+                         ON t.id = cm.instance
+                       JOIN {threesixo_response} tr
+                         ON tr.threesixo = t.id
+                      WHERE cm.id = :cmid AND tr.fromuser <> 0";
+        $userlist->add_from_sql('fromuser', $fromsql, $params);
+
+        // Fetch all users who received feedback from other users.
+        $tosql = "
+           SELECT DISTINCT ts.touser
+                      FROM {course_modules} cm
+                      JOIN {modules} m
+                        ON m.id = cm.module AND m.name = :modname
+                      JOIN {threesixo} t
+                        ON t.id = cm.instance
+                      JOIN {threesixo_submission} ts
+                        ON ts.threesixo = t.id
+                     WHERE cm.id = :cmid";
+        $userlist->add_from_sql('touser', $tosql, $params);
+
+        $tosql = "
+           SELECT DISTINCT tr.touser
+                      FROM {course_modules} cm
+                      JOIN {modules} m
+                        ON m.id = cm.module AND m.name = :modname
+                      JOIN {threesixo} t
+                        ON t.id = cm.instance
+                      JOIN {threesixo_response} tr
+                        ON tr.threesixo = t.id
+                     WHERE cm.id = :cmid";
+        $userlist->add_from_sql('touser', $tosql, $params);
+    }
+
+    /**
+     * Delete multiple users within a single context.
+     *
+     * @param   approved_userlist $userlist The approved context and user information to delete information for.
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        global $DB;
+
+        $context = $userlist->get_context();
+
+        if (!$context instanceof context_module) {
+            return;
+        }
+
+        $cm = get_coursemodule_from_id('threesixo', $context->instanceid);
+
+        if (!$cm) {
+            // Only threesixo module will be handled.
+            return;
+        }
+
+        $userids = $userlist->get_userids();
+        list($usersql, $userparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+
+        $fromselect = "threesixo = :threesixo AND fromuser $usersql";
+        $toselect = "threesixo = :threesixo AND touser $usersql";
+        $params = ['threesixo' => $cm->instance] + $userparams;
+        $DB->delete_records_select('threesixo_submission', $fromselect, $params);
+        $DB->delete_records_select('threesixo_submission', $toselect, $params);
+        $DB->delete_records_select('threesixo_response', $fromselect, $params);
+        $DB->delete_records_select('threesixo_response', $toselect, $params);
     }
 }
