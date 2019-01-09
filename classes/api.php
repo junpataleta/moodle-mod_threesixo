@@ -66,6 +66,18 @@ class api {
     /** Indicates that the feedback instance is now ready to be completed by the participants. */
     const INSTANCE_READY = 1;
 
+    /** Closed to participants. Participants cannot view the feedback given to them. Only those with the capability.  */
+    const RELEASING_NONE = 0;
+    /** Open to participants. Participants can view the feedback given to them any time. */
+    const RELEASING_OPEN = 1;
+    /**
+     * Manual release. Participants can view the feedback given to them when released by users who have the capability to manage
+     * the 360 instance (e.g. teacher, manager, admin).
+     */
+    const RELEASING_MANUAL = 2;
+    /** Release after the activity has closed. */
+    const RELEASING_AFTER = 3;
+
     /**
      * Fetches the 360-degree feedback instance.
      *
@@ -679,6 +691,25 @@ class api {
     }
 
     /**
+     * Whether the user can view their own report.
+     *
+     * @param stdClass $threesixo The 360 instance data.
+     * @return bool
+     */
+    public static function can_view_own_report($threesixo) {
+        switch ($threesixo->releasing) {
+            case self::RELEASING_OPEN:
+                return true;
+            case self::RELEASING_MANUAL:
+                return $threesixo->released;
+            case self::RELEASING_AFTER:
+                return $threesixo->timeclose < time();
+            default:
+                return false;
+        }
+    }
+
+    /**
      * Retrieves the submission record of a respondent's feedback to another user by submission ID.
      *
      * @param int $id The submission ID.
@@ -852,11 +883,22 @@ class api {
     public static function get_feedback_for_user($threesixtyid, $touser) {
         global $DB;
 
+        // Fetch responses that are from completed submissions.
         $params = [
             'threesixo' => $threesixtyid,
-            'touser' => $touser
+            'touser' => $touser,
+            'status' => self::STATUS_COMPLETE
         ];
-        $responses = $DB->get_records('threesixo_response', $params, 'item ASC', 'id, item, fromuser, value');
+        $sql = "
+            SELECT tr.id, tr.item, tr.fromuser, tr.value
+              FROM {threesixo_response} tr
+              JOIN {threesixo_submission} ts
+                ON tr.threesixo = ts.threesixo
+             WHERE tr.threesixo = :threesixo
+                   AND tr.touser = :touser
+                   AND ts.status = :status
+          ORDER BY tr.item ASC";
+        $responses = $DB->get_records_sql($sql, $params);
 
         $items = self::get_items($threesixtyid);
         foreach ($items as $item) {
@@ -982,5 +1024,32 @@ class api {
             throw new moodle_exception('noitemsyet', 'mod_threesixo', $url);
         }
         return $DB->set_field('threesixo', 'status', self::INSTANCE_READY, ['id' => $threesixtyid]);
+    }
+
+    /**
+     * Toggle the released flag of a 360 instance.
+     *
+     * @param stdClass $threesixty The 360 instance data.
+     * @param int $released Value of the released flag to set.
+     * @return bool
+     */
+    public static function toggle_released_flag($threesixty, $released) {
+        global $DB;
+        $cm = get_coursemodule_from_instance('threesixo', $threesixty->id);
+        $context = context_module::instance($cm->id);
+        $url = new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]);
+        if (!self::can_edit_items($threesixty->id, $context)) {
+            throw new moodle_exception('nocaptoedititems', 'mod_threesixo', $url);
+        }
+        if ($threesixty->releasing != self::RELEASING_MANUAL) {
+            throw new moodle_exception('This operation is only permitted for instances that need to be manually released');
+        }
+        $allowedvalues = [0, 1];
+        if (!in_array($released, $allowedvalues)) {
+            throw new moodle_exception('Allowed values are only 0 and 1');
+        }
+        // Update this object's released value here to avoid another DB query.
+        $threesixty->released = $released;
+        return $DB->set_field('threesixo', 'released', $released, ['id' => $threesixty->id]);
     }
 }
