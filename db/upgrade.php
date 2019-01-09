@@ -100,5 +100,27 @@ function xmldb_threesixo_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2018052602, 'threesixo');
     }
 
+    if ($oldversion < 2018120301) {
+
+        // Define field releasing to be added to threesixo.
+        $table = new xmldb_table('threesixo');
+        $field = new xmldb_field('releasing', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+
+        // Conditionally launch add field releasing.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('released', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'releasing');
+
+        // Conditionally launch add field released.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Threesixo savepoint reached.
+        upgrade_mod_savepoint(true, 2018120301, 'threesixo');
+    }
+
     return true;
 }

@@ -54,6 +54,7 @@ $string['errornocaptoedititems'] = 'Sorry, but you don\'t have the capability to
 $string['errornotenrolled'] = 'You need to be enrolled in this course in order to be able to participate in this 360° feedback activity.';
 $string['errornotingroup'] = 'You need to be in a group in order to be able to participate in this 360° feedback activity. Please contact your course administrator.';
 $string['errornothingtodecline'] = 'There is no feedback to decline to.';
+$string['errorreportnotavailable'] = 'Your feedback report is not yet available.';
 $string['errorresponsesavefailed'] = 'An error has occured while the responses are being saved. Please try again later.';
 $string['feedbacksurvey'] = 'Feedback survey for {$a}';
 $string['feedbackgiven'] = 'Feedback given';
@@ -101,6 +102,20 @@ $string['qtyperated'] = 'Rated';
 $string['questiontext'] = 'Question text';
 $string['questiontype'] = 'Question type';
 $string['ratings'] = 'Ratings';
+$string['rel_after'] = 'Release after the activity has closed';
+$string['rel_closed'] = 'Closed to participants';
+$string['rel_manual'] = 'Manual release';
+$string['rel_open'] = 'Open to participants';
+$string['release'] = 'Release reports to participants';
+$string['release_close'] = 'Close reports to participants';
+$string['releasing'] = 'Releasing';
+$string['releasing_help'] = 'Whether to let the participants view the report of the feedback given to them.
+<ul>
+<li>Closed to participants. Participants cannot view their own feedback report. Only those with the capability to manage the 360-degree feedback activity (e.g. teacher, manager, admin) can view the participants\' feedback reports.</li>
+<li>Open to participants. Participants can view their own feedback report any time.</li>
+<li>Manual release. Participants can view their own feedback report when released by a user who has the capability to manage the 360-degree feedback activity.</li>
+<li>Release after the activity has closed. Participants can view their own feedback report after the activity has ended.</li>
+</ul>';
 $string['responses'] = 'Responses';
 $string['responsessaved'] = 'Your responses have been saved.';
 $string['scaleagree'] = 'Agree';
@@ -133,3 +148,4 @@ $string['titlemanageitems'] = 'Manage 360° feedback items';
 $string['todo'] = 'To Do';
 $string['view'] = 'View';
 $string['viewfeedbackforuser'] = 'View feedback for user';
+$string['viewfeedbackreport'] = 'View feedback report';

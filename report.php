@@ -32,9 +32,18 @@ require_login($course, true, $cm);
 
 $context = context_module::instance($cm->id);
 
-require_capability('mod/threesixo:viewreports', $context);
-
 $threesixty = \mod_threesixo\api::get_instance($threesixtyid);
+
+$viewingforself = $touserid == $USER->id;
+$participants = [];
+if (!$viewingforself) {
+    require_capability('mod/threesixo:viewreports', $context);
+
+    $includeself = \mod_threesixo\api::can_respond($threesixtyid, $USER->id, $context) === true;
+    $participants = \mod_threesixo\api::get_participants($threesixtyid, $USER->id, $includeself);
+} else if (!\mod_threesixo\api::can_view_own_report($threesixty)) {
+    print_error('errorreportnotavailable', 'mod_threesixo');
+}
 
 $PAGE->set_context($context);
 $PAGE->set_cm($cm, $course);
@@ -60,9 +69,6 @@ if ($touserid > 0) {
     $contextheader = $OUTPUT->context_header($userheading, 3);
     echo html_writer::div($contextheader, 'card card-block p-1');
 }
-
-$includeself = \mod_threesixo\api::can_respond($threesixtyid, $USER->id, $context) === true;
-$participants = \mod_threesixo\api::get_participants($threesixtyid, $USER->id, $includeself);
 
 $responses = mod_threesixo\api::get_feedback_for_user($threesixtyid, $touserid);
 $responselist = new mod_threesixo\output\report($cm->id, $threesixtyid, $responses, $participants);

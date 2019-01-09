@@ -106,7 +106,9 @@ class report implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
         $data = new stdClass();
-        $data->userselect = $this->userselect->export_for_template($output);
+        if ($this->userselect) {
+            $data->userselect = $this->userselect->export_for_template($output);
+        }
         $data->activitylink = $this->activitylink->export_for_template($output);
         $data->ratings = [];
         $data->comments = [];

@@ -74,6 +74,16 @@ class mod_threesixo_mod_form extends moodleform_mod {
         ksort($roleoptions);
         $mform->addElement('select', 'participantrole', get_string('participants', 'mod_threesixo'), $roleoptions);
 
+        // Releasing options
+        $releasingoptions = [
+            \mod_threesixo\api::RELEASING_NONE => get_string('rel_closed', 'mod_threesixo'),
+            \mod_threesixo\api::RELEASING_OPEN => get_string('rel_open', 'mod_threesixo'),
+            \mod_threesixo\api::RELEASING_MANUAL => get_string('rel_manual', 'mod_threesixo'),
+            \mod_threesixo\api::RELEASING_AFTER => get_string('rel_after', 'mod_threesixo'),
+        ];
+        $mform->addElement('select', 'releasing', get_string('releasing', 'mod_threesixo'), $releasingoptions);
+        $mform->addHelpButton('releasing', 'releasing', 'mod_threesixo');
+
         // Availability.
         $mform->addElement('header', 'timinghdr', get_string('availability'));
         $mform->addElement('date_time_selector', 'timeopen', get_string('feedbackopen', 'feedback'),
