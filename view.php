@@ -26,6 +26,7 @@ require_once('lib.php');
 
 $id = required_param('id', PARAM_INT);
 $makeavailable = optional_param('makeavailable', false, PARAM_BOOL);
+$release = optional_param('release', -1, PARAM_INT);
 list ($course, $cm) = get_course_and_cm_from_cmid($id, 'threesixo');
 
 require_login($course, true, $cm);
@@ -37,7 +38,7 @@ $PAGE->set_context($context);
 $PAGE->set_cm($cm, $course);
 $PAGE->set_pagelayout('incourse');
 
-$PAGE->set_url('/mod/threesixo/view.php', array('id' => $cm->id, 'do_show' => 'view'));
+$PAGE->set_url('/mod/threesixo/view.php', array('id' => $cm->id));
 $title = format_string($threesixty->name);
 $PAGE->set_title($title);
 $PAGE->set_heading($course->fullname);
@@ -46,9 +47,15 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($title);
 echo $OUTPUT->heading(get_string('participants', 'mod_threesixo'), 3);
 
+if ($release != -1) {
+    // Toggle the released flag.
+    \mod_threesixo\api::toggle_released_flag($threesixty, $release);
+}
+
 // Edit items.
 $instanceready = \mod_threesixo\api::is_ready($threesixty->id);
-if (\mod_threesixo\api::can_edit_items($threesixty->id, $context)) {
+$canedit = \mod_threesixo\api::can_edit_items($threesixty->id, $context);
+if ($canedit) {
     $edititemsurl = new moodle_url('edit_items.php');
     $edititemsurl->param('id', $cm->id);
     echo html_writer::link($edititemsurl, get_string('edititems', 'threesixo'), ['class' => 'btn btn-default']);
@@ -74,16 +81,35 @@ if (\mod_threesixo\api::can_edit_items($threesixty->id, $context)) {
 
 $canparticipate = mod_threesixo\api::can_respond($threesixty, $USER->id, $context);
 if ($instanceready) {
+    // Show a release report button if applicable.
+    if ($canedit && $threesixty->releasing == \mod_threesixo\api::RELEASING_MANUAL) {
+        $url = clone $PAGE->url;
+        $releaseparam = $threesixty->released ? 0 : 1;
+        $releaselabel = $releaseparam ? get_string('release', 'mod_threesixo') : get_string('release_close', 'mod_threesixo');
+        $url->param('release', $releaseparam);
+        echo $OUTPUT->single_button($url, $releaselabel);
+    }
     // Whether to include self in the participants list.
     $includeself = false;
     if ($canparticipate !== true) {
         \core\notification::warning($canparticipate);
     } else {
+
         // Include self on the list if you can give feedback to others and the instance allows self review.
         $includeself = $threesixty->with_self_review;
 
         // Generate statuses if you can respond to the feedback.
         \mod_threesixo\api::generate_360_feedback_statuses($threesixty->id, $USER->id, $includeself);
+
+        if (\mod_threesixo\api::can_view_own_report($threesixty)) {
+            $reportsurl = new moodle_url('/mod/threesixo/report.php');
+            $reportsurl->params([
+                'threesixo' => $threesixty->id,
+                'touser' => $USER->id,
+            ]);
+            echo html_writer::link($reportsurl, get_string('viewfeedbackreport', 'threesixo'),
+                ['class' => 'btn btn-default pull-right']);
+        }
     }
 
     try {
