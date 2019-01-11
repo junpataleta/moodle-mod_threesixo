@@ -74,7 +74,7 @@ class mod_threesixo_mod_form extends moodleform_mod {
         ksort($roleoptions);
         $mform->addElement('select', 'participantrole', get_string('participants', 'mod_threesixo'), $roleoptions);
 
-        // Releasing options
+        // Releasing options.
         $releasingoptions = [
             \mod_threesixo\api::RELEASING_NONE => get_string('rel_closed', 'mod_threesixo'),
             \mod_threesixo\api::RELEASING_OPEN => get_string('rel_open', 'mod_threesixo'),
@@ -83,6 +83,9 @@ class mod_threesixo_mod_form extends moodleform_mod {
         ];
         $mform->addElement('select', 'releasing', get_string('releasing', 'mod_threesixo'), $releasingoptions);
         $mform->addHelpButton('releasing', 'releasing', 'mod_threesixo');
+
+        // Allow participants to undo declined feedback submissions.
+        $mform->addElement('advcheckbox', 'undodecline', get_string('allowundodecline', 'mod_threesixo'));
 
         // Availability.
         $mform->addElement('header', 'timinghdr', get_string('availability'));

@@ -39,7 +39,8 @@ define([
      */
     var ACTIONS = {
         VIEW_FEEDBACK: '[data-action="view-feedback"]',
-        DECLINE_FEEDBACK: '[data-action="decline-feedback"]'
+        DECLINE_FEEDBACK: '[data-action="decline-feedback"]',
+        UNDO_DECLINE: '[data-action="undo-decline"]'
     };
 
     var threesixtyid;
@@ -115,6 +116,25 @@ define([
                         refreshParticipantsList();
                     }).fail(notification.exception);
                 });
+            }).fail(notification.exception);
+        });
+
+        $(ACTIONS.UNDO_DECLINE).click(function(e) {
+            e.preventDefault();
+
+            var statusid = $(this).data('statusid');
+            var data = {
+                statusid: statusid
+            };
+
+            var method = 'mod_threesixo_undo_decline';
+
+            // Refresh the list of questions thru AJAX.
+            var promises = ajax.call([
+                {methodname: method, args: data}
+            ]);
+            promises[0].done(function() {
+                refreshParticipantsList();
             }).fail(notification.exception);
         });
     };
