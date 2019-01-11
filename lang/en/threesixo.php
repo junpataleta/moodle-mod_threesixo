@@ -24,6 +24,7 @@
 
 $string['additem'] = 'Add item';
 $string['addanewquestion'] = 'Add a new question';
+$string['allowundodecline'] = 'Allow participants to undo declined feedback submissions';
 $string['allparticipants'] = 'All course participants';
 $string['anonymous'] = 'Anonymous';
 $string['averagerating'] = 'Average rating: {$a}';
@@ -146,6 +147,7 @@ $string['threesixo:viewreports'] = 'View 360° feedback reports';
 $string['title'] = '360° feedback';
 $string['titlemanageitems'] = 'Manage 360° feedback items';
 $string['todo'] = 'To Do';
+$string['undodecline'] = 'Undo decline';
 $string['view'] = 'View';
 $string['viewfeedbackforuser'] = 'View feedback for user';
 $string['viewfeedbackreport'] = 'View feedback report';

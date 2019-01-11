@@ -123,6 +123,14 @@ $functions = [
         'ajax'          => true,
         'loginrequired' => false,
     ],
+    'mod_threesixo_undo_decline' => [
+        'classname'     => 'mod_threesixo\external',
+        'methodname'    => 'undo_decline',
+        'description'   => 'Undo declined feedback submission',
+        'type'          => 'write',
+        'ajax'          => true,
+        'loginrequired' => true,
+    ],
     'mod_threesixo_data_for_participant_list' => [
         'classname'     => 'mod_threesixo\external',
         'methodname'    => 'data_for_participant_list',

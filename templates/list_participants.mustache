@@ -92,6 +92,11 @@
                                 {{#pix}} t/delete, core, {{#str}}decline, mod_threesixo{{/str}} {{/pix}}
                             </a>
                         {{/declinelink}}
+                        {{#undodeclinelink}}
+                            <a class="btn btn-link" href="#" data-action="undo-decline" data-statusid="{{statusid}}" data-userid="{{userid}}" title="{{#str}}undodecline, mod_threesixo{{/str}}">
+                                {{#pix}} e/undo, core, {{#str}}undodecline, mod_threesixo{{/str}} {{/pix}}
+                            </a>
+                        {{/undodeclinelink}}
                     </td>
                 </tr>
             {{/ participants }}

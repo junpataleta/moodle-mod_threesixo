@@ -108,6 +108,9 @@ class list_participants implements renderable, templatable {
                         $member->statusdeclined = true;
                         // If declined, user won't be able to respond anymore.
                         $canrespond = false;
+                        if ($this->threesixo->undodecline == api::UNDO_DECLINE_ALLOW) {
+                            $member->undodeclinelink = true;
+                        }
                         break;
                     default:
                         $member->statuspending = true;
