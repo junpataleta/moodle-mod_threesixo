@@ -730,6 +730,79 @@ class external extends external_api {
     }
 
     /**
+     * Undo declined feedback.
+     *
+     * @param int $statusid The submission ID.
+     * @return array
+     */
+    public static function undo_decline($statusid) {
+        global $USER;
+
+        $warnings = [];
+
+        $params = external_api::validate_parameters(self::undo_decline_parameters(), [
+            'statusid' => $statusid,
+        ]);
+
+        $statusid = $params['statusid'];
+
+        // Get the submission record.
+        $submission = api::get_submission($statusid);
+
+        // Get this 360 instance.
+        $threesixo = api::get_instance($submission->threesixo);
+
+        // Validate context.
+        $cm = get_coursemodule_from_instance('threesixo', $submission->threesixo);
+        $cmid = $cm->id;
+        $context = context_module::instance($cmid);
+        self::validate_context($context);
+
+        // Make sure unauthorised users can't undo someone else's declined feedback.
+        if ($submission->fromuser != $USER->id) {
+            require_capability('moodle/course:manageactivities', $context);
+        }
+
+        // Make sure this instance allows declined feedback to be undone.
+        if ($threesixo->undodecline != api::UNDO_DECLINE_ALLOW) {
+            throw new moodle_exception('This 360-degree feedback activity does not allow declined feedback to be undone.');
+        }
+
+        $result = api::set_completion($statusid, api::STATUS_PENDING);
+        return [
+            'result' => $result,
+            'warnings' => $warnings
+        ];
+    }
+
+    /**
+     * Parameter description for undo_decline().
+     *
+     * @return external_function_parameters
+     */
+    public static function undo_decline_parameters() {
+        return new external_function_parameters(
+            [
+                'statusid' => new external_value(PARAM_INT, 'The submission ID.'),
+            ]
+        );
+    }
+
+    /**
+     * Method results description for undo_decline().
+     *
+     * @return external_description
+     */
+    public static function undo_decline_returns() {
+        return new external_single_structure(
+            [
+                'result' => new external_value(PARAM_BOOL, 'The processing result.'),
+                'warnings' => new external_warnings()
+            ]
+        );
+    }
+
+    /**
      * Fetches template data for the list participants the user will provide feedback to.
      *
      * @param int $threesixtyid The 360-degree feedback instance ID.
@@ -789,6 +862,7 @@ class external extends external_api {
                     new external_single_structure(
                         [
                             'name' => new external_value(PARAM_TEXT, 'The target participant name.'),
+                            'statusid' => new external_value(PARAM_INT, 'The submission ID', VALUE_OPTIONAL),
                             'statuspending' => new external_value(PARAM_BOOL, 'Pending status', VALUE_DEFAULT, false),
                             'statusinprogress' => new external_value(PARAM_BOOL, 'In progress status', VALUE_DEFAULT, false),
                             'statusdeclined' => new external_value(PARAM_BOOL, 'Declined status', VALUE_DEFAULT, false),
@@ -796,7 +870,9 @@ class external extends external_api {
                             'statusviewonly' => new external_value(PARAM_BOOL, 'View only status', VALUE_DEFAULT, false),
                             'viewlink' => new external_value(PARAM_RAW, 'Flag for view button.', VALUE_OPTIONAL, false),
                             'respondlink' => new external_value(PARAM_URL, 'Questionnaire URL.', VALUE_OPTIONAL),
-                            'declinelink' => new external_value(PARAM_BOOL, 'Flag for decline button.', VALUE_OPTIONAL, false)
+                            'declinelink' => new external_value(PARAM_BOOL, 'Flag for decline button.', VALUE_OPTIONAL, false),
+                            'undodeclinelink' => new external_value(PARAM_BOOL, 'Flag for the undo decline button.', VALUE_OPTIONAL,
+                                false),
                         ]
                     )
                 ),

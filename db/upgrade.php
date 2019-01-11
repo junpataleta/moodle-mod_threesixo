@@ -122,5 +122,20 @@ function xmldb_threesixo_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2018052603, 'threesixo');
     }
 
+    if ($oldversion < 2018052604) {
+
+        // Define field undodecline to be added to threesixo.
+        $table = new xmldb_table('threesixo');
+        $field = new xmldb_field('undodecline', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'released');
+
+        // Conditionally launch add field undodecline.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Threesixo savepoint reached.
+        upgrade_mod_savepoint(true, 2018052604, 'threesixo');
+    }
+
     return true;
 }

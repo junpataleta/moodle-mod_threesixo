@@ -78,6 +78,11 @@ class api {
     /** Release after the activity has closed. */
     const RELEASING_AFTER = 3;
 
+    /** Do not allow participants to undo their declined feedback submissions. */
+    const UNDO_DECLINE_DISALLOW = 0;
+    /** Allow participants to undo their declined feedback submissions. */
+    const UNDO_DECLINE_ALLOW = 1;
+
     /**
      * Fetches the 360-degree feedback instance.
      *
