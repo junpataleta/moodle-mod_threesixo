@@ -137,5 +137,28 @@ function xmldb_threesixo_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2018120302, 'threesixo');
     }
 
+    if ($oldversion < 2018120303) {
+
+        // Define field completionsubmit to be dropped from threesixo.
+        $table = new xmldb_table('threesixo');
+        $field = new xmldb_field('completionsubmit');
+
+        // Conditionally launch drop field completionsubmit.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Define field publish_responses to be dropped from threesixo.
+        $field = new xmldb_field('publish_responses');
+
+        // Conditionally launch drop field publish_responses.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Threesixo savepoint reached.
+        upgrade_mod_savepoint(true, 2018120303, 'threesixo');
+    }
+
     return true;
 }
