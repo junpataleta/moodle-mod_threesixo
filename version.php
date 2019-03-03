@@ -28,5 +28,5 @@ $plugin->version   = 2018052605;        // The current module version (Date: YYY
 $plugin->requires  = 2018051700.00;     // Requires Moodle 3.5.0.
 $plugin->component = 'mod_threesixo';   // Full name of the plugin (used for diagnostics).
 $plugin->cron      = 0;
-$plugin->release = 'v35.2.0';
+$plugin->release = 'v35.3.0';
 $plugin->maturity = MATURITY_STABLE;
