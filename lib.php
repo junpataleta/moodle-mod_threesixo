@@ -23,6 +23,9 @@
  * @copyright 2017 Jun Pataleta
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use mod_threesixo\helper;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -52,6 +55,8 @@ function threesixo_add_instance($threesixty) {
             $threesixty->coursemodule = $cm->id;
         }
 
+        helper::set_events($threesixty);
+
         $DB->update_record('threesixo', $threesixty);
     }
 
@@ -71,9 +76,7 @@ function threesixo_update_instance($threesixty) {
     $threesixty->timemodified = time();
     $threesixty->id = $threesixty->instance;
 
-    if (empty($threesixty->site_after_submit)) {
-        $threesixty->site_after_submit = '';
-    }
+    helper::set_events($threesixty);
 
     // Save the feedback into the db.
     return $DB->update_record("threesixo", $threesixty);
