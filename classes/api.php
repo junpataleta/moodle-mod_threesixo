@@ -836,7 +836,6 @@ class api {
                 $response->touser = $touser;
                 $response->fromuser = $fromuser;
                 $response->value = $value;
-                $response->salt = '';
                 $id = $DB->insert_record('threesixo_response', $response);
                 $result &= !empty($id);
             } else {
