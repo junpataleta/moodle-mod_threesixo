@@ -160,5 +160,20 @@ function xmldb_threesixo_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2018120303, 'threesixo');
     }
 
+    if ($oldversion < 2018120304) {
+
+        // Define field touser to be dropped from threesixo_response.
+        $table = new xmldb_table('threesixo_response');
+        $field = new xmldb_field('salt');
+
+        // Conditionally launch drop field touser.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Threesixo savepoint reached.
+        upgrade_mod_savepoint(true, 2018120304, 'threesixo');
+    }
+
     return true;
 }

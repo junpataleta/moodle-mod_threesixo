@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/threesixo/db" VERSION="20190113" COMMENT="XMLDB file for Moodle mod/threesixo"
+<XMLDB PATH="mod/threesixo/db" VERSION="20190530" COMMENT="XMLDB file for Moodle mod/threesixo"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -73,7 +73,6 @@
         <FIELD NAME="item" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID from feedback_item table."/>
         <FIELD NAME="fromuser" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Hashed user ID of the one giving feedback."/>
         <FIELD NAME="touser" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Hashed user ID of the user that is being given feedback on."/>
-        <FIELD NAME="salt" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Salt used to encrypt to/from user fields."/>
         <FIELD NAME="value" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Value for the response given on the feedback item."/>
       </FIELDS>
       <KEYS>
