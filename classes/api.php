@@ -83,6 +83,11 @@ class api {
     /** Allow participants to undo their declined feedback submissions. */
     const UNDO_DECLINE_ALLOW = 1;
 
+    /** Activity open event type. */
+    const THREESIXO_EVENT_TYPE_OPEN = 'open';
+    /** Activity close event type. */
+    const THREESIXO_EVENT_TYPE_CLOSE = 'close';
+
     /**
      * Fetches the 360-degree feedback instance.
      *
