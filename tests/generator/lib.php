@@ -52,6 +52,14 @@ class mod_threesixo_generator extends testing_module_generator {
             $record->timemodified = time();
         }
 
+        if (!isset($record->timeopen)) {
+            $record->timeopen = 0;
+        }
+
+        if (!isset($record->timeclose)) {
+            $record->timeclose = 0;
+        }
+
         $threesixo = parent::create_instance($record, (array)$options);
 
         // Generate sample questions for this instance.

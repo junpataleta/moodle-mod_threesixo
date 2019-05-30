@@ -22,7 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_threesixo;
+use calendar_event;
 use moodle_exception;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -86,6 +88,98 @@ class helper {
                 return get_string('qtypecomment', 'threesixo');
             default:
                 return '';
+        }
+    }
+
+    /**
+     * This creates new calendar events given as timeopen and timeclose by $threesixo.
+     *
+     * @param stdClass $threesixo The 360-degree feedback instance.
+     * @return void
+     */
+    public static function set_events($threesixo) {
+        global $CFG;
+
+        require_once($CFG->dirroot.'/calendar/lib.php');
+
+        // Get CMID if not sent as part of $threesixo.
+        if (!isset($threesixo->coursemodule)) {
+            $cm = get_coursemodule_from_instance('threesixo', $threesixo->id, $threesixo->course);
+            $threesixo->coursemodule = $cm->id;
+        }
+
+        // Common event parameters.
+        $instanceid = $threesixo->id;
+        $courseid = $threesixo->course;
+        $eventdescription = format_module_intro('threesixo', $threesixo, $threesixo->coursemodule);
+        $visible = instance_is_visible('threesixo', $threesixo);
+
+        // Calendar event for when the 360-degree feedback opens.
+        $eventname = get_string('calendarstart', 'threesixo', $threesixo->name);
+        $eventtype = api::THREESIXO_EVENT_TYPE_OPEN;
+        // Calendar event type is set to action event when there's no timeclose.
+        $calendareventtype = empty($threesixo->timeclose) ? CALENDAR_EVENT_TYPE_ACTION : CALENDAR_EVENT_TYPE_STANDARD;
+        self::set_event($instanceid, $eventname, $eventdescription, $eventtype, $calendareventtype, $threesixo->timeopen,
+            $visible, $courseid);
+
+        // Calendar event for when the 360-degree feedback closes.
+        $eventname = get_string('calendarend', 'threesixo', $threesixo->name);
+        $eventtype = api::THREESIXO_EVENT_TYPE_CLOSE;
+        $calendareventtype = CALENDAR_EVENT_TYPE_ACTION;
+        self::set_event($instanceid, $eventname, $eventdescription, $eventtype, $calendareventtype, $threesixo->timeclose,
+            $visible, $courseid);
+    }
+
+    /**
+     * Sets the calendar event for the 360-degree feedback instance.
+     *
+     * For existing events, if timestamp is not empty, the event will be updated. Otherwise, it will be deleted.
+     * If the event is not yet existing and the timestamp is empty, the event will be created.
+     *
+     * @param int $id The threesixo instance ID.
+     * @param string $eventname The event name.
+     * @param string $description The event description.
+     * @param string $eventtype The type of the module event.
+     * @param int $calendareventtype The calendar event type, whether a standard or an action event.
+     * @param int $timestamp The event's timestamp.
+     * @param bool $visible Whether this event is visible.
+     * @param int $courseid The course ID of this event.
+     */
+    protected static function set_event($id, $eventname, $description, $eventtype, $calendareventtype, $timestamp, $visible,
+                                        $courseid) {
+        global $DB;
+
+        // Build the calendar event object.
+        $event = new stdClass();
+        $event->name         = $eventname;
+        $event->description  = $description;
+        $event->eventtype    = $eventtype;
+        $event->timestart    = $timestamp;
+        $event->timesort     = $timestamp;
+        $event->visible      = $visible;
+        $event->timeduration = 0;
+        $event->type         = $calendareventtype;
+
+        // Check if event exists.
+        $event->id = $DB->get_field('event', 'id', ['modulename' => 'threesixo', 'instance' => $id, 'eventtype' => $eventtype]);
+        if ($event->id) {
+            $calendarevent = calendar_event::load($event->id);
+            if (!empty($timestamp) && $timestamp > 0) {
+                // Calendar event exists so update it.
+                $calendarevent->update($event, false);
+            } else {
+                // Calendar event is no longer needed.
+                $calendarevent->delete();
+            }
+        } else if (!empty($timestamp) && $timestamp > 0) {
+            // Event doesn't exist so create one.
+            $event->courseid     = $courseid;
+            $event->groupid      = 0;
+            $event->userid       = 0;
+            $event->modulename   = 'threesixo';
+            $event->instance     = $id;
+
+            calendar_event::create($event, false);
         }
     }
 }
