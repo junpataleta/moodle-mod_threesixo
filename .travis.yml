@@ -7,8 +7,7 @@ addons:
   postgresql: "9.6"
   apt:
     packages:
-      - oracle-java8-installer
-      - oracle-java8-set-default
+      - default-jre
 
 cache:
   directories:
@@ -17,7 +16,7 @@ cache:
 
 php:
  - 7.1
- - 7.2
+ - 7.3
 
 env:
  global:

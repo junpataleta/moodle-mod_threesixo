@@ -457,6 +457,7 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
     /**
      * Simulate the user giving feedback to another user.
      *
+     * @param int $participantid The participant ID.
      * @param int $recipientid The recipient ID.
      */
     protected function give_feedback_to_user($participantid, $recipientid) {
