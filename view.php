@@ -55,7 +55,8 @@ if ($release != -1) {
 // Edit items.
 $instanceready = \mod_threesixo\api::is_ready($threesixty->id);
 $canedit = \mod_threesixo\api::can_edit_items($threesixty->id, $context);
-echo $OUTPUT->box(groups_print_activity_menu($cm, $PAGE->url, true));
+$hideallparticipants = !has_capability('moodle/site:accessallgroups', $context);
+echo $OUTPUT->box(groups_print_activity_menu($cm, $PAGE->url, true, $hideallparticipants));
 
 if ($canedit) {
     $edititemsurl = new moodle_url('edit_items.php');
