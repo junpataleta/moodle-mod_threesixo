@@ -899,14 +899,14 @@ class api {
             'status' => self::STATUS_COMPLETE
         ];
         $sql = "
-            SELECT tr.id, tr.item, tr.fromuser, tr.value
-              FROM {threesixo_response} tr
-              JOIN {threesixo_submission} ts
-                ON tr.threesixo = ts.threesixo
-             WHERE tr.threesixo = :threesixo
-                   AND tr.touser = :touser
-                   AND ts.status = :status
-          ORDER BY tr.item ASC";
+            SELECT DISTINCT tr.id, tr.item, tr.fromuser, tr.fromuser, tr.value
+                       FROM {threesixo_response} tr
+                       JOIN {threesixo_submission} ts
+                         ON tr.threesixo = ts.threesixo
+                      WHERE tr.threesixo = :threesixo
+                            AND tr.touser = :touser
+                            AND ts.status = :status
+                   ORDER BY tr.item ASC";
         $responses = $DB->get_records_sql($sql, $params);
 
         $items = self::get_items($threesixtyid);
