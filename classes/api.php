@@ -445,6 +445,24 @@ class api {
     }
 
     /**
+     * Check is only active users in course should be shown.
+     *
+     * @return bool true if only active users should be shown.
+     */
+    public static function show_only_active_users(context_module $context = null) {
+        global $CFG;
+
+        $defaultgradeshowactiveenrol = !empty($CFG->grade_report_showonlyactiveenrol);
+        $showonlyactiveenrol = get_user_preferences('grade_report_showonlyactiveenrol', $defaultgradeshowactiveenrol);
+
+        if (!is_null($context)) {
+            $showonlyactiveenrol = $showonlyactiveenrol || !has_capability('moodle/course:viewsuspendedusers', $context);
+        }
+        return $showonlyactiveenrol;
+    }
+
+
+    /**
      * Function that retrieves the participants for the 360 feedback activity.
      *
      * @param int $threesixtyid The 360 instance ID.
@@ -496,17 +514,18 @@ class api {
         }
 
         $groupmode = groups_get_activity_groupmode($cm);
-        if ($groupmode != NOGROUPS && !has_capability('moodle/site:accessallgroups', $context)) {
-            $usergroups = groups_get_user_groups($cm->course)['0'];
-            if (empty($usergroups)) {
-                throw new moodle_exception('errornotingroup', 'mod_threesixo');
-            }
-            list($sql, $params) = $DB->get_in_or_equal($usergroups, SQL_PARAMS_NAMED);
-            $groupcondition = "u.id IN (
-                SELECT gm.userid
-                  FROM {groups_members} gm
-                 WHERE gm.groupid $sql
-            )";
+        if ($groupmode != NOGROUPS) {
+
+            $currentgroup = groups_get_activity_group($cm, true);
+            $userids = get_enrolled_users($context, '', $currentgroup, 'u.id', null, 0, 0, self::show_only_active_users($context));
+
+            $userids = array_map(
+                function($user) {
+                    return $user->id;
+                }, $userids);
+            list($sql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+
+            $groupcondition = "u.id $sql";
             $userssqlparams = array_merge($userssqlparams, $params);
             $wheres[] = $groupcondition;
         }
