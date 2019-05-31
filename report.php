@@ -39,8 +39,7 @@ $participants = [];
 if (!$viewingforself) {
     require_capability('mod/threesixo:viewreports', $context);
 
-    $includeself = \mod_threesixo\api::can_respond($threesixtyid, $USER->id, $context) === true;
-    $participants = \mod_threesixo\api::get_participants($threesixtyid, $USER->id, $includeself);
+    $participants = \mod_threesixo\api::get_participants($threesixtyid, $USER->id, $threesixty->with_self_review);
 } else if (!\mod_threesixo\api::can_view_own_report($threesixty)) {
     print_error('errorreportnotavailable', 'mod_threesixo');
 }
