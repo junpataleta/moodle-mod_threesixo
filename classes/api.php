@@ -1061,4 +1061,34 @@ class api {
         $threesixty->released = $released;
         return $DB->set_field('threesixo', 'released', $released, ['id' => $threesixty->id]);
     }
+
+    /**
+     * Counts the number of users awaiting feedback from the given user ID.
+     *
+     * @param int $threesixtyid The 360-degree feedback instance ID.
+     * @param int $user The user ID.
+     * @return int
+     */
+    public static function count_users_awaiting_feedback($threesixtyid, $user) {
+        global $DB;
+
+        $threesixo = self::get_instance($threesixtyid);
+
+        // Check first if the user can write feedback to other participants.
+        if (self::can_respond($threesixo, $user) === true) {
+            if (!$DB->record_exists('threesixo_submission', ['threesixo' => $threesixo->id, 'fromuser' => $user])) {
+                // Generate submission records if there are no submission records yet.
+                self::generate_360_feedback_statuses($threesixo->id, $user, $threesixo->with_self_review);
+            }
+
+            // Count participants awaiting feedback from this user.
+            list($insql, $params) = $DB->get_in_or_equal([self::STATUS_PENDING, self::STATUS_IN_PROGRESS], SQL_PARAMS_NAMED);
+            $select = "threesixo = :threesixo AND fromuser = :fromuser AND status $insql";
+            $params['threesixo'] = $threesixtyid;
+            $params['fromuser'] = $user;
+            return $DB->count_records_select('threesixo_submission', $select, $params);
+        }
+
+        return 0;
+    }
 }

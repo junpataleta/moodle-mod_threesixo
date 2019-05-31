@@ -164,14 +164,14 @@ class helper {
         $event->id = $DB->get_field('event', 'id', ['modulename' => 'threesixo', 'instance' => $id, 'eventtype' => $eventtype]);
         if ($event->id) {
             $calendarevent = calendar_event::load($event->id);
-            if (!empty($timestamp) && $timestamp > 0) {
+            if ($timestamp) {
                 // Calendar event exists so update it.
                 $calendarevent->update($event, false);
             } else {
                 // Calendar event is no longer needed.
                 $calendarevent->delete();
             }
-        } else if (!empty($timestamp) && $timestamp > 0) {
+        } else if ($timestamp) {
             // Event doesn't exist so create one.
             $event->courseid     = $courseid;
             $event->groupid      = 0;
