@@ -107,8 +107,10 @@ if ($instanceready) {
                 'threesixo' => $threesixty->id,
                 'touser' => $USER->id,
             ]);
-            echo html_writer::link($reportsurl, get_string('viewfeedbackreport', 'threesixo'),
-                ['class' => 'btn btn-default pull-right']);
+
+            $feedbackreport = html_writer::link($reportsurl, get_string('viewfeedbackreport', 'threesixo'),
+                ['class' => 'btn btn-default']);
+            echo html_writer::div($feedbackreport, 'text-right');
         }
     }
 
