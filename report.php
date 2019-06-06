@@ -48,7 +48,7 @@ $PAGE->set_context($context);
 $PAGE->set_cm($cm, $course);
 $PAGE->set_pagelayout('incourse');
 
-$PAGE->set_url('/mod/threesixo/view.php', ['id' => $cm->id]);
+$PAGE->set_url('/mod/threesixo/report.php', ['threesixo' => $threesixtyid, 'touser' => $touserid]);
 $PAGE->set_heading($course->fullname);
 $title = format_string($threesixty->name);
 $PAGE->set_title($title);
@@ -57,20 +57,33 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($title));
 echo $OUTPUT->heading(get_string('viewfeedbackforuser', 'mod_threesixo'), 3);
 
+// Make sure that the report being viewed is for someone who can participate in the activity.
+if (\mod_threesixo\api::can_respond($threesixty, $touserid) !== true) {
+    print_error('invaliduserid', 'error', new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]));
+}
+
+$touser = core_user::get_user($touserid);
 // Render user heading.
-if ($touserid > 0) {
-    $touser = core_user::get_user($touserid);
-    $userheading = [
-        'heading' => fullname($touser),
-        'user' => $touser,
-        'usercontext' => context_user::instance($touserid)
-    ];
-    $contextheader = $OUTPUT->context_header($userheading, 3);
-    echo html_writer::div($contextheader, 'card card-block p-1');
+$userheading = [
+    'heading' => fullname($touser),
+    'user' => $touser,
+    'usercontext' => context_user::instance($touserid)
+];
+$contextheader = $OUTPUT->context_header($userheading, 3);
+echo html_writer::div($contextheader, 'card card-block p-1');
+
+// Download format options.
+$downloadformats = [];
+$formats = core_plugin_manager::instance()->get_plugins_of_type('dataformat');
+foreach ($formats as $format) {
+    if (!$format->is_enabled()) {
+        continue;
+    }
+    $downloadformats[$format->name] = $format->displayname;
 }
 
 $responses = mod_threesixo\api::get_feedback_for_user($threesixtyid, $touserid);
-$responselist = new mod_threesixo\output\report($cm->id, $threesixtyid, $responses, $participants);
+$responselist = new mod_threesixo\output\report($cm->id, $threesixtyid, $responses, $participants, $touserid, $downloadformats);
 $renderer = $PAGE->get_renderer('mod_threesixo');
 echo $renderer->render($responselist);
 

@@ -30,6 +30,7 @@ use mod_threesixo\api;
 use moodle_url;
 use renderable;
 use renderer_base;
+use single_select;
 use stdClass;
 use templatable;
 use url_select;
@@ -54,6 +55,9 @@ class report implements renderable, templatable {
     /** @var action_link The action link pointing to the 360 feedback view page. */
     protected $activitylink;
 
+    /** @var single_select $downloadselect The single element containing the download format options. */
+    protected $downloadselect;
+
     /**
      * report constructor.
      *
@@ -61,9 +65,10 @@ class report implements renderable, templatable {
      * @param int $threesixtyid The 360 instance ID.
      * @param array $items List of items with the average rating/comments given to the user.
      * @param array $participants List of participants for the 360 activity.
-     * @throws \coding_exception
+     * @param int $touserid The user this report is being generated for.
+     * @param array $downloadformats List of download format options for the report.
      */
-    public function __construct($cmid, $threesixtyid, $items, $participants) {
+    public function __construct($cmid, $threesixtyid, $items, $participants, $touserid, $downloadformats = null) {
         $this->threesixtyid = $threesixtyid;
         $this->items = $items;
 
@@ -78,10 +83,21 @@ class report implements renderable, templatable {
         }
 
         if (!empty($participantslist)) {
-            $select = new url_select($participantslist, '', array('' => get_string('switchtouser', 'mod_threesixo')));
-            $select->set_label(get_string('jumpto'), array('class' => 'sr-only'));
-            $select->attributes = array('id' => 'jump-to-user-report');
+            $select = new url_select($participantslist, '', ['' => get_string('switchtouser', 'mod_threesixo')]);
+            $select->set_label(get_string('jumpto'), ['class' => 'sr-only']);
+            $select->attributes = ['id' => 'jump-to-user-report'];
+            $select->class = 'd-inline-block';
             $this->userselect = $select;
+        }
+
+        if (!empty($downloadformats)) {
+            $downloadlabel = get_string('downloadreportas', 'mod_threesixo');
+            $downloadurlparams = ['threesixo' => $this->threesixtyid, 'touser' => $touserid];
+            $downloadurl = new moodle_url('/mod/threesixo/report_download.php', $downloadurlparams);
+            $downloadselect = new single_select($downloadurl, 'format', $downloadformats, '', ['' => $downloadlabel]);
+            $downloadselect->set_label($downloadlabel, ['class' => 'sr-only']);
+            $downloadselect->attributes = ['id' => 'download-user-report'];
+            $this->downloadselect = $downloadselect;
         }
 
         // Activity link.
@@ -108,6 +124,9 @@ class report implements renderable, templatable {
         $data = new stdClass();
         if ($this->userselect) {
             $data->userselect = $this->userselect->export_for_template($output);
+        }
+        if ($this->downloadselect) {
+            $data->downloadselect = $this->downloadselect->export_for_template($output);
         }
         $data->activitylink = $this->activitylink->export_for_template($output);
         $data->ratings = [];
