@@ -65,6 +65,7 @@ class mod_threesixo_mod_form extends moodleform_mod {
 
         // Self-review.
         $mform->addElement('advcheckbox', 'with_self_review', get_string('enableselfreview', 'mod_threesixo'));
+        $mform->disabledIf('with_self_review', 'anonymous', 'checked');
 
         // 360-degree feedback participants.
         $context = $this->get_context();
