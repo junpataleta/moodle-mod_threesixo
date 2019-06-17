@@ -46,7 +46,15 @@ class mod_threesixo_generator extends testing_module_generator {
      * @return stdClass Record from the threesixo table with additional field cmid (corresponding id in course_modules table)
      */
     public function create_instance($record = null, array $options = null) {
+        global $DB;
+
         $record = (object)(array)$record;
+
+        if (!empty($record->participantrolename)) {
+            $roleid = $DB->get_field('role', 'id', ['shortname' => $record->participantrolename], MUST_EXIST);
+            $record->participantrole = $roleid;
+            unset($record->participantrolename);
+        }
 
         if (!isset($record->timemodified)) {
             $record->timemodified = time();
