@@ -34,14 +34,24 @@
     Example context (json):
     {
         "threesixtyid": 1,
+        "canperformactions": true,
         "participants": [
             {
                 "name" : "Kurdapyo Dimagiba",
-                "statuspending" : true
+                "statuspending" : true,
+                "respondlink": "#",
+                "declinelink": "#"
             },
             {
                 "name" : "Kurdapya Dimagiba",
-                "statusinprogress" : true
+                "statusinprogress" : true,
+                "respondlink": "#",
+                "declinelink": "#"
+            },
+            {
+                "name" : "John Doe",
+                "statusinprogress" : true,
+                "undodeclinelink": "#"
             }
         ]
     }
@@ -77,26 +87,28 @@
                         </span>
                     </td>
                     <td>
-                        {{#respondlink}}
+                        {{#canperformactions}}
+                            {{#respondlink}}
                             <a class="btn btn-link" href="{{{respondlink}}}" title="{{#str}}providefeedback, mod_threesixo{{/str}}">
                                 {{#pix}} t/editstring, core, {{#str}}providefeedback, mod_threesixo{{/str}} {{/pix}}
                             </a>
-                        {{/respondlink}}
+                            {{/respondlink}}
+                            {{#declinelink}}
+                            <a class="btn btn-link" href="#" data-action="decline-feedback" data-statusid="{{statusid}}" data-userid="{{userid}}" data-name="{{name}}" title="{{#str}}decline, mod_threesixo{{/str}}">
+                                {{#pix}} t/delete, core, {{#str}}decline, mod_threesixo{{/str}} {{/pix}}
+                            </a>
+                            {{/declinelink}}
+                            {{#undodeclinelink}}
+                            <a class="btn btn-link" href="#" data-action="undo-decline" data-statusid="{{statusid}}" data-userid="{{userid}}" title="{{#str}}undodecline, mod_threesixo{{/str}}">
+                                {{#pix}} e/undo, core, {{#str}}undodecline, mod_threesixo{{/str}} {{/pix}}
+                            </a>
+                            {{/undodeclinelink}}
+                        {{/canperformactions}}
                         {{#reportslink}}
                             <a class="btn btn-link" href="{{{reportslink}}}" data-action="view-report" data-id="{{id}}" data-userid="{{userid}}" title="{{#str}}view, mod_threesixo{{/str}}">
                                 {{#pix}} t/preview, core, {{#str}}viewfeedbackforuser, mod_threesixo{{/str}} {{/pix}}
                             </a>
                         {{/reportslink}}
-                        {{#declinelink}}
-                            <a class="btn btn-link" href="#" data-action="decline-feedback" data-statusid="{{statusid}}" data-userid="{{userid}}" data-name="{{name}}" title="{{#str}}decline, mod_threesixo{{/str}}">
-                                {{#pix}} t/delete, core, {{#str}}decline, mod_threesixo{{/str}} {{/pix}}
-                            </a>
-                        {{/declinelink}}
-                        {{#undodeclinelink}}
-                            <a class="btn btn-link" href="#" data-action="undo-decline" data-statusid="{{statusid}}" data-userid="{{userid}}" title="{{#str}}undodecline, mod_threesixo{{/str}}">
-                                {{#pix}} e/undo, core, {{#str}}undodecline, mod_threesixo{{/str}} {{/pix}}
-                            </a>
-                        {{/undodeclinelink}}
                     </td>
                 </tr>
             {{/ participants }}
