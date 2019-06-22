@@ -106,4 +106,68 @@ class mod_threesixo_api_testcase extends advanced_testcase {
             }
         }
     }
+
+    /**
+     * Data provider for test_is_open.
+     *
+     * @return array
+     */
+    public function is_open_provider() {
+        return [
+            'Empty open and close' => [null, null, false, true],
+            'After open, empty close' => ['yesterday', null, false, true],
+            'Empty open, before close' => [null, 'tomorrow', false, true],
+            'After open, before close' => ['yesterday', 'tomorrow', false, true],
+            'Before open, empty close' => ['tomorrow', null, false, false],
+            'Empty open, after close' => [null, 'yesterday', false, false],
+            'Before open, before close' => ['tomorrow', 'next week', false, false],
+            'After open, after close' => ['last week', 'yesterday', false, false],
+            'Before open, empty close, return message' => ['tomorrow', null, true, 'instancenotyetopen'],
+            'Empty open, after close, return message' => [null, 'yesterday', true, 'instancealreadyclosed'],
+            'Before open, before close, return message' => ['tomorrow', 'next week', true, 'instancenotyetopen'],
+            'After open, after close, return message' => ['last week', 'yesterday', true, 'instancealreadyclosed'],
+        ];
+    }
+
+    /**
+     * Test for \mod_threesixo\api::is_open().
+     *
+     * @dataProvider is_open_provider
+     * @param string $open Relative open date.
+     * @param string $close Relative close date.
+     * @param bool $expected Expected function result.
+     * @throws Exception
+     */
+    public function test_is_open($open, $close, $messagewhenclosed, $expected) {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+
+        // Create a course.
+        $course = $generator->create_course();
+        $params = [
+            'course' => $course->id,
+            'timeopen' => $open ? (new DateTime($open))->getTimestamp() : 0,
+            'timeclose' => $close ? (new DateTime($close))->getTimestamp() : 0,
+        ];
+        // Create the instance.
+        $threesixo = $this->getDataGenerator()->create_module('threesixo', $params);
+
+        // Check if instance is open.
+        $result = api::is_open($threesixo, $messagewhenclosed);
+
+        // Check the result.
+        if ($messagewhenclosed && $expected === 'instancenotyetopen') {
+            $openstring = userdate($params['timeopen']);
+            $message = get_string($expected, 'threesixo', $openstring);
+            $this->assertEquals($message, $result);
+
+        } else if ($messagewhenclosed && $expected === 'instancealreadyclosed') {
+            $message = get_string($expected, 'threesixo');
+            $this->assertEquals($message, $result);
+
+        } else {
+            $this->assertEquals($expected, $result);
+        }
+    }
 }

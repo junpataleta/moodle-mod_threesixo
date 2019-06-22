@@ -1114,4 +1114,46 @@ class api {
 
         return 0;
     }
+
+    /**
+     * Checks the availability of the instance based on the open and close times of the activity.
+     *
+     * @param int|stdClass $threesixoorid The 360-degree feedback ID or instance.
+     * @param bool $messagewhenclosed Whether to return a message when the instance is not yet open.
+     * @return bool|string
+     */
+    public static function is_open($threesixoorid, $messagewhenclosed = false) {
+        // Fetch instance when only an ID was provided.
+        if (is_object($threesixoorid)) {
+            $threesixo = $threesixoorid;
+        } else {
+            $threesixo = self::get_instance($threesixoorid);
+        }
+
+        // If there's open and close times are not defined, instance is open.
+        if (empty($threesixo->timeopen) && empty($threesixo->timeclose)) {
+            return true;
+        }
+
+        $now = time();
+        // If there's open time is before the current time, instance is not yet open.
+        if (!empty($threesixo->timeopen) && $threesixo->timeopen > $now) {
+            if ($messagewhenclosed) {
+                return get_string('instancenotyetopen', 'threesixo', userdate($threesixo->timeopen));
+            } else {
+                return false;
+            }
+        }
+
+        // If there's close time is after the current time, instance is not yet open.
+        if (!empty($threesixo->timeclose) && $threesixo->timeclose <= $now) {
+            if ($messagewhenclosed) {
+                return get_string('instancealreadyclosed', 'threesixo');
+            } else {
+                return false;
+            }
+        }
+        // All good, instance is open.
+        return true;
+    }
 }
