@@ -53,18 +53,23 @@ class list_participants implements renderable, templatable {
     /** @var bool Whether the user has the capability to view reports. */
     protected $canviewreports = false;
 
+    /** @var bool Whether the instance is open for participants to interact with. */
+    protected $isopen = false;
+
     /**
      * list_participants constructor.
      * @param stdClass $threesixty The 360 instance.
      * @param int $userid The respondent's user ID.
      * @param array $participants The array of participants for the 360 feedback, excluding the respondent.
      * @param bool $canviewreports Whether the user has the capability to view reports.
+     * @param bool $isopen Whether the instance is open for participants to interact with.
      */
-    public function __construct($threesixty, $userid, $participants, $canviewreports = false) {
+    public function __construct($threesixty, $userid, $participants, $canviewreports = false, $isopen = false) {
         $this->userid = $userid;
         $this->threesixo = $threesixty;
         $this->participants = $participants;
         $this->canviewreports = $canviewreports;
+        $this->isopen = $isopen;
     }
 
     /**
@@ -82,6 +87,7 @@ class list_participants implements renderable, templatable {
         $data->threesixtyid = $this->threesixo->id;
         $data->participants = [];
         $anonymous = $this->threesixo->anonymous;
+        $data->canperformactions = $this->isopen;
 
         foreach ($this->participants as $user) {
             $member = new stdClass();

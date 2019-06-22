@@ -118,11 +118,19 @@ if ($instanceready) {
     }
 
     try {
+        // Check if instance is already open.
+        $isopen = \mod_threesixo\api::is_open($threesixty, true);
+        if ($isopen !== true) {
+            // Show warning.
+            \core\notification::warning($isopen);
+            // Set to false, for usage on the participants list renderable.
+            $isopen = false;
+        }
         $participants = \mod_threesixo\api::get_participants($threesixty->id, $USER->id, $includeself);
         $canviewreports = \mod_threesixo\api::can_view_reports($context);
 
         // 360-degree feedback To-do list.
-        $memberslist = new mod_threesixo\output\list_participants($threesixty, $USER->id, $participants, $canviewreports);
+        $memberslist = new mod_threesixo\output\list_participants($threesixty, $USER->id, $participants, $canviewreports, $isopen);
         $memberslistoutput = $PAGE->get_renderer('mod_threesixo');
         echo $memberslistoutput->render($memberslist);
     } catch (moodle_exception $e) {

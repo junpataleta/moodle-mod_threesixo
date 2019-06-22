@@ -47,7 +47,10 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($title));
 echo $OUTPUT->heading(get_string('providefeedback', 'mod_threesixo'), 3);
 
-if (\mod_threesixo\api::is_ready($threesixty)) {
+// Check if instance is already open.
+$openmessage = \mod_threesixo\api::is_open($threesixty, true);
+$isready = \mod_threesixo\api::is_ready($threesixty);
+if ($isready && $openmessage === true) {
     // Render user heading.
     if ($submission->touser > 0) {
         $touser = core_user::get_user($submission->touser);
@@ -73,7 +76,12 @@ if (\mod_threesixo\api::is_ready($threesixty)) {
     echo $questionslistoutput->render($questionslist);
 
 } else {
-    \core\notification::error(get_string('instancenotready', 'mod_threesixo'));
+    if ($isready) {
+        $message = get_string('instancenotready', 'mod_threesixo');
+    } else {
+        $message = $openmessage;
+    }
+    \core\notification::error($message);
     $viewurl = new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]);
     echo html_writer::link($viewurl,  get_string('backto360dashboard', 'mod_threesixo'));
 }
