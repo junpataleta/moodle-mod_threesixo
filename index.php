@@ -33,3 +33,29 @@ if (!$course = $DB->get_record('course', ['id' => $id])) {
 }
 
 require_course_login($course);
+
+$strthreesixo = get_string('modulename', 'threesixo');
+$strthreesixos = get_string('modulenameplural', 'threesixo');
+
+$PAGE->set_title($strthreesixos);
+$PAGE->set_heading($course->fullname);
+$PAGE->navbar->add($strthreesixo);
+echo $OUTPUT->header();
+
+$threesixos = get_all_instances_in_course('threesixo', $course);
+if (empty($threesixos)) {
+    $returnurl = new moodle_url('/course/view.php', ['id' => $course->id]);
+    print_error('thereareno', 'moodle', $returnurl->out(), $strthreesixos);
+}
+
+$instancedata = [];
+foreach ($threesixos as $instance) {
+    $instanceurl = new moodle_url('/mod/threesixo/view.php', ['id' => $instance->coursemodule]);
+    $instancedata[] = (object)[
+        'name' => format_string($instance->name),
+        'url' => $instanceurl->out(),
+    ];
+}
+echo $OUTPUT->render_from_template('mod_threesixo/index', ['instances' => $instancedata]);
+
+echo $OUTPUT->footer();
