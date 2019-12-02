@@ -525,11 +525,13 @@ class api {
                 function($user) {
                     return $user->id;
                 }, $userids);
-            list($sql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+            if ($userids) {
+                list($sql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
 
-            $groupcondition = "u.id $sql";
-            $userssqlparams = array_merge($userssqlparams, $params);
-            $wheres[] = $groupcondition;
+                $groupcondition = "u.id $sql";
+                $userssqlparams = array_merge($userssqlparams, $params);
+                $wheres[] = $groupcondition;
+            }
         }
 
         $wherecondition = '';
@@ -628,13 +630,15 @@ class api {
             $context = $cm->context;
             $userids = get_enrolled_users($context, '', $currentgroup, 'u.id', null, 0, 0, self::show_only_active_users($context));
 
-            $userids = array_map(
-                function($user) {
-                    return $user->id;
-                }, $userids);
-            list($sql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
-            $params = array_merge($params, $inparams);
-            $wheres[] = "u.id $sql";
+            if ($userids) {
+                $userids = array_map(
+                    function($user) {
+                        return $user->id;
+                    }, $userids);
+                list($sql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+                $params = array_merge($params, $inparams);
+                $wheres[] = "u.id $sql";
+            }
         }
 
         $whereclause = implode(' AND ', $wheres);
