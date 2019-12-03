@@ -461,7 +461,6 @@ class api {
         return $showonlyactiveenrol;
     }
 
-
     /**
      * Function that retrieves the participants for the 360 feedback activity.
      *
@@ -1159,5 +1158,17 @@ class api {
         }
         // All good, instance is open.
         return true;
+    }
+
+    /**
+     * Whether a question can be deleted.
+     *
+     * @param int $id The question ID.
+     * @return bool
+     */
+    public static function can_delete_question($id): bool {
+        global $DB;
+
+        return !$DB->record_exists('threesixo_item', ['question' => $id]);
     }
 }

@@ -272,7 +272,11 @@ class external extends external_api {
 
         require_capability('mod/threesixo:editquestions', $context);
 
-        $result = api::delete_question($id);
+        if (api::can_delete_question($id)) {
+            $result = api::delete_question($id);
+        } else {
+            throw new moodle_exception('errorquestionstillinuse', 'mod_threesixo');
+        }
 
         return [
             'result' => $result,
