@@ -307,9 +307,9 @@ define([
             ModalFactory.create({
                 title: title,
                 body: str.get_string('confirmquestiondeletion', 'mod_threesixo'),
-                type: ModalFactory.types.CONFIRM
+                type: ModalFactory.types.SAVE_CANCEL
             }).done(function(modal) {
-                modal.getRoot().on(ModalEvents.yes, function() {
+                modal.getRoot().on(ModalEvents.save, function() {
 
                     // Get list of questions thru AJAX.
                     var promises = ajax.call([
