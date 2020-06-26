@@ -51,7 +51,7 @@ class mod_threesixo_api_testcase extends advanced_testcase {
         $enrolmethods = ['manual', 'self'];
 
         // Only enable the manual enrol plugin.
-        $CFG->enrol_plugins_enabled = implode($enrolmethods, ',');
+        $CFG->enrol_plugins_enabled = implode(',', $enrolmethods);
 
         $generator = $this->getDataGenerator();
 
