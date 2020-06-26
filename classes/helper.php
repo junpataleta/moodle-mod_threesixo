@@ -111,7 +111,7 @@ class helper {
         // Common event parameters.
         $instanceid = $threesixo->id;
         $courseid = $threesixo->course;
-        $eventdescription = format_module_intro('threesixo', $threesixo, $threesixo->coursemodule);
+        $eventdescription = format_module_intro('threesixo', $threesixo, $threesixo->coursemodule, false);
         $visible = instance_is_visible('threesixo', $threesixo);
 
         // Calendar event for when the 360-degree feedback opens.
