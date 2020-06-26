@@ -64,6 +64,6 @@ script:
   - moodle-plugin-ci savepoints
   # Disabling the mustache task as this is currently incompatible with the bionic distro.
   #- moodle-plugin-ci mustache
-  - moodle-plugin-ci grunt -t eslint:amd
+  - moodle-plugin-ci grunt -t eslint:amd -t babel
   - moodle-plugin-ci phpunit
   - moodle-plugin-ci behat
