@@ -21,14 +21,28 @@ cache:
 
 php:
  - 7.1
+ - 7.2
  - 7.4
 
 env:
- global:
-  - MOODLE_BRANCH=MOODLE_38_STABLE
- matrix:
-  - DB=pgsql
-  - DB=mysqli
+  - DB=pgsql  MOODLE_BRANCH=MOODLE_38_STABLE
+  - DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
+  - DB=pgsql  MOODLE_BRANCH=MOODLE_39_STABLE
+  - DB=mysqli MOODLE_BRANCH=MOODLE_39_STABLE
+
+jobs:
+  exclude:
+    # Moodle 3.9 requires PHP 7.2 and up so exclude PHP 7.1 jobs for 3.9.
+    - php: 7.1
+      env: DB=pgsql   MOODLE_BRANCH=MOODLE_39_STABLE
+    - php: 7.1
+      env: DB=mysqli  MOODLE_BRANCH=MOODLE_39_STABLE
+
+    # Moodle 3.8's minimum supported PHP version is 7.1. So no need to run jobs for PHP 7.2.
+    - php: 7.2
+      env: DB=pgsql   MOODLE_BRANCH=MOODLE_38_STABLE
+    - php: 7.2
+      env: DB=mysqli  MOODLE_BRANCH=MOODLE_38_STABLE
 
 before_install:
   - phpenv config-rm xdebug.ini
