@@ -1,4 +1,4 @@
-dist: trusty
+dist: bionic
 
 language: php
 
@@ -11,6 +11,9 @@ addons:
     packages:
       - default-jre
 
+services:
+  - mysql
+
 cache:
   directories:
     - $HOME/.composer/cache
@@ -18,19 +21,33 @@ cache:
 
 php:
  - 7.1
- - 7.3
+ - 7.2
+ - 7.4
 
 env:
- global:
-  - MOODLE_BRANCH=master
- matrix:
-  - DB=pgsql
-  - DB=mysqli
+  - DB=pgsql  MOODLE_BRANCH=MOODLE_38_STABLE
+  - DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
+  - DB=pgsql  MOODLE_BRANCH=MOODLE_39_STABLE
+  - DB=mysqli MOODLE_BRANCH=MOODLE_39_STABLE
+
+jobs:
+  exclude:
+    # Moodle 3.9 requires PHP 7.2 and up so exclude PHP 7.1 jobs for 3.9.
+    - php: 7.1
+      env: DB=pgsql   MOODLE_BRANCH=MOODLE_39_STABLE
+    - php: 7.1
+      env: DB=mysqli  MOODLE_BRANCH=MOODLE_39_STABLE
+
+    # Moodle 3.8's minimum supported PHP version is 7.1. So no need to run jobs for PHP 7.2.
+    - php: 7.2
+      env: DB=pgsql   MOODLE_BRANCH=MOODLE_38_STABLE
+    - php: 7.2
+      env: DB=mysqli  MOODLE_BRANCH=MOODLE_38_STABLE
 
 before_install:
   - phpenv config-rm xdebug.ini
-  - nvm install 8.9
-  - nvm use 8.9
+  - nvm install 14
+  - nvm use 14
   - cd ../..
   - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^2
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
@@ -45,7 +62,8 @@ script:
   - moodle-plugin-ci codechecker
   - moodle-plugin-ci validate
   - moodle-plugin-ci savepoints
-  - moodle-plugin-ci mustache
-  - moodle-plugin-ci grunt -t eslint:amd -t uglify
+  # Disabling the mustache task as this is currently incompatible with the bionic distro.
+  #- moodle-plugin-ci mustache
+  - moodle-plugin-ci grunt -t eslint:amd -t babel
   - moodle-plugin-ci phpunit
   - moodle-plugin-ci behat
