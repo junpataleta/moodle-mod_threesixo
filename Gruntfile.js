@@ -32,5 +32,5 @@ module.exports = function(grunt) {
     grunt.loadGruntfile("../../Gruntfile.js");
 
     // The default task (running "grunt" in console).
-    grunt.registerTask("default", ["eslint:amd", "uglify"]);
+    grunt.registerTask("default", ["eslint:amd"]);
 };
