@@ -114,6 +114,7 @@ class list_360_items implements \renderable, \templatable {
                 $listitem->moveupbutton = false;
                 $listitem->movedownbutton = false;
                 if ($itemcount > 1) {
+                    $listitem->position = $item->position;
                     if ($item->position == 1) {
                         $listitem->movedownbutton = true;
                     } else if ($item->position == $itemcount) {

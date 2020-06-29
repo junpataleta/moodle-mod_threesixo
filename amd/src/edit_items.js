@@ -28,8 +28,7 @@ define([
     'core/notification',
     'core/ajax',
     'core/str',
-    'mod_threesixo/question_bank',
-    'core/yui'
+    'mod_threesixo/question_bank'
 ], function($, Templates, Notification, Ajax, Str, Bank) {
 
     /**
@@ -41,6 +40,16 @@ define([
         DELETE: '[data-action="delete-item"]',
         MOVE_UP: '[data-action="move-item-up"]',
         MOVE_DOWN: '[data-action="move-item-down"]'
+    };
+
+    /**
+     * List of selectors.
+     *
+     * @type {{ITEM_LIST: string, ITEM_ROW: string}}
+     */
+    var SELECTORS = {
+        ITEM_LIST: '[data-region="itemlist"]',
+        ITEM_ROW: '[data-region="itemrow"]'
     };
 
     var threesixtyId;
@@ -72,6 +81,7 @@ define([
                 item.movedownbutton = false;
                 item.type = value.typetext;
                 if (itemCount > 1) {
+                    item.position = value.position;
                     if (value.position === 1) {
                         item.movedownbutton = true;
                     } else if (value.position === itemCount) {
@@ -140,6 +150,75 @@ define([
             var itemId = $(this).data('itemid');
             editItems.callItemAction('mod_threesixo_move_item_down', itemId);
         });
+
+        const root = document.querySelector(SELECTORS.ITEM_LIST);
+        const rows = root.querySelectorAll(SELECTORS.ITEM_ROW);
+        rows.forEach((row) => {
+            row.addEventListener('dragstart', handleDrag, false);
+            row.addEventListener('dragover', handleDragOver, false);
+            row.addEventListener('drop', handleDrop, false);
+        });
+
+    };
+
+    let dragSrcEl = null;
+
+    const handleDrag = (e) => {
+        dragSrcEl = e.target;
+
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', dragSrcEl.outerHTML);
+    };
+
+    const handleDrop = (e) => {
+        if (e.stopPropagation) {
+            e.stopPropagation();
+        }
+        const dropTarget = e.target.closest(SELECTORS.ITEM_ROW);
+
+        // Don't do anything if dropping the same column we're dragging.
+        if (dragSrcEl !== undefined && dragSrcEl !== dropTarget) {
+            // Set the source column's HTML to the HTML of the column we dropped on.
+            const sourceItemID = dragSrcEl.getAttribute('data-itemid');
+            const sourcePosition = parseInt(dragSrcEl.getAttribute('data-position'));
+            let targetPosition = parseInt(dropTarget.getAttribute('data-position'));
+            let moveTo = 'beforebegin';
+            if (sourcePosition < targetPosition) {
+                moveTo = 'afterend';
+            }
+            dragSrcEl.parentNode.removeChild(dragSrcEl);
+
+            const templateElement = document.createElement('template');
+            templateElement.innerHTML = e.dataTransfer.getData('text/html').trim();
+            const droppedElement = templateElement.content.firstChild;
+            droppedElement.setAttribute('data-position', targetPosition);
+            dropTarget.insertAdjacentElement(moveTo, droppedElement);
+
+            const rows = dropTarget.parentNode.querySelectorAll(SELECTORS.ITEM_ROW);
+            rows.forEach((row) => {
+                let itemId = row.getAttribute('data-itemid');
+                let itemPosition = parseInt(row.getAttribute('data-position'));
+                if (itemId !== sourceItemID) {
+                    if (moveTo === 'beforebegin' && itemPosition >= targetPosition) {
+                        row.setAttribute('data-position', itemPosition + 1);
+                    } else if (moveTo === 'afterend' && itemPosition <= targetPosition) {
+                        row.setAttribute('data-position', itemPosition - 1);
+                    }
+                }
+            });
+        }
+
+        return false;
+    };
+
+    const handleDragOver = (e) => {
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+
+        e.dataTransfer.dropEffect = 'move';
+
+        return false;
     };
 
     return editItems;
