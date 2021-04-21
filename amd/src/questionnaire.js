@@ -66,11 +66,11 @@ define(['jquery',
                         if (options) {
                             options.each(function() {
                                 // Mark selected option as selected.
-                                var selected = $(this).find('label');
+                                var selected = $(this).find('badge');
                                 if (selected.data('value') == response.value) {
-                                    selected.removeClass('label-default');
-                                    selected.removeClass('label-info');
-                                    selected.addClass('label-success');
+                                    selected.removeClass('bg-secondary');
+                                    selected.removeClass('bg-info');
+                                    selected.addClass('bg-success');
                                 }
                             });
                         }
@@ -90,13 +90,13 @@ define(['jquery',
             e.preventDefault();
 
             var row = $(this).parent('[data-region="question-row"]');
-            var options = row.find('label');
+            var options = row.find('badge');
 
             // Deselect the option that has been selected.
             $.each(options, function() {
-                if ($(this).hasClass('label-success')) {
-                    $(this).removeClass('label-success');
-                    $(this).addClass('label-default');
+                if ($(this).hasClass('bg-success')) {
+                    $(this).removeClass('bg-success');
+                    $(this).addClass('bg-secondary');
 
                     var forId = $(this).attr('for');
                     var optionRadio = $("#" + forId);
@@ -105,10 +105,10 @@ define(['jquery',
             });
 
             // Mark selected option as selected.
-            var selected = $(this).find('label');
-            selected.removeClass('label-default');
-            selected.removeClass('label-info');
-            selected.addClass('label-success');
+            var selected = $(this).find('badge');
+            selected.removeClass('bg-secondary');
+            selected.removeClass('bg-info');
+            selected.addClass('bg-success');
 
             // Mark hidden radio button as checked.
             var radio = $("#" + selected.attr('for'));
@@ -122,13 +122,13 @@ define(['jquery',
         $('.scaleoptionlabel').hover(function(e) {
             e.preventDefault();
 
-            if (!$(this).hasClass('label-success')) {
-                if ($(this).hasClass('label-default')) {
-                    $(this).removeClass('label-default');
-                    $(this).addClass('label-info');
+            if (!$(this).hasClass('bg-success')) {
+                if ($(this).hasClass('bg-secondary')) {
+                    $(this).removeClass('bg-secondary');
+                    $(this).addClass('bg-info');
                 } else {
-                    $(this).addClass('label-default');
-                    $(this).removeClass('label-info');
+                    $(this).addClass('bg-secondary');
+                    $(this).removeClass('bg-info');
                 }
             }
         });

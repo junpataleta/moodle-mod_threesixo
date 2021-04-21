@@ -37,7 +37,7 @@
     Example context (json):
     {
         "status": "In progress",
-        "statusclass": "label-info",
+        "statusclass": "bg-info",
         "ratedquestions": [
             { "questionid" : 1, "question": "Treats co-workers with courtesy and respect." },
             { "questionid" : 2, "question": "Has a positive attitude." },
@@ -58,7 +58,7 @@
 }}
 <div class="card">
     <div class="card-body" data-region="status">
-        <span class="label {{statusclass}}">{{ status }}</span>
+        <span class="badge {{statusclass}} text-light">{{ status }}</span>
     </div>
 </div>
 <table class="table table-striped"
@@ -70,7 +70,8 @@
        data-tousername="{{tousername}}">
     <tr>
         <th>
-            <div class="row-fluid rtl-compatible">
+            <!-- <div class="row-fluid rtl-compatible"> -->
+            <div class="row rtl-compatible">
                 <div class="col-md-5 span5">
                 </div>
                 {{#scales}}
@@ -84,13 +85,14 @@
     {{#ratedquestions}}
         <tr>
             <td>
-                <div class="row-fluid rtl-compatible" data-region="question-row" data-itemid="{{id}}">
+<!--                 <div class="row-fluid rtl-compatible" data-region="question-row" data-itemid="{{id}}"> -->
+                <div class="row rtl-compatible" data-region="question-row" data-itemid="{{id}}">
                     <div class="col-md-5 span5">
                         {{question}}
                     </div>
                     {{#scales}}
                         <div class="col-md-1 span1 scaleoption text-center">
-                            <label class="scaleoptionlabel label label-default p-l-1 p-r-1" data-value="{{scale}}" tabindex="0" for="option-{{questionid}}-{{scale}}" title="{{description}}">
+                            <label class="scaleoptionlabel badge badge-secondary text-light p-l-1 p-r-1" data-value="{{scale}}" tabindex="0" for="option-{{questionid}}-{{scale}}" title="{{description}}">
                                 {{scalelabel}}
                             </label>
                             <input type="radio" class="accesshide" name="question-{{questionid}}" value="{{scale}}" tabindex="-1" id="option-{{questionid}}-{{scale}}"/>
@@ -108,7 +110,8 @@
     {{#commentquestions}}
         <tr>
             <td>
-                <div class="row-fluid rtl-compatible" data-region="question-row" data-itemid="{{id}}">
+<!--                 <div class="row-fluid rtl-compatible" data-region="question-row" data-itemid="{{id}}"> -->
+                <div class="row rtl-compatible" data-region="question-row" data-itemid="{{id}}">
                     <div class="col-md-5 span5">
                         {{question}}
                     </div>
@@ -122,8 +125,8 @@
 </table>
 <div>
     <button class="btn btn-primary" id="submit-feedback">{{#str}}submit{{/str}}</button>
-    <button class="btn btn-default" id="save-feedback">{{#str}}savechanges{{/str}}</button>
-    <a class="btn btn-default" id="cancel-feedback" href="{{returnurl}}">{{#str}}cancel{{/str}}</a>
+    <button class="btn btn-secondary" id="save-feedback">{{#str}}savechanges{{/str}}</button>
+    <a class="btn btn-secondary" id="cancel-feedback" href="{{returnurl}}">{{#str}}cancel{{/str}}</a>
 </div>
 {{#js}}
     require(['mod_threesixo/questionnaire'], function(Questionnaire) {

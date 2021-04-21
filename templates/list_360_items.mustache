@@ -65,11 +65,11 @@
 <div class="container-fluid" data-region="itemlist">
     <div class="row m-t-1 m-b-1">
         <div class="span6 col-6 text-left">
-            <button class="btn btn-default" id="btn-question-bank">{{#str}}labelpickfromquestionbank, mod_threesixo{{/str}}</button>
+            <button class="btn btn-secondary" id="btn-question-bank">{{#str}}labelpickfromquestionbank, mod_threesixo{{/str}}</button>
         </div>
         <div class="span6 col-6 text-right">
             {{#makeavailableurl}}
-                <a class="btn btn-default" href="{{{makeavailableurl}}}">{{#str}}makeavailable, mod_threesixo{{/str}}</a>
+                <a class="btn btn-secondary" href="{{{makeavailableurl}}}">{{#str}}makeavailable, mod_threesixo{{/str}}</a>
             {{/makeavailableurl}}
             <a class="btn btn-link" href="{{{viewurl}}}">{{#str}}backto360dashboard, mod_threesixo{{/str}}</a>
         </div>
@@ -90,7 +90,7 @@
                         {{ question }}
                     </td>
                     <td>
-                        <span class="label">{{ type }}</span>
+                        <span class="badge">{{ type }}</span>
                     </td>
                     <td>
                         {{#deletebutton}}
