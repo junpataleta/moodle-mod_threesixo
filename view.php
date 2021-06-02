@@ -61,7 +61,7 @@ echo $OUTPUT->box(groups_print_activity_menu($cm, $PAGE->url, true, $hideallpart
 if ($canedit) {
     $edititemsurl = new moodle_url('edit_items.php');
     $edititemsurl->param('id', $cm->id);
-    echo html_writer::link($edititemsurl, get_string('edititems', 'threesixo'), ['class' => 'btn btn-default']);
+    echo html_writer::link($edititemsurl, get_string('edititems', 'threesixo'), ['class' => 'btn btn-secondary']);
     if (!$instanceready) {
         // Check if we can make the instance available to the respondents.
         if (\mod_threesixo\api::has_items($threesixty->id)) {
@@ -74,7 +74,7 @@ if ($canedit) {
             } else {
                 $url = $PAGE->url;
                 $url->param('makeavailable', true);
-                echo html_writer::link($url, get_string('makeavailable', 'threesixo'), ['class' => 'btn btn-default pull-right']);
+                echo html_writer::link($url, get_string('makeavailable', 'threesixo'), ['class' => 'btn btn-secondary pull-right']);
             }
         } else {
             \core\notification::warning(get_string('noitemsyet', 'mod_threesixo'));
@@ -112,7 +112,7 @@ if ($instanceready) {
             ]);
 
             $feedbackreport = html_writer::link($reportsurl, get_string('viewfeedbackreport', 'threesixo'),
-                ['class' => 'btn btn-default']);
+                ['class' => 'btn btn-secondary']);
             echo html_writer::div($feedbackreport, 'text-right');
         }
     }

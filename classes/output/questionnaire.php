@@ -74,15 +74,15 @@ class questionnaire implements renderable, templatable {
         $threesixty = api::get_instance($submission->threesixo);
         switch ($submission->status) {
             case api::STATUS_IN_PROGRESS: // In Progress.
-                $data->statusclass = 'label-info';
+                $data->statusclass = 'badge-info';
                 $data->status = get_string('statusinprogress', 'threesixo');
                 break;
             case api::STATUS_COMPLETE: // Completed.
-                $data->statusclass = 'label-success';
+                $data->statusclass = 'badge-success';
                 $data->status = get_string('statuscompleted', 'threesixo');
                 break;
             case api::STATUS_DECLINED: // Declined.
-                $data->statusclass = 'label-warning';
+                $data->statusclass = 'badge-warning';
                 $data->status = get_string('statusdeclined', 'threesixo');
                 break;
             default: // Pending.
@@ -108,7 +108,9 @@ class questionnaire implements renderable, templatable {
                     break;
             }
         }
+        $data->hasratedquestions = !empty($ratedquestions);
         $data->ratedquestions = $ratedquestions;
+        $data->hascommentquestions = !empty($commentquestions);
         $data->commentquestions = $commentquestions;
         $data->touserid = $submission->touser;
         $touser = core_user::get_user($submission->touser, get_all_user_name_fields(true));

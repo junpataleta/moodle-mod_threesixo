@@ -68,9 +68,9 @@ define(['jquery',
                                 // Mark selected option as selected.
                                 var selected = $(this).find('label');
                                 if (selected.data('value') == response.value) {
-                                    selected.removeClass('label-default');
-                                    selected.removeClass('label-info');
-                                    selected.addClass('label-success');
+                                    selected.removeClass('badge-secondary');
+                                    selected.removeClass('badge-info');
+                                    selected.addClass('badge-success');
                                 }
                             });
                         }
@@ -94,9 +94,9 @@ define(['jquery',
 
             // Deselect the option that has been selected.
             $.each(options, function() {
-                if ($(this).hasClass('label-success')) {
-                    $(this).removeClass('label-success');
-                    $(this).addClass('label-default');
+                if ($(this).hasClass('badge-success')) {
+                    $(this).removeClass('badge-success');
+                    $(this).addClass('badge-secondary');
 
                     var forId = $(this).attr('for');
                     var optionRadio = $("#" + forId);
@@ -106,9 +106,9 @@ define(['jquery',
 
             // Mark selected option as selected.
             var selected = $(this).find('label');
-            selected.removeClass('label-default');
-            selected.removeClass('label-info');
-            selected.addClass('label-success');
+            selected.removeClass('badge-secondary');
+            selected.removeClass('badge-info');
+            selected.addClass('badge-success');
 
             // Mark hidden radio button as checked.
             var radio = $("#" + selected.attr('for'));
@@ -122,13 +122,13 @@ define(['jquery',
         $('.scaleoptionlabel').hover(function(e) {
             e.preventDefault();
 
-            if (!$(this).hasClass('label-success')) {
-                if ($(this).hasClass('label-default')) {
-                    $(this).removeClass('label-default');
-                    $(this).addClass('label-info');
+            if (!$(this).hasClass('badge-success')) {
+                if ($(this).hasClass('badge-secondary')) {
+                    $(this).removeClass('badge-secondary');
+                    $(this).addClass('badge-info');
                 } else {
-                    $(this).addClass('label-default');
-                    $(this).removeClass('label-info');
+                    $(this).addClass('badge-secondary');
+                    $(this).removeClass('badge-info');
                 }
             }
         });
