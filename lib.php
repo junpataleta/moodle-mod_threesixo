@@ -60,6 +60,7 @@ function threesixo_add_instance($threesixty) {
         }
 
         helper::set_events($threesixty);
+        threesixo_grade_item_update($threesixty);
 
         $DB->update_record('threesixo', $threesixty);
     }
@@ -120,24 +121,17 @@ function threesixo_delete_instance($id) {
  */
 function threesixo_supports($feature) {
     switch ($feature) {
+        case FEATURE_GROUPINGS:
+        case FEATURE_MOD_INTRO:
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+        case FEATURE_COMPLETION_HAS_RULES:
+        case FEATURE_BACKUP_MOODLE2:
+        case FEATURE_SHOW_DESCRIPTION:
+        case FEATURE_GRADE_HAS_GRADE:
         case FEATURE_GROUPS:
             return true;
-        case FEATURE_GROUPINGS:
-            return true;
-        case FEATURE_MOD_INTRO:
-            return true;
-        case FEATURE_COMPLETION_TRACKS_VIEWS:
-            return true;
-        case FEATURE_COMPLETION_HAS_RULES:
-            return true;
-        case FEATURE_GRADE_HAS_GRADE:
-            return false;
         case FEATURE_GRADE_OUTCOMES:
             return false;
-        case FEATURE_BACKUP_MOODLE2:
-            return true;
-        case FEATURE_SHOW_DESCRIPTION:
-            return true;
         default:
             return null;
     }
@@ -320,4 +314,41 @@ function threesixo_core_calendar_event_action_shows_item_count(calendar_event $e
 
     // Item count should be shown if there is one or more item count.
     return $itemcount > 0;
+}
+
+/**
+ * Create grade item for given lesson
+ *
+ * @category grade
+ * @uses GRADE_TYPE_VALUE
+ * @uses GRADE_TYPE_NONE
+ * @param stdClass $threesixo object with extra cmidnumber
+ * @param array|object $grades optional array/object of grade(s); 'reset' means reset grades in gradebook
+ * @return int 0 if ok, error code otherwise
+ */
+function threesixo_grade_item_update($threesixo, $grades = null) {
+    global $CFG;
+    require_once($CFG->libdir.'/gradelib.php');
+
+    $params = array('itemname'=>$threesixo->name, 'idnumber'=>$threesixo->cmidnumber);
+
+    if (!$threesixo->assessed || $threesixo->scale == 0) {
+        $params['gradetype'] = GRADE_TYPE_NONE;
+
+    } else if ($threesixo->scale > 0) {
+        $params['gradetype'] = GRADE_TYPE_VALUE;
+        $params['grademax']  = $threesixo->grade;
+        $params['grademin']  = 0;
+
+    } else if ($threesixo->scale < 0) {
+        $params['gradetype'] = GRADE_TYPE_SCALE;
+        $params['scaleid']   = -$threesixo->grade;
+    }
+
+    if ($grades  === 'reset') {
+        $params['reset'] = true;
+        $grades = NULL;
+    }
+
+    return grade_update('mod/threesixo', $threesixo->course, 'mod', 'threesixo', $threesixo->id, 0, $grades, $params);
 }
