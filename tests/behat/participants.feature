@@ -139,9 +139,9 @@ Feature: Check the participants list of a 360-degree feedback instance in variou
     And I should not see "Student 4" in the "participants" "table"
 
     Examples:
-    | groupmode | groupmodetext |
-    | 1         | Separate      |
-    | 2         | Visible       |
+      | groupmode | groupmodetext |
+      | 1         | Separate      |
+      | 2         | Visible       |
 
   Scenario: Check list of threesixo participants in separate groups mode with grouping configuration as a student
     Given the following "activities" exist:

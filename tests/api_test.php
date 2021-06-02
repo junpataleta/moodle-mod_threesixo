@@ -135,8 +135,8 @@ class mod_threesixo_api_testcase extends advanced_testcase {
      * @dataProvider is_open_provider
      * @param string $open Relative open date.
      * @param string $close Relative close date.
+     * @param bool $messagewhenclosed Whether to return a message when the instance is not yet open.
      * @param bool $expected Expected function result.
-     * @throws Exception
      */
     public function test_is_open($open, $close, $messagewhenclosed, $expected) {
         $this->resetAfterTest();

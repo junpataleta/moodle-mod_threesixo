@@ -447,6 +447,7 @@ class api {
     /**
      * Check whether only active users in course should be shown.
      *
+     * @param context_module|null $context
      * @return bool true if only active users should be shown.
      */
     public static function show_only_active_users(context_module $context = null) {
