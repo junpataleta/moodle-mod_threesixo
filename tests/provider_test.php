@@ -319,7 +319,7 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
         \mod_threesixo\privacy\provider::get_users_in_context($userlist);
         $userids = $userlist->get_userids();
         // This should match the participants list of the first 360 instance.
-        $this->assertEquals($this->students, $userids, '', 0.0, 10, true);
+        $this->assertEqualsCanonicalizing($this->students, $userids, '');
         // And definitely not include user from the other 360 instance.
         $this->assertNotContains($newstudent->id, $userids);
     }
