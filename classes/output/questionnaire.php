@@ -86,7 +86,7 @@ class questionnaire implements renderable, templatable {
                 $data->status = get_string('statusdeclined', 'threesixo');
                 break;
             default: // Pending.
-                $data->statusclass = 'label';
+                $data->statusclass = 'badge-secondary';
                 $data->status = get_string('statuspending', 'threesixo');
                 break;
         }
