@@ -14,262 +14,271 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * AMD code for the frequently used comments chooser for the marking guide grading form.
+ * Questionnaire JS module.
  *
  * @module     mod_threesixo/questionnaire
- * @class      view
+ * @class      questionnaire
  * @package    core
  * @copyright  2016 Jun Pataleta <jun@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery',
-    'core/templates',
-    'core/notification',
-    'core/ajax',
-    'core/str',
-    'core/modal_factory',
-    'core/modal_events'
-], function($, Templates, Notification, Ajax, Str, ModalFactory, ModalEvents) {
+import Notification from 'core/notification';
+import Ajax from 'core/ajax';
+import {get_string as getString, get_strings as getStrings} from 'core/str';
+import ModalFactory from 'core/modal_factory';
+import ModalEvents from 'core/modal_events';
+import {add as addToast} from 'core/toast';
 
-    var responses = [];
-    var questionnaire = function() {
-        this.registerEvents();
+const selectors = {
+    commentItem: 'textarea[data-region="comment-item"]',
+    questionnaireTable: '[data-region="questionnaire"]',
+    ratingOption: 'input[type=radio]',
+    questionItem: '[data-region="question-item"]',
+};
 
-        $('[data-region="question-row"]').each(function() {
-            responses[$(this).data('itemid')] = null;
-        });
+const responses = [];
+export const init = () => {
+    registerEvents();
 
-        var questionnaireTable = $('[data-region="questionnaire"]');
-        var fromUser = questionnaireTable.data('fromuserid');
-        var toUser = questionnaireTable.data('touserid');
-        var threesixtyId = questionnaireTable.data('threesixtyid');
+    const questionItems = document.querySelectorAll(selectors.questionItem);
+    questionItems.forEach(option => {
+        responses[option.getAttribute('data-itemid')] = null;
+    });
 
-        var promises = Ajax.call([
-            {
-                methodname: 'mod_threesixo_get_responses',
-                args: {
-                    threesixtyid: threesixtyId,
-                    fromuserid: fromUser,
-                    touserid: toUser
-                }
+    const questionnaireTable = document.querySelector(selectors.questionnaireTable);
+    const fromUser = questionnaireTable.getAttribute('data-fromuserid');
+    const toUser = questionnaireTable.getAttribute('data-touserid');
+    const threesixtyId = questionnaireTable.getAttribute('data-threesixtyid');
+
+    const promises = Ajax.call([
+        {
+            methodname: 'mod_threesixo_get_responses',
+            args: {
+                threesixtyid: threesixtyId,
+                fromuserid: fromUser,
+                touserid: toUser
             }
-        ]);
-
-        promises[0].done(function(result) {
-            $.each(result.responses, function() {
-                var response = this;
-                responses[response.item] = response.value;
-
-                $('[data-region="question-row"]').each(function() {
-                    if ($(this).data('itemid') === response.item) {
-                        var options = $(this).children('.scaleoption');
-                        if (options) {
-                            options.each(function() {
-                                // Mark selected option as selected.
-                                var selected = $(this).find('label');
-                                if (selected.data('value') == response.value) {
-                                    selected.removeClass('badge-secondary');
-                                    selected.removeClass('badge-info');
-                                    selected.addClass('badge-success');
-                                }
-                            });
-                        }
-                        var comment = $(this).find('.comment');
-                        if (comment) {
-                            var commentTextArea = $(this).find('textarea');
-                            commentTextArea.val(response.value);
-                        }
-                    }
-                });
-            });
-        });
-    };
-
-    questionnaire.prototype.registerEvents = function() {
-        $('.scaleoption').click(function(e) {
-            e.preventDefault();
-
-            var row = $(this).parent('[data-region="question-row"]');
-            var options = row.find('label');
-
-            // Deselect the option that has been selected.
-            $.each(options, function() {
-                if ($(this).hasClass('badge-success')) {
-                    $(this).removeClass('badge-success');
-                    $(this).addClass('badge-secondary');
-
-                    var forId = $(this).attr('for');
-                    var optionRadio = $("#" + forId);
-                    optionRadio.removeAttr('checked');
-                }
-            });
-
-            // Mark selected option as selected.
-            var selected = $(this).find('label');
-            selected.removeClass('badge-secondary');
-            selected.removeClass('badge-info');
-            selected.addClass('badge-success');
-
-            // Mark hidden radio button as checked.
-            var radio = $("#" + selected.attr('for'));
-            radio.attr('checked', 'checked');
-            var itemid = row.data('itemid');
-
-            // Add this selected value to the array of responses.
-            responses[itemid] = selected.data('value');
-        });
-
-        $('.scaleoptionlabel').hover(function(e) {
-            e.preventDefault();
-
-            if (!$(this).hasClass('badge-success')) {
-                if ($(this).hasClass('badge-secondary')) {
-                    $(this).removeClass('badge-secondary');
-                    $(this).addClass('badge-info');
-                } else {
-                    $(this).addClass('badge-secondary');
-                    $(this).removeClass('badge-info');
-                }
-            }
-        });
-
-        $("#save-feedback").click(function() {
-            saveResponses(false);
-        });
-
-        $("#submit-feedback").click(function() {
-            saveResponses(true);
-        });
-    };
-
-    /**
-     * Save the responses.
-     *
-     * @param {boolean} finalise
-     */
-    function saveResponses(finalise) {
-        $('.comment').each(function() {
-            responses[$(this).data('itemid')] = $(this).val().trim();
-        });
-
-        var questionnaireTable = $('[data-region="questionnaire"]');
-        var toUser = questionnaireTable.data('touserid');
-        var toUserFullname = questionnaireTable.data('tousername');
-        var threesixtyId = questionnaireTable.data('threesixtyid');
-        var anonymous = questionnaireTable.data('anonymous');
-
-        if (anonymous && finalise) {
-            // Show confirmation dialogue to anonymise the feedback responses.
-            var messageStrings = [
-                {
-                    key: 'finaliseanonymousfeedback',
-                    component: 'mod_threesixo'
-                },
-                {
-                    key: 'confirmfinaliseanonymousfeedback',
-                    component: 'mod_threesixo',
-                    param: {
-                        'name': toUserFullname
-                    }
-                }
-            ];
-
-            Str.get_strings(messageStrings, 'mod_threesixo').done(function(messages) {
-                showConfirmationDialogue(messages[0], messages[1], threesixtyId, toUser, responses, finalise);
-            }).fail(Notification.exception);
-        } else {
-            // Just save the responses.
-            submitResponses(threesixtyId, toUser, responses, finalise);
         }
-    }
+    ]);
 
-    /**
-     * Send the responses to the server.
-     *
-     * @param {number} threesixtyId
-     * @param {number} toUser
-     * @param {array} responses
-     * @param {boolean} finalise
-     */
-    function submitResponses(threesixtyId, toUser, responses, finalise) {
-        var promises = Ajax.call([
+    promises[0].then(result => {
+        result.responses.forEach(response => {
+            responses[response.item] = response.value;
+            const responseItemId = parseInt(response.item);
+
+            questionItems.forEach(questionItem => {
+                const questionItemId = parseInt(questionItem.getAttribute('data-itemid'));
+                if (questionItemId === responseItemId) {
+                    const options = questionItem.querySelectorAll(selectors.ratingOption);
+                    if (options.length) {
+                        // Ratings.
+                        options.forEach(option => {
+                            // Mark selected option as selected.
+                            const selectedValue = option.value;
+                            if (selectedValue === response.value) {
+                                handleOptionActivation(option);
+                            }
+                        });
+                    } else {
+                        // Comments.
+                        const commentTextArea = questionItem.querySelector(selectors.commentItem);
+                        if (commentTextArea) {
+                            commentTextArea.value = response.value;
+                        }
+                    }
+                }
+            });
+        });
+        return true;
+    }).catch(Notification.exception);
+};
+
+/**
+ * Registers the event listeners for the questionnaire.
+ */
+const registerEvents = () => {
+    document.addEventListener('change', e => {
+        const ratingOption = e.target.closest(selectors.ratingOption);
+        if (ratingOption) {
+            if (ratingOption.checked) {
+                handleOptionActivation(ratingOption);
+            }
+        }
+    });
+
+    document.addEventListener('click', e => {
+        const ratingOption = e.target.closest(selectors.ratingOption);
+        if (ratingOption) {
+            const ratingOptionLabel = ratingOption.closest('label');
+            if (ratingOptionLabel) {
+                ratingOptionLabel.classList.add('focus');
+            }
+        }
+    });
+
+    document.addEventListener('blur', e => {
+        const ratingOption = e.target.closest(selectors.ratingOption);
+        if (ratingOption) {
+            const ratingOptionLabel = ratingOption.closest('label');
+            if (ratingOptionLabel) {
+                ratingOptionLabel.classList.remove('focus');
+            }
+        }
+    });
+
+    const btnSaveFeedback = document.getElementById('save-feedback');
+    btnSaveFeedback.addEventListener('click', () => {
+        saveResponses(false);
+    });
+
+    const btnSubmitFeedback = document.getElementById('submit-feedback');
+    btnSubmitFeedback.addEventListener('click', () => {
+        saveResponses(true);
+    });
+};
+
+/**
+ * Handles the selection of a rated question's option.
+ *
+ * @param {HTMLElement} ratingOption The selected option for the given rated question.
+ */
+const handleOptionActivation = ratingOption => {
+    const optionGroup = ratingOption.closest(selectors.questionItem);
+    const itemId = optionGroup.getAttribute('data-itemid');
+    const options = optionGroup.querySelectorAll(selectors.ratingOption);
+
+    // Deselect the option that has been selected.
+    options.forEach(option => {
+        const optionLabel = option.nextElementSibling;
+        if (optionLabel.classList.contains('btn-success')) {
+            optionLabel.classList.remove('btn-success');
+            optionLabel.classList.add('btn-secondary');
+            option.checked = false;
+        }
+    });
+
+    // Mark selected option as selected.
+    const selectedLabel = ratingOption.nextElementSibling;
+    selectedLabel.classList.remove('btn-secondary');
+    selectedLabel.classList.remove('btn-info');
+    selectedLabel.classList.add('btn-success');
+    ratingOption.checked = true;
+
+    // Add this selected value to the array of responses.
+    responses[itemId] = ratingOption.value;
+};
+
+/**
+ * Save the responses.
+ *
+ * @param {boolean} finalise
+ */
+const saveResponses = finalise => {
+    const comments = document.querySelectorAll(selectors.commentItem);
+    comments.forEach(comment => {
+        responses[comment.getAttribute('data-itemid')] = comment.value.trim();
+    });
+
+    const questionnaireTable = document.querySelector(selectors.questionnaireTable);
+    const toUser = parseInt(questionnaireTable.getAttribute('data-touserid'));
+    const toUserFullname = questionnaireTable.getAttribute('data-tousername');
+    const threesixtyId = parseInt(questionnaireTable.getAttribute('data-threesixtyid'));
+    const anonymous = questionnaireTable.getAttribute('data-anonymous');
+
+    if (anonymous && finalise) {
+        // Show confirmation dialogue to anonymise the feedback responses.
+        const messageStrings = [
             {
-                methodname: 'mod_threesixo_save_responses',
-                args: {
-                    threesixtyid: threesixtyId,
-                    touserid: toUser,
-                    responses: responses,
-                    complete: finalise
+                key: 'finaliseanonymousfeedback',
+                component: 'mod_threesixo'
+            },
+            {
+                key: 'confirmfinaliseanonymousfeedback',
+                component: 'mod_threesixo',
+                param: {
+                    'name': toUserFullname
                 }
             }
-        ]);
+        ];
 
-        promises[0].done(function(response) {
-            var messageStrings = [
-                {
-                    key: 'responsessaved',
-                    component: 'mod_threesixo'
-                },
-                {
-                    key: 'errorresponsesavefailed',
-                    component: 'mod_threesixo'
-                }
-            ];
+        getStrings(messageStrings, 'mod_threesixo').then(messages => {
+            return showConfirmationDialogue(messages[0], messages[1], threesixtyId, toUser, responses, finalise);
+        }).catch(Notification.exception);
+    } else {
+        // Just save the responses.
+        submitResponses(threesixtyId, toUser, responses, finalise);
+    }
+};
 
-            Str.get_strings(messageStrings).done(function(messages) {
-                var notificationData = {};
-                if (response.result) {
-                    notificationData.message = messages[0];
-                    notificationData.type = "success";
-                } else {
-                    notificationData.message = messages[1];
-                    notificationData.type = "error";
-                }
-                Notification.addNotification(notificationData);
-            }).fail(Notification.exception);
-
-            if (finalise) {
-                window.location = response.redirurl;
+/**
+ * Send the responses to the server.
+ *
+ * @param {number} threesixtyId
+ * @param {number} toUser
+ * @param {array} responses
+ * @param {boolean} finalise
+ */
+const submitResponses = (threesixtyId, toUser, responses, finalise) => {
+    var promises = Ajax.call([
+        {
+            methodname: 'mod_threesixo_save_responses',
+            args: {
+                threesixtyid: threesixtyId,
+                touserid: toUser,
+                responses: responses,
+                complete: finalise
             }
-        }).fail(Notification.exception);
-    }
+        }
+    ]);
 
-    /**
-     * Renders the confirmation dialogue to submit and finalise the responses.
-     *
-     * @param {string} title
-     * @param {string} confirmationMessage
-     * @param {number} threesixtyId
-     * @param {number} toUser
-     * @param {Array} responses
-     * @param {boolean} finalise
-     */
-    function showConfirmationDialogue(title, confirmationMessage, threesixtyId, toUser, responses, finalise) {
-        var confirmButtonTextPromise = Str.get_string('finalise', 'mod_threesixo');
-        var confirmModalPromise = ModalFactory.create({
-            title: title,
-            body: confirmationMessage,
-            large: true,
-            type: ModalFactory.types.SAVE_CANCEL
-        });
-        $.when(confirmButtonTextPromise, confirmModalPromise).done(function(confirmButtonText, modal) {
-            modal.setSaveButtonText(confirmButtonText);
+    let redirectUrl = null;
+    promises[0].then(response => {
+        if (response.result) {
+            redirectUrl = response.redirurl;
+            return getString('responsessaved', 'mod_threesixo');
+        }
+        return getString('errorresponsesavefailed', 'mod_threesixo');
+    }).then(message => {
+        return addToast(message, {});
+    }).then(() => {
+        if (finalise && redirectUrl) {
+            window.location = redirectUrl;
+        }
+        return true;
+    }).catch(Notification.exception);
+};
 
-            // Display the dialogue.
-            modal.show();
+/**
+ * Renders the confirmation dialogue to submit and finalise the responses.
+ *
+ * @param {string} title
+ * @param {string} confirmationMessage
+ * @param {number} threesixtyId
+ * @param {number} toUser
+ * @param {Array} responses
+ * @param {boolean} finalise
+ */
+const showConfirmationDialogue = async(title, confirmationMessage, threesixtyId, toUser, responses, finalise) => {
+    const confirmButtonText = await getString('finalise', 'mod_threesixo');
+    const confirmModal = await ModalFactory.create({
+        title: title,
+        body: confirmationMessage,
+        large: true,
+        type: ModalFactory.types.SAVE_CANCEL
+    });
 
-            // On hide handler.
-            modal.getRoot().on(ModalEvents.hidden, function() {
-                // Empty modal contents when it's hidden.
-                modal.setBody('');
-            });
+    confirmModal.setSaveButtonText(confirmButtonText);
 
-            modal.getRoot().on(ModalEvents.save, function() {
-                submitResponses(threesixtyId, toUser, responses, finalise);
-            });
-        });
+    // Display the dialogue.
+    confirmModal.show();
 
-    }
+    // On hide handler.
+    confirmModal.getRoot().on(ModalEvents.hidden, () => {
+        // Empty modal contents when it's hidden.
+        confirmModal.setBody('');
+    });
 
-    return questionnaire;
-});
+    confirmModal.getRoot().on(ModalEvents.save, () => {
+        submitResponses(threesixtyId, toUser, responses, finalise);
+    });
+};
