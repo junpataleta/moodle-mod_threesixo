@@ -69,34 +69,44 @@
        data-touserid="{{touserid}}"
        data-tousername="{{tousername}}">
     {{#hasratedquestions}}
-        <tr>
-            <th>
-                <div class="row rtl-compatible">
-                    <div class="col-md-5">
+        <tr role="none">
+            <th role="none">
+                <div class="row rtl-compatible" role="row">
+                    <div class="col-md-5" role="columnheader">
+                        <div class="sr-only">
+                            {{#str}}question, mod_threesixo{{/str}}
+                        </div>
                     </div>
                     {{#scales}}
-                        <div class="col-md-1 hideoverflow text-center" title="{{description}}">
-                            {{description}}
+                        <div class="col-md-1 hideoverflow text-center" title="{{description}}" role="columnheader">
+                            <span class="d-sm-none">{{scalelabel}} - </span>{{description}}
                         </div>
                     {{/scales}}
                 </div>
             </th>
         </tr>
         {{#ratedquestions}}
-        <tr>
-            <td>
-                <div class="row rtl-compatible" data-region="question-row" data-itemid="{{id}}">
-                    <div class="col-md-5">
+        <tr role="none">
+            <td role="none">
+                <div class="row rtl-compatible" data-region="question-row" role="row">
+                    <div class="col-md-5" role="rowheader" id="question-{{questionid}}">
                         {{question}}
                     </div>
-                    {{#scales}}
-                        <div class="col-md-1 scaleoption text-center">
-                            <label class="scaleoptionlabel badge badge-secondary p-l-1 p-r-1" data-value="{{scale}}" tabindex="0" for="option-{{questionid}}-{{scale}}" title="{{description}}">
-                                {{scalelabel}}
-                            </label>
-                            <input type="radio" class="accesshide" name="question-{{questionid}}" value="{{scale}}" tabindex="-1" id="option-{{questionid}}-{{scale}}"/>
+                    <div class="col-md-7" role="none">
+                        <div class="container">
+                            <div class="row" data-region="question-item" data-itemid="{{id}}" role="radiogroup" aria-labelledby="question-{{questionid}}">
+                                {{#scales}}
+                                    <div class="col text-center">
+                                        <input class="threesixo_questionnaire_question" type="radio" name="question-{{questionid}}" value="{{scale}}" id="option-{{questionid}}-{{scale}}"/>
+                                        <label for="option-{{questionid}}-{{scale}}" class="scaleoptionlabel btn btn-secondary" data-region="rating-scale-option" data-questionid="{{questionid}}" data-value="{{scale}}" data-radio-button="option-{{questionid}}-{{scale}}">
+                                            <span aria-hidden="true">{{scalelabel}}</span>
+                                            <span class="sr-only">{{description}}</span>
+                                        </label>
+                                    </div>
+                                {{/scales}}
+                            </div>
                         </div>
-                    {{/scales}}
+                    </div>
                 </div>
             </td>
         </tr>
@@ -111,12 +121,12 @@
         {{#commentquestions}}
         <tr>
             <td>
-                <div class="row rtl-compatible" data-region="question-row" data-itemid="{{id}}">
+                <div class="row rtl-compatible">
                     <div class="col-md-5">
                         {{question}}
                     </div>
-                    <div class="col-md-7">
-                        <textarea placeholder="{{#str}}entercomment, mod_threesixo{{/str}}" class="form-control comment" cols="50" rows="5" data-itemid="{{id}}">{{value}}</textarea>
+                    <div class="col-md-7" data-region="question-item" data-itemid="{{id}}">
+                        <textarea placeholder="{{#str}}entercomment, mod_threesixo{{/str}}" class="form-control" cols="50" rows="5" data-region="comment-item" data-itemid="{{id}}">{{value}}</textarea>
                     </div>
                 </div>
             </td>
@@ -130,7 +140,7 @@
     <a class="btn btn-secondary" id="cancel-feedback" href="{{returnurl}}">{{#str}}cancel{{/str}}</a>
 </div>
 {{#js}}
-    require(['mod_threesixo/questionnaire'], function(Questionnaire) {
-        new Questionnaire();
+    require(['mod_threesixo/questionnaire'], function(questionnaire) {
+        questionnaire.init();
     });
 {{/js}}
