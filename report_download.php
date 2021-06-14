@@ -132,4 +132,4 @@ foreach ($responses as $response) {
 }
 
 // Download the report file.
-download_as_dataformat('360FeedbackReport-' . fullname($touser), $format, $columnnames, $reportdata);
+\core\dataformat::download_data('360FeedbackReport-' . fullname($touser), $format, $columnnames, $reportdata);
