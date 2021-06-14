@@ -29,7 +29,7 @@ $id = required_param('id', PARAM_INT);
 
 // Ensure that the course specified is valid.
 if (!$course = $DB->get_record('course', ['id' => $id])) {
-    print_error('Course ID is incorrect');
+    throw new moodle_exception('Course ID is incorrect');
 }
 
 require_course_login($course);
@@ -45,7 +45,7 @@ echo $OUTPUT->header();
 $threesixos = get_all_instances_in_course('threesixo', $course);
 if (empty($threesixos)) {
     $returnurl = new moodle_url('/course/view.php', ['id' => $course->id]);
-    print_error('thereareno', 'moodle', $returnurl->out(), $strthreesixos);
+    throw new moodle_exception('thereareno', 'moodle', $returnurl->out(), $strthreesixos);
 }
 
 $instancedata = [];

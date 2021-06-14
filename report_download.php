@@ -39,7 +39,7 @@ $viewingforself = $touserid == $USER->id;
 if (!$viewingforself) {
     require_capability('mod/threesixo:viewreports', $context);
 } else if (!\mod_threesixo\api::can_view_own_report($threesixty)) {
-    print_error('errorreportnotavailable', 'mod_threesixo');
+    throw new moodle_exception('errorreportnotavailable', 'mod_threesixo');
 }
 
 $PAGE->set_context($context);
@@ -58,7 +58,7 @@ $PAGE->set_title($title);
 
 // Make sure that the report being viewed is for someone who can participate in the activity.
 if (\mod_threesixo\api::can_respond($threesixty, $touserid) !== true) {
-    print_error('invaliduserid', 'error', new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]));
+    throw new moodle_exception('invaliduserid', 'error', new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]));
 }
 
 // Check first if we can process the required data format for the report.
@@ -68,7 +68,7 @@ if (!isset($plugins[$format]) || !$plugins[$format]->is_enabled()) {
         'threesixo' => $threesixtyid,
         'touser' => $touserid,
     ];
-    print_error('dataformatinvalid', 'threesixo', new moodle_url('/mod/threesixo/report.php', $urlparams));
+    throw new moodle_exception('dataformatinvalid', 'threesixo', new moodle_url('/mod/threesixo/report.php', $urlparams));
 }
 
 // Otherwise, everything's good. Proceed with the processing.
@@ -119,7 +119,7 @@ foreach ($responses as $response) {
             break;
         default:
             // We've got an invalid question type. This shouldn't happen though.
-            print_error('qtypeinvalid', 'threesixo');
+            throw new moodle_exception('qtypeinvalid', 'threesixo');
     }
 
     $reportdata[] = (object)[

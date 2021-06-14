@@ -32,29 +32,29 @@ $viewurl = new moodle_url('view.php');
 $viewurl->param('id', $cmid);
 
 if ($cmid == 0) {
-    print_error('error360notfound', 'mod_threesixo', $viewurl);
+    throw new moodle_exception('error360notfound', 'mod_threesixo', $viewurl);
 }
 
 $PAGE->set_url('/mod/threesixo/edit_items.php', ['id' => $cmid]);
 
 if (!$cm = get_coursemodule_from_id('threesixo', $cmid)) {
-    print_error('invalidcoursemodule');
+    throw new moodle_exception('invalidcoursemodule');
 }
 
 if (!$course = $DB->get_record("course", ["id" => $cm->course])) {
-    print_error('coursemisconf');
+    throw new moodle_exception('coursemisconf');
 }
 
 require_login($course, true, $cm);
 
 if (!$threesixty = $DB->get_record("threesixo", ["id" => $cm->instance])) {
-    print_error('error360notfound', 'mod_threesixo', $viewurl);
+    throw new moodle_exception('error360notfound', 'mod_threesixo', $viewurl);
 }
 
 // Check capability to edit items.
 $context = context_module::instance($cm->id);
 if (!\mod_threesixo\api::can_edit_items($threesixty->id, $context)) {
-    print_error('nocaptoedititems', 'mod_threesixo', $viewurl);
+    throw new moodle_exception('nocaptoedititems', 'mod_threesixo', $viewurl);
 }
 
 $question = '';

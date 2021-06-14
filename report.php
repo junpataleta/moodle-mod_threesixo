@@ -41,7 +41,7 @@ if (!$viewingforself) {
 
     $participants = \mod_threesixo\api::get_participants($threesixtyid, $USER->id, $threesixty->with_self_review);
 } else if (!\mod_threesixo\api::can_view_own_report($threesixty)) {
-    print_error('errorreportnotavailable', 'mod_threesixo');
+    throw new moodle_exception('errorreportnotavailable', 'mod_threesixo');
 }
 
 $PAGE->set_context($context);
@@ -59,7 +59,7 @@ echo $OUTPUT->heading(get_string('viewfeedbackforuser', 'mod_threesixo'), 3);
 
 // Make sure that the report being viewed is for someone who can participate in the activity.
 if (\mod_threesixo\api::can_respond($threesixty, $touserid) !== true) {
-    print_error('invaliduserid', 'error', new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]));
+    throw new moodle_exception('invaliduserid', 'error', new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]));
 }
 
 $touser = core_user::get_user($touserid);
