@@ -534,6 +534,22 @@ class api {
             }
         }
 
+        // Add conditions to make sure user enrolments of participants are active and current.
+        $wheres += [
+            'ue.status <> :enrolsuspended',
+            '(ue.timestart = 0 OR ue.timestart <= :enrolstart)',
+            '(ue.timeend = 0 OR ue.timeend > :enrolend)',
+        ];
+
+        // Add user enrolment parameters.
+        $now = time();
+        $userssqlparams += [
+            'enrolsuspended' => ENROL_USER_SUSPENDED,
+            'enrolstart' => $now,
+            'enrolend' => $now,
+        ];
+
+        // Build the where clause.
         $wherecondition = '';
         if (!empty($wheres)) {
             $wherecondition = implode(' AND ', $wheres);
