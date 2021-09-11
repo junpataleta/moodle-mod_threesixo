@@ -21,6 +21,9 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  * @package mod_threesixo
  */
+
+use mod_threesixo\api;
+
 require_once('../../config.php');
 
 // The threesixo record id.
@@ -31,8 +34,29 @@ list ($course, $cm) = get_course_and_cm_from_instance($id, 'threesixo');
 require_login($course, true, $cm);
 
 $context = context_module::instance($cm->id);
-$submission = \mod_threesixo\api::get_submission($submissionid);
-$threesixty = \mod_threesixo\api::get_instance($submission->threesixo);
+
+// Return URL in case of error.
+$returnurl = new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]);
+
+try {
+    $submission = api::get_submission($submissionid);
+} catch (moodle_exception $e) {
+    // Show a friendlier message if submission record is not found.
+    throw new moodle_exception('errorcannotprovidefeedbacktouser', 'threesixo', $returnurl);
+}
+
+$threesixty = api::get_instance($submission->threesixo);
+
+// Make sure that the 360 instance ID matches the 360 instance ID from the submission entry and that the feedback recipient
+// is still enrolled in the course.
+if ($id != $submission->threesixo || !api::can_provide_feedback_to_user($cm, $submission->touser, $threesixty)) {
+    throw new moodle_exception('errorcannotprovidefeedbacktouser', 'threesixo', $returnurl);
+}
+
+// Make sure the user can participate in the activity.
+if (api::can_respond($threesixty, $USER->id, $context) !== true) {
+    throw new moodle_exception('errorcannotparticipate', 'mod_threesixo', $returnurl);
+}
 
 $PAGE->set_context($context);
 $PAGE->set_cm($cm, $course);
@@ -48,8 +72,8 @@ echo $OUTPUT->heading(format_string($title));
 echo $OUTPUT->heading(get_string('providefeedback', 'mod_threesixo'), 3);
 
 // Check if instance is already open.
-$openmessage = \mod_threesixo\api::is_open($threesixty, true);
-$isready = \mod_threesixo\api::is_ready($threesixty);
+$openmessage = api::is_open($threesixty, true);
+$isready = api::is_ready($threesixty);
 if ($isready && $openmessage === true) {
     // Render user heading.
     if ($submission->touser > 0) {
@@ -66,8 +90,8 @@ if ($isready && $openmessage === true) {
     }
 
     // Set status to in progress if pending.
-    if ($submission->status == \mod_threesixo\api::STATUS_PENDING) {
-        \mod_threesixo\api::set_completion($submission->id, \mod_threesixo\api::STATUS_IN_PROGRESS);
+    if ($submission->status == api::STATUS_PENDING) {
+        api::set_completion($submission->id, api::STATUS_IN_PROGRESS);
     }
 
     // 360-degree feedback question list.
