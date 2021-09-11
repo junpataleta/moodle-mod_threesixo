@@ -24,6 +24,7 @@
 namespace mod_threesixo;
 defined('MOODLE_INTERNAL') || die();
 
+use cm_info;
 use coding_exception;
 use context_module;
 use context_user;
@@ -693,9 +694,15 @@ class external extends external_api {
 
         // Validate context.
         $submission = api::get_submission($statusid);
-        $cm = get_coursemodule_from_instance('threesixo', $submission->threesixo);
-        $cmid = $cm->id;
-        $context = context_module::instance($cmid);
+        $cmrecord = get_coursemodule_from_instance('threesixo', $submission->threesixo);
+        $cm = cm_info::create($cmrecord);
+
+        // Make sure that the user can provide feedback to the feedback recipient in the submission before undoing anything.
+        if (!api::can_provide_feedback_to_user($cm, $submission->touser)) {
+            throw new moodle_exception('errorcannotprovidefeedbacktouser', 'threesixo');
+        }
+
+        $context = context_module::instance($cm->id);
         self::validate_context($context);
 
         $result = api::decline_feedback($statusid, $reason);
@@ -757,10 +764,15 @@ class external extends external_api {
         $threesixo = api::get_instance($submission->threesixo);
 
         // Validate context.
-        $cm = get_coursemodule_from_instance('threesixo', $submission->threesixo);
-        $cmid = $cm->id;
-        $context = context_module::instance($cmid);
+        $cmrecord = get_coursemodule_from_instance('threesixo', $submission->threesixo);
+        $cm = cm_info::create($cmrecord);
+        $context = context_module::instance($cm->id);
         self::validate_context($context);
+
+        // Make sure that the user can provide feedback to the feedback recipient in the submission before declining anything.
+        if (!api::can_provide_feedback_to_user($cm, $submission->touser)) {
+            throw new moodle_exception('errorcannotprovidefeedbacktouser', 'threesixo');
+        }
 
         // Make sure unauthorised users can't undo someone else's declined feedback.
         if ($submission->fromuser != $USER->id) {
@@ -830,12 +842,15 @@ class external extends external_api {
         self::validate_context($context);
         $renderer = $PAGE->get_renderer('mod_threesixo');
         $threesixty = api::get_instance($threesixtyid);
-        $participants = api::get_participants($threesixty->id, $USER->id);
-        $listparticipants = new list_participants($threesixty, $USER->id, $participants);
+        $participants = api::get_participants($threesixty->id, $USER->id, $threesixty->with_self_review);
+        $isopen = api::is_open($threesixty);
+        $canviewreports = api::can_view_reports($context);
+        $listparticipants = new list_participants($threesixty, $USER->id, $participants, $canviewreports, $isopen);
         $data = $listparticipants->export_for_template($renderer);
         return [
             'threesixtyid' => $data->threesixtyid,
             'participants' => $data->participants,
+            'canperformactions' => $data->canperformactions,
             'warnings' => $warnings
         ];
     }
@@ -880,6 +895,7 @@ class external extends external_api {
                         ]
                     )
                 ),
+                'canperformactions' => new external_value(PARAM_BOOL, 'Whether actions should be displayed or not'),
                 'warnings' => new external_warnings()
             ]
         );
@@ -921,12 +937,12 @@ class external extends external_api {
         global $USER;
         $warnings = [];
 
-        $cm = get_coursemodule_from_instance('threesixo', $threesixtyid);
-        $cmid = $cm->id;
-        $context = context_module::instance($cmid);
+        $cmrecord = get_coursemodule_from_instance('threesixo', $threesixtyid);
+        $cm = cm_info::create($cmrecord);
+        $context = context_module::instance($cm->id);
         self::validate_context($context);
         $redirecturl = new moodle_url('/mod/threesixo/view.php');
-        $redirecturl->param('id', $cmid);
+        $redirecturl->param('id', $cm->id);
 
         $params = external_api::validate_parameters(self::save_responses_parameters(), [
             'threesixtyid' => $threesixtyid,
@@ -939,6 +955,11 @@ class external extends external_api {
         $touserid = $params['touserid'];
         $responses = $params['responses'];
         $complete = $params['complete'];
+
+        // Make sure that the user can provide feedback to the feedback recipient in the submission before saving the responses.
+        if (!api::can_provide_feedback_to_user($cm, $touserid)) {
+            throw new moodle_exception('errorcannotprovidefeedbacktouser', 'threesixo');
+        }
 
         $result = api::save_responses($threesixtyid, $touserid, $responses);
 
