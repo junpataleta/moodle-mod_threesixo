@@ -24,6 +24,7 @@
 namespace mod_threesixo;
 defined('MOODLE_INTERNAL') || die();
 
+use cm_info;
 use coding_exception;
 use context_module;
 use dml_exception;
@@ -684,7 +685,7 @@ class api {
      *
      * @param stdClass|int $threesixtyorid The 360-degree feedback activity object or identifier.
      * @param int $userid The user ID.
-     * @param context_module $context
+     * @param context_module|null $context
      * @return bool|string True if the user can participate. An error message if not.
      * @throws coding_exception
      * @throws dml_exception
@@ -733,6 +734,39 @@ class api {
     }
 
     /**
+     * Checks whether the recipient is still has an active enrolment in the course.
+     *
+     * @param cm_info $cm The course module information.
+     * @param int $touser The user ID of the feedback recipient.
+     * @return bool
+     */
+    public static function can_provide_feedback_to_user(cm_info $cm, int $touser, ?stdClass $threesixo = null): bool {
+        global $USER;
+
+        // Return false if the recipient does not have active enrolment in the course.
+        $context = context_module::instance($cm->id);
+        if (!is_enrolled($context, $touser, '', true)) {
+            return false;
+        }
+
+        // Use get_participants to check that the feedback recipient is included in the list of participants that the user can
+        // provide feedback to. This is more straightforward as get_participants already counts group mode.
+        if (empty($threesixo)) {
+            $threesixo = self::get_instance($cm->instance);
+        }
+        $participants = self::get_participants($threesixo->id, $USER->id, $threesixo->with_self_review);
+        foreach ($participants as $participant) {
+            if ($participant->userid == $touser) {
+                // Match found. We're good to go.
+                return true;
+            }
+        }
+
+        // Match not found.
+        return false;
+    }
+
+    /**
      * Whether the current user can view the reports regarding the feedback responses.
      *
      * @param context_module $context
@@ -772,13 +806,15 @@ class api {
      * @throws dml_exception
      */
     public static function get_submission($id, $fromuser = 0, $fields = '*') {
-        global $DB;
-        $params = [
-            'id' => $id
-        ];
-        if (!empty($fromuser)) {
-            $params['fromuser'] = $fromuser;
+        global $DB, $USER;
+        // If from user is not provided, use the current user's ID to make sure the user's fetching their own submissions.
+        if (empty($fromuser)) {
+            $fromuser = $USER->id;
         }
+        $params = [
+            'id' => $id,
+            'fromuser' => $fromuser,
+        ];
         return $DB->get_record('threesixo_submission', $params, $fields, MUST_EXIST);
     }
 
