@@ -195,7 +195,7 @@ const saveResponses = finalise => {
     const toUser = parseInt(questionnaireTable.getAttribute('data-touserid'));
     const toUserFullname = questionnaireTable.getAttribute('data-tousername');
     const threesixtyId = parseInt(questionnaireTable.getAttribute('data-threesixtyid'));
-    const anonymous = questionnaireTable.getAttribute('data-anonymous');
+    const anonymous = parseInt(questionnaireTable.getAttribute('data-anonymous'));
 
     if (anonymous && finalise) {
         // Show confirmation dialogue to anonymise the feedback responses.
