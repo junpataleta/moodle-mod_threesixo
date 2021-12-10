@@ -21,7 +21,6 @@
  *
  * @module     mod_threesixo/question_bank
  * @class      question_bank
- * @package    core
  * @copyright  2016 Jun Pataleta <jun@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
