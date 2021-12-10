@@ -738,6 +738,7 @@ class api {
      *
      * @param cm_info $cm The course module information.
      * @param int $touser The user ID of the feedback recipient.
+     * @param stdClass|null $threesixo The 360-degree feedback instance.
      * @return bool
      */
     public static function can_provide_feedback_to_user(cm_info $cm, int $touser, ?stdClass $threesixo = null): bool {
