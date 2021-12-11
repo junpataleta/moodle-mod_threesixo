@@ -100,9 +100,9 @@ class mod_threesixo_api_testcase extends advanced_testcase {
         $participantids = array_keys($participants);
         foreach ($studentids as $id) {
             if ($id == $studentid) {
-                $this->assertNotContains($id, $participantids);
+                $this->assertNotContainsEquals($id, $participantids);
             } else {
-                $this->assertContains($id, $participantids);
+                $this->assertContainsEquals($id, $participantids);
             }
         }
     }
