@@ -52,9 +52,9 @@ $PAGE->set_url('/mod/threesixo/report.php', ['threesixo' => $threesixtyid, 'tous
 $PAGE->set_heading($course->fullname);
 $title = format_string($threesixty->name);
 $PAGE->set_title($title);
+$PAGE->add_body_class('limitedwidth');
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(format_string($title));
 echo $OUTPUT->heading(get_string('viewfeedbackforuser', 'mod_threesixo'), 3);
 
 // Make sure that the report being viewed is for someone who can participate in the activity.

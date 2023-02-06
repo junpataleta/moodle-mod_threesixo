@@ -63,11 +63,11 @@ $questiontype = 0;
 $PAGE->navbar->add(get_string('titlemanageitems', 'threesixo'));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_title($threesixty->name);
+$PAGE->add_body_class('limitedwidth');
 
 echo $OUTPUT->header();
 // Print the main part of the page.
-echo $OUTPUT->heading(format_string($threesixty->name));
-echo $OUTPUT->heading(get_string('edititems', 'mod_threesixo'), 3);
+echo $OUTPUT->heading(get_string('edititems', 'mod_threesixo'), 2);
 
 $viewurl = new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]);
 // Check if we can make the activity avaialble from here.

@@ -68,8 +68,7 @@ $title = format_string($threesixty->name);
 $PAGE->set_title($title);
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(format_string($title));
-echo $OUTPUT->heading(get_string('providefeedback', 'mod_threesixo'), 3);
+echo $OUTPUT->heading(get_string('providefeedback', 'mod_threesixo'), 2);
 
 // Check if instance is already open.
 $openmessage = api::is_open($threesixty, true);

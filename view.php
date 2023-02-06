@@ -42,10 +42,10 @@ $PAGE->set_url('/mod/threesixo/view.php', array('id' => $cm->id));
 $title = format_string($threesixty->name);
 $PAGE->set_title($title);
 $PAGE->set_heading($course->fullname);
-echo $OUTPUT->header();
+$PAGE->add_body_class('limitedwidth');
 
-echo $OUTPUT->heading($title);
-echo $OUTPUT->heading(get_string('participants', 'mod_threesixo'), 3);
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('participants', 'mod_threesixo'), 2);
 
 if ($release != -1) {
     // Toggle the released flag.
