@@ -23,8 +23,6 @@
  */
 namespace mod_threesixo\output;
 
-defined('MOODLE_INTERNAL') || die();
-
 use coding_exception;
 use core_user;
 use dml_exception;

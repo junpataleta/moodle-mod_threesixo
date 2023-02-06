@@ -14,20 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Class containing the external API functions functions for the 360-degree feedback module.
- *
- * @package    mod_threesixo
- * @copyright  2017 Jun Pataleta
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 namespace mod_threesixo;
-defined('MOODLE_INTERNAL') || die();
 
 use cm_info;
 use coding_exception;
 use context_module;
-use context_user;
 use dml_exception;
 use external_api;
 use external_description;
@@ -49,6 +40,7 @@ use stdClass;
  *
  * The external API for the 360-degree feedback module.
  *
+ * @package mod_threesixo
  * @copyright  2017 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

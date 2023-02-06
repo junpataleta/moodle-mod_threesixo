@@ -14,18 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * API tests.
- *
- * @package    mod_threesixo
- * @copyright  2018 Jun Pataleta
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace mod_threesixo;
 
-defined('MOODLE_INTERNAL') || die();
-global $CFG;
-
-use mod_threesixo\api;
+use advanced_testcase;
+use coding_exception;
+use DateTime;
+use dml_exception;
+use moodle_exception;
 
 /**
  * API tests.
@@ -33,15 +28,14 @@ use mod_threesixo\api;
  * @package    mod_threesixo
  * @copyright  2018 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversDefaultClass \mod_threesixo\api
  */
-class mod_threesixo_api_testcase extends advanced_testcase {
+class api_test extends advanced_testcase {
 
     /**
      * Tests for mod_threesixo\api::get_participants().
      *
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws moodle_exception
+     * @covers ::get_participants
      */
     public function test_get_participants_with_multiple_enrol_methods() {
         global $CFG;
@@ -69,7 +63,6 @@ class mod_threesixo_api_testcase extends advanced_testcase {
         $teacher = $generator->create_user();
         // Enrol the teacher to the course.
         $generator->enrol_user($teacher->id, $course->id, 'editingteacher', $enrolmethods[0]);
-        $students = [];
         $studentids = [];
         for ($i = 0; $i < 10; $i++) {
             // Create a student.
@@ -79,7 +72,6 @@ class mod_threesixo_api_testcase extends advanced_testcase {
                 // Enrol the student manually to the course.
                 $generator->enrol_user($student->id, $course->id, 'student', $method);
             }
-            $students[] = $student;
             $studentids[] = $student->id;
         }
         sort($studentids);
@@ -112,7 +104,7 @@ class mod_threesixo_api_testcase extends advanced_testcase {
      *
      * @return array
      */
-    public function is_open_provider() {
+    public function is_open_provider(): array {
         return [
             'Empty open and close' => [null, null, false, true],
             'After open, empty close' => ['yesterday', null, false, true],
@@ -137,6 +129,7 @@ class mod_threesixo_api_testcase extends advanced_testcase {
      * @param string $close Relative close date.
      * @param bool $messagewhenclosed Whether to return a message when the instance is not yet open.
      * @param bool $expected Expected function result.
+     * @covers ::is_open
      */
     public function test_is_open($open, $close, $messagewhenclosed, $expected) {
         $this->resetAfterTest();
