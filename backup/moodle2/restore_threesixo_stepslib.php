@@ -15,15 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines all the restore steps that will be used by the restore_threesixo_activity_task
- *
- * @package    mod_threesixo
- * @copyright 2019 onwards Jun Pataleta
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-defined('MOODLE_INTERNAL') || die();
-
-/**
  * Structure step to restore one 360-degree feedback activity instance
  *
  * @package    mod_threesixo

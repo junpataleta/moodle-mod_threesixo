@@ -15,15 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Define all the backup steps that will be used by the backup_threesixo_activity_task
- *
- * @package    mod_threesixo
- * @copyright 2019 onwards Jun Pataleta
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-defined('MOODLE_INTERNAL') || die();
-
-/**
  * Define the complete threesixo structure for backup, with file and id annotations
  *
  * @package    mod_threesixo
