@@ -23,8 +23,6 @@
  */
 namespace mod_threesixo\output;
 
-defined('MOODLE_INTERNAL') || die();
-
 use action_link;
 use mod_threesixo\api;
 use moodle_url;

@@ -14,15 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Class for performing DB actions for the mod_threesixo activity module.
- *
- * @package    mod_threesixo
- * @copyright  2017 Jun Pataleta
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 namespace mod_threesixo;
-defined('MOODLE_INTERNAL') || die();
 
 use cm_info;
 use coding_exception;
@@ -35,6 +27,7 @@ use stdClass;
 /**
  * Class for performing DB actions for the mod_threesixo activity module.
  *
+ * @package mod_threesixo
  * @copyright  2017 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

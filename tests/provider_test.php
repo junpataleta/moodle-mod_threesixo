@@ -14,24 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Privacy provider tests.
- *
- * @package    mod_threesixo
- * @copyright  2018 Jun Pataleta
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace mod_threesixo;
 
+use context_module;
+use context_system;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
-use core_privacy\local\request\deletion_criteria;
+use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\writer;
 use core_privacy\tests\request\content_writer;
-use mod_threesixo\api;
-use mod_threesixo\helper;
 use mod_threesixo\privacy\provider;
-
-defined('MOODLE_INTERNAL') || die();
+use stdClass;
 
 /**
  * Privacy provider tests class.
@@ -39,13 +32,14 @@ defined('MOODLE_INTERNAL') || die();
  * @package    mod_threesixo
  * @copyright  2018 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversDefaultClass \mod_threesixo\privacy\provider
  */
-class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provider_testcase {
+class provider_test extends \core_privacy\tests\provider_testcase {
 
     /** @var stdClass The teacher in the course. */
     protected $teacher;
 
-    /** @var stdClass The student that is gonna be providing a feedback. */
+    /** @var stdClass The student that is going to be providing a feedback. */
     protected $student;
 
     /** @var stdClass The threesixo object. */
@@ -59,6 +53,8 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
 
     /**
      * Test for provider::get_metadata().
+     *
+     * @covers ::get_metadata
      */
     public function test_get_metadata() {
         $collection = new collection('mod_threesixo');
@@ -100,6 +96,8 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
 
     /**
      * Test for provider::get_contexts_for_userid().
+     *
+     * @covers ::get_contexts_for_userid
      */
     public function test_get_contexts_for_userid() {
         $this->setup_data();
@@ -114,6 +112,8 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
 
     /**
      * Test for provider::export_user_data().
+     *
+     * @covers ::export_user_data
      */
     public function test_export_user_data() {
         global $DB;
@@ -131,7 +131,7 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
         $recipient = reset($participants);
         $this->give_feedback_to_user($this->student->id, $recipient->userid);
 
-        // Export all of the data for the context.
+        // Export all the data for the context.
         $this->export_context_data_for_user($this->student->id, $cmcontext, 'mod_threesixo');
         /** @var content_writer $writer */
         $writer = writer::with_context($cmcontext);
@@ -189,6 +189,8 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
 
     /**
      * Test for provider::delete_data_for_all_users_in_context().
+     *
+     * @covers ::delete_data_for_all_users_in_context
      */
     public function test_delete_data_for_all_users_in_context() {
         global $DB;
@@ -228,6 +230,8 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
 
     /**
      * Test for provider::delete_data_for_user().
+     *
+     * @covers ::delete_data_for_user
      */
     public function test_delete_data_for_user() {
         global $DB;
@@ -272,6 +276,8 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
 
     /**
      * Test for \mod_threesixo\privacy\provider::get_users_in_context()
+     *
+     * @covers ::get_users_in_context
      */
     public function test_get_users_in_context() {
         global $DB;
@@ -326,6 +332,8 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
 
     /**
      * Test for \mod_threesixo\privacy\provider::delete_data_for_users()
+     *
+     * @covers ::delete_data_for_users
      */
     public function test_delete_data_for_users() {
         global $DB;
@@ -350,7 +358,7 @@ class mod_threesixo_privacy_provider_testcase extends \core_privacy\tests\provid
 
         $userids = [$this->student->id];
 
-        $approveduserlist = new \core_privacy\local\request\approved_userlist($context, 'mod_threesixo', $userids);
+        $approveduserlist = new approved_userlist($context, 'mod_threesixo', $userids);
         provider::delete_data_for_users($approveduserlist);
 
         // Confirm that the submission/responses the student provided have been deleted.

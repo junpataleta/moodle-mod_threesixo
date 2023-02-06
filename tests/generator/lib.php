@@ -14,18 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * mod_threesixo data generator.
- *
- * @package mod_threesixo
- * @category test
- * @copyright 2018 Jun Pataleta
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 use mod_threesixo\api;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * mod_threesixo data generator class.
@@ -38,11 +27,11 @@ defined('MOODLE_INTERNAL') || die();
 class mod_threesixo_generator extends testing_module_generator {
 
     /**
-     * Creates a 360 degree feedback instance based on the record given.
+     * Creates a 360-degree feedback instance based on the record given.
      *
-     * @param stdClass $record Data for module being generated. Requires 'course' key (an id or the full object).
-     *                         Also can have any fields from add module form.
-     * @param array $options General options for course module. Optional.
+     * @param null $record Data for module being generated. Requires 'course' key (an id or the full object).
+     *                         Also, can have any fields from add module form.
+     * @param array|null $options General options for course module. Optional.
      * @return stdClass Record from the threesixo table with additional field cmid (corresponding id in course_modules table)
      */
     public function create_instance($record = null, array $options = null) {
