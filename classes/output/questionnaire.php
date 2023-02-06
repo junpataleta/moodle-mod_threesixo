@@ -111,7 +111,8 @@ class questionnaire implements renderable, templatable {
         $data->hascommentquestions = !empty($commentquestions);
         $data->commentquestions = $commentquestions;
         $data->touserid = $submission->touser;
-        $touser = core_user::get_user($submission->touser, get_all_user_name_fields(true));
+        $fields = implode(",", \core_user\fields::get_name_fields());
+        $touser = core_user::get_user($submission->touser, $fields);
         $data->tousername = fullname($touser);
         $data->threesixtyid = $submission->threesixo;
         $data->anonymous = $threesixty->anonymous;
