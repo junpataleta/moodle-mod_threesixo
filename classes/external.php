@@ -16,6 +16,11 @@
 
 namespace mod_threesixo;
 
+defined('MOODLE_INTERNAL') || die();
+
+// TODO: When the plugin supports 4.2 as a minimum version, remove this and import the proper core_external classes.
+require_once($CFG->libdir . '/externallib.php');
+
 use cm_info;
 use coding_exception;
 use context_module;
