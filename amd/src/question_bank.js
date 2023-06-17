@@ -33,6 +33,7 @@ import {get_string as getString} from 'core/str';
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Pending from 'core/pending';
+import {notifyItemsUpdated} from "mod_threesixo/events";
 
 // Private variables and functions.
 let selectedQuestionsOld,
@@ -254,16 +255,19 @@ function displayQuestionBankDialogue(title, questionBankTemplate) {
                         questionids: selectedQuestions
                     };
 
-                    // Refresh the list of questions through AJAX.
+                    // Save the selected questions.
                     const promises = ajax.call([
                         {methodname: 'mod_threesixo_set_items', args: data}
                     ]);
-                    promises[0].done(function() {
-                        // Refresh the items list if the selection has changed.
-                        require(['mod_threesixo/edit_items'], function(items) {
-                            items.refreshItemList();
-                        });
-                    }).fail(notification.exception);
+                    // Refresh the list of questions through AJAX.
+                    promises[0].then(function() {
+                        notifyItemsUpdated(threeSixtyId);
+                        return;
+                    }).catch(notification.exception);
+                } else {
+                    // Nothing changed in the selection, but it's possible that the question texts have been updated.
+                    // So better to refresh the list as well.
+                    notifyItemsUpdated(threeSixtyId);
                 }
             });
 
