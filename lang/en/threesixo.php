@@ -114,6 +114,7 @@ $string['qtypecomment'] = 'Comment';
 $string['qtypeinvalid'] = 'Invalid question type';
 $string['qtyperated'] = 'Rated';
 $string['question'] = 'Question';
+$string['questions'] = '360° feedback questions';
 $string['questiontext'] = 'Question text';
 $string['questiontype'] = 'Question type';
 $string['ratingaverage'] = 'Average rating';
