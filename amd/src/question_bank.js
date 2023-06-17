@@ -107,7 +107,7 @@ define([
                 title: dialogueTitle,
                 body: bodyTemplate,
                 large: true
-            }).done(function(modal) {
+            }).then(function(modal) {
                 inputDialogue = modal;
 
                 // Display the dialogue.
@@ -161,7 +161,8 @@ define([
                         refreshQuestionsList();
                     }).fail(notification.exception);
                 });
-            });
+                return;
+            }).catch(notification.exception);
         }
     }
 
@@ -214,7 +215,7 @@ define([
                 title: title,
                 body: questionBankTemplate,
                 large: true
-            }).done(function(modal) {
+            }).then(function(modal) {
                 var modalRoot = modal.getRoot();
 
                 // On hide handler.
@@ -264,7 +265,8 @@ define([
 
                 // Display the dialogue.
                 questionBankDialogue.show();
-            });
+                return;
+            }).catch(notification.exception);
         }
     }
 
@@ -307,7 +309,7 @@ define([
                 title: title,
                 body: str.get_string('confirmquestiondeletion', 'mod_threesixo'),
                 type: ModalFactory.types.SAVE_CANCEL
-            }).done(function(modal) {
+            }).then(function(modal) {
                 modal.getRoot().on(ModalEvents.save, function() {
 
                     // Get list of questions thru AJAX.
@@ -325,7 +327,8 @@ define([
                     }).fail(notification.exception);
                 });
                 modal.show();
-            });
+                return;
+            }).catch(notification.exception);
         });
     }
 
