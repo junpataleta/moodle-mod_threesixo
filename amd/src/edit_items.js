@@ -21,51 +21,51 @@
  * @copyright  2016 Jun Pataleta <jun@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define([
-    'jquery',
-    'core/templates',
-    'core/notification',
-    'core/ajax',
-    'core/str',
-    'mod_threesixo/question_bank',
-    'core/yui'
-], function($, Templates, Notification, Ajax, Str, Bank) {
+import $ from 'jquery';
+import * as Templates from 'core/templates';
+import * as Notification from 'core/notification';
+import Ajax from 'core/ajax';
+import * as Bank from 'mod_threesixo/question_bank';
+import {eventTypes} from 'mod_threesixo/events';
 
-    /**
-     * List of action selectors.
-     *
-     * @type {{DELETE: string, MOVE_UP: string, MOVE_DOWN: string}}
-     */
-    var ACTIONS = {
-        DELETE: '[data-action="delete-item"]',
-        MOVE_UP: '[data-action="move-item-up"]',
-        MOVE_DOWN: '[data-action="move-item-down"]'
-    };
+/**
+ * List of action selectors.
+ *
+ * @type {{DELETE: string, MOVE_UP: string, MOVE_DOWN: string}}
+ */
+const ACTIONS = {
+    DELETE: '[data-action="delete-item"]',
+    MOVE_UP: '[data-action="move-item-up"]',
+    MOVE_DOWN: '[data-action="move-item-down"]'
+};
 
-    var threesixtyId;
-    var editItems = function(threesixtyid) {
-        threesixtyId = threesixtyid;
+export default class EditItems {
+    threesixtyId;
+
+    constructor(threesixtyid) {
+        this.threesixtyId = threesixtyid;
         this.registerEvents();
-    };
+    }
 
-    editItems.refreshItemList = function() {
-        var promises = Ajax.call([
+    refreshItemList() {
+        const editItems = this;
+        const promises = Ajax.call([
             {
                 methodname: 'mod_threesixo_get_items',
                 args: {
-                    threesixtyid: threesixtyId
+                    threesixtyid: editItems.threesixtyId
                 }
             }
         ]);
-        $.when(promises[0]).then(function(response) {
-            var context = {
-                threesixtyid: threesixtyId
+        $.when(promises[0]).then(function (response) {
+            const context = {
+                threesixtyid: editItems.threesixtyId
             };
 
-            var items = [];
-            var itemCount = response.items.length;
-            $.each(response.items, function(key, value) {
-                var item = value;
+            const items = [];
+            const itemCount = response.items.length;
+            $.each(response.items, function (key, value) {
+                const item = value;
                 item.deletebutton = true;
                 item.moveupbutton = false;
                 item.movedownbutton = false;
@@ -86,15 +86,16 @@ define([
 
             return Templates.render('mod_threesixo/list_360_items', context);
 
-        }).done(function(compiledSource, js) {
+        }).done(function (compiledSource, js) {
             $('[data-region="itemlist"]').replaceWith(compiledSource);
             Templates.runTemplateJS(js);
 
         }).fail(Notification.exception);
-    };
+    }
 
-    editItems.callItemAction = function(action, itemId) {
-        var promises = Ajax.call([
+    callItemAction(action, itemId) {
+        const editItems = this;
+        const promises = Ajax.call([
             {
                 methodname: action,
                 args: {
@@ -102,44 +103,48 @@ define([
                 }
             }
         ]);
-        promises[0].done(function(response) {
+        promises[0].done(function (response) {
             if (response.result) {
                 editItems.refreshItemList();
                 return true;
             }
-            var warnings = response.warnings.join($('<br/>'));
+            const warnings = response.warnings.join($('<br/>'));
             throw new Error(warnings);
         }).fail(Notification.exception);
-    };
+    }
 
-    editItems.prototype.registerEvents = function() {
+    registerEvents() {
+        const editItems = this;
+
         // Bind click event for the comments chooser button.
-        $("#btn-question-bank").click(function(e) {
+        $("#btn-question-bank").click(function (e) {
             e.preventDefault();
-            Bank.init(threesixtyId);
+            Bank.init(editItems.threesixtyId);
         });
 
-        $(ACTIONS.DELETE).click(function(e) {
+        $(ACTIONS.DELETE).click(function (e) {
             e.preventDefault();
 
-            var itemId = $(this).data('itemid');
+            const itemId = $(this).data('itemid');
             editItems.callItemAction('mod_threesixo_delete_item', itemId);
         });
 
-        $(ACTIONS.MOVE_UP).click(function(e) {
+        $(ACTIONS.MOVE_UP).click(function (e) {
             e.preventDefault();
 
-            var itemId = $(this).data('itemid');
+            const itemId = $(this).data('itemid');
             editItems.callItemAction('mod_threesixo_move_item_up', itemId);
         });
 
-        $(ACTIONS.MOVE_DOWN).click(function(e) {
+        $(ACTIONS.MOVE_DOWN).click(function (e) {
             e.preventDefault();
 
-            var itemId = $(this).data('itemid');
+            const itemId = $(this).data('itemid');
             editItems.callItemAction('mod_threesixo_move_item_down', itemId);
         });
-    };
 
-    return editItems;
-});
+        document.addEventListener(eventTypes.itemsUpdated, function() {
+            editItems.refreshItemList();
+        });
+    }
+}
