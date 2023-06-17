@@ -75,12 +75,17 @@
         <tr>
             {{#pickerMode}}
                 <td>
-                    <input type="checkbox" id="check-question-{{id}}" class="question-checkbox" title="{{question}}"
+                    <input type="checkbox" id="check-question-{{id}}" class="question-checkbox"
                            data-questionid="{{id}}" {{#checked}}checked="checked"{{/checked}}/>
                 </td>
             {{/pickerMode}}
             <td>
-                {{question}}
+                {{#pickerMode}}
+                    <label for="check-question-{{id}}">{{question}}</label>
+                {{/pickerMode}}
+                {{^pickerMode}}
+                    {{question}}
+                {{/pickerMode}}
             </td>
             <td>
                 {{typeName}}
