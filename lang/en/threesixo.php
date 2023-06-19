@@ -74,6 +74,7 @@ $string['gotoquestionbank'] = 'Go to the 360° question bank';
 $string['instancealreadyclosed'] = 'The 360° feedback activity has already closed.';
 $string['instancenotready'] = 'The 360° feedback activity is not yet ready. Please try again later.';
 $string['instancenotyetopen'] = 'The 360° feedback activity is not yet open. It will open on {$a}.';
+$string['itemdeleted'] = 'Question deleted.';
 $string['labelactions'] = 'Actions';
 $string['labelcancel'] = 'Cancel';
 $string['labeldone'] = 'Done';
