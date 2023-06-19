@@ -27,6 +27,8 @@ import * as Notification from 'core/notification';
 import Ajax from 'core/ajax';
 import * as Bank from 'mod_threesixo/question_bank';
 import {eventTypes} from 'mod_threesixo/events';
+import {add as addToast} from 'core/toast';
+import {get_string as getString} from "core/str";
 
 /**
  * List of action selectors.
@@ -103,14 +105,16 @@ export default class EditItems {
                 }
             }
         ]);
-        promises[0].done(function (response) {
+        promises[0].then((response) => {
             if (response.result) {
                 editItems.refreshItemList();
-                return true;
+                return getString('itemdeleted', 'mod_threesixo');
             }
             const warnings = response.warnings.join($('<br/>'));
             throw new Error(warnings);
-        }).fail(Notification.exception);
+        }).then((message) => {
+            return addToast(message, {});
+        }).catch(Notification.exception);
     }
 
     registerEvents() {
