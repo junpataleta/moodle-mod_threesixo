@@ -245,7 +245,7 @@ class api {
         $DB->delete_records_select('threesixo_item', $select, $params);
 
         // Get remaining items.
-        $existingitems = $DB->get_records('threesixo_item', ['threesixo' => $threesixtyid], 'position ASC', '*');
+        $existingitems = $DB->get_records('threesixo_item', ['threesixo' => $threesixtyid], 'position ASC');
         // Reorder positions.
         $position = 1;
         $selectedquestions = [];
@@ -376,14 +376,24 @@ class api {
      */
     public static function delete_item($itemid) {
         global $DB;
-        if ($itemtobedeleted = $DB->get_record('threesixo_item', ['id' => $itemid])) {
-            $itemstobemoved = $DB->get_recordset_select('threesixo_item', 'position > ?', [$itemtobedeleted->position], 'position');
-            $offset = 0;
-            foreach ($itemstobemoved as $item) {
-                $item->position = $itemtobedeleted->position + $offset;
-                $DB->update_record('threesixo_item', $item);
-                $offset++;
+        $itemtobedeleted = $DB->get_record('threesixo_item', ['id' => $itemid], 'id, position, threesixo');
+        if ($itemtobedeleted) {
+            $select = 'position > :position AND threesixo = :threesixo';
+            $params = [
+                'position' => $itemtobedeleted->position,
+                'threesixo' => $itemtobedeleted->threesixo,
+            ];
+            $itemstobemoved = $DB->get_recordset_select('threesixo_item', $select, $params, 'position ASC', 'id, position');
+            if ($itemstobemoved->valid()) {
+                $offset = 0;
+                foreach ($itemstobemoved as $item) {
+                    $newposition = $itemtobedeleted->position + $offset;
+                    $item->position = $newposition;
+                    $DB->update_record('threesixo_item', $item);
+                    $offset++;
+                }
             }
+            $itemstobemoved->close();
             return $DB->delete_records('threesixo_item', ['id' => $itemid]);
         }
 
