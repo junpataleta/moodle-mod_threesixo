@@ -76,7 +76,7 @@
     </div>
     <div class="row">
         <table class="flexible generaltable generalbox">
-            <caption>{{#str}}questions, mod_threesixo{{/str}}</caption>
+            <caption class="sr-only">{{#str}}questions, mod_threesixo{{/str}}</caption>
             <thead>
             <tr>
                 <th class="span4">{{#str}}labelquestion, mod_threesixo{{/str}}</th>
@@ -95,18 +95,18 @@
                     </td>
                     <td>
                         {{#deletebutton}}
-                            <button class="btn btn-link" data-action="delete-item" id="delete-item-{{id}}" data-itemid="{{id}}" title="{{#str}}deletequestion, mod_threesixo{{/str}}">
-                                {{#pix }} t/delete, core, {{#str}}deletequestion, mod_threesixo{{/str}} {{/pix }}
+                            <button class="btn btn-link" data-action="delete-item" id="delete-item-{{id}}" data-itemid="{{id}}" title="{{#str}}deletequestion, mod_threesixo{{/str}}" data-toggle="tooltip" data-trigger="hover focus click">
+                                {{#pix }} t/delete, core{{/pix }} <span class="sr-only">{{#str}}deletequestion, mod_threesixo{{/str}}</span>
                             </button>
                         {{/deletebutton}}
                         {{#moveupbutton}}
-                            <button class="btn btn-link" data-action="move-item-up" id="move-item-up-{{id}}" data-itemid="{{id}}" title="{{#str}}moveitemup, mod_threesixo{{/str}}">
-                                {{#pix }} t/up, core, {{#str}}moveitemup, mod_threesixo{{/str}} {{/pix }}
+                            <button class="btn btn-link" data-action="move-item-up" id="move-item-up-{{id}}" data-itemid="{{id}}" title="{{#str}}moveitemup, mod_threesixo{{/str}}" data-toggle="tooltip" data-trigger="hover focus click">
+                                {{#pix }} t/up, core{{/pix }} <span class="sr-only">{{#str}}moveitemup, mod_threesixo{{/str}}</span>
                             </button>
                         {{/moveupbutton}}
                         {{#movedownbutton}}
-                            <button class="btn btn-link" data-action="move-item-down" id="move-item-down-{{id}}" data-itemid="{{id}}" title="{{#str}}moveitemdown, mod_threesixo{{/str}}">
-                                {{#pix }} t/down, core, {{#str}}moveitemdown, mod_threesixo{{/str}} {{/pix }}
+                            <button class="btn btn-link" data-action="move-item-down" id="move-item-down-{{id}}" data-itemid="{{id}}" title="{{#str}}moveitemdown, mod_threesixo{{/str}}" data-toggle="tooltip" data-trigger="hover focus click">
+                                {{#pix }} t/down, core{{/pix }} <span class="sr-only">{{#str}}moveitemdown, mod_threesixo{{/str}}</span>
                             </button>
                         {{/movedownbutton}}
                     </td>
