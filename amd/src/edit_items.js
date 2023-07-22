@@ -26,9 +26,10 @@ import * as Templates from 'core/templates';
 import * as Notification from 'core/notification';
 import Ajax from 'core/ajax';
 import * as Bank from 'mod_threesixo/question_bank';
-import {eventTypes} from 'mod_threesixo/events';
+import {eventTypes, notifyItemsUpdated} from 'mod_threesixo/events';
 import {add as addToast} from 'core/toast';
 import {get_string as getString} from "core/str";
+import Pending from 'core/pending';
 
 /**
  * List of action selectors.
@@ -38,7 +39,8 @@ import {get_string as getString} from "core/str";
 const ACTIONS = {
     DELETE: '[data-action="delete-item"]',
     MOVE_UP: '[data-action="move-item-up"]',
-    MOVE_DOWN: '[data-action="move-item-down"]'
+    MOVE_DOWN: '[data-action="move-item-down"]',
+    PICK_QUESTION: '#btn-question-bank',
 };
 
 export default class EditItems {
@@ -50,6 +52,7 @@ export default class EditItems {
     }
 
     refreshItemList() {
+        const pending = new Pending('mod_threesixo/refreshItems');
         const editItems = this;
         const promises = Ajax.call([
             {
@@ -59,14 +62,14 @@ export default class EditItems {
                 }
             }
         ]);
-        $.when(promises[0]).then(function (response) {
+        promises[0].then(function(response) {
             const context = {
                 threesixtyid: editItems.threesixtyId
             };
 
             const items = [];
             const itemCount = response.items.length;
-            $.each(response.items, function (key, value) {
+            response.items.forEach((value) => {
                 const item = value;
                 item.deletebutton = true;
                 item.moveupbutton = false;
@@ -87,16 +90,14 @@ export default class EditItems {
             context.allitems = items;
 
             return Templates.render('mod_threesixo/list_360_items', context);
-
-        }).done(function (compiledSource, js) {
-            $('[data-region="itemlist"]').replaceWith(compiledSource);
-            Templates.runTemplateJS(js);
-
-        }).fail(Notification.exception);
+        }).then((compiledSource) => {
+            document.querySelector('[data-region="itemlist"]').outerHTML = compiledSource;
+            return pending.resolve();
+        }).catch(Notification.exception);
     }
 
-    callItemAction(action, itemId) {
-        const editItems = this;
+    callItemAction(action, itemId, successMessage) {
+        const threesixtyId = this.threesixtyId;
         const promises = Ajax.call([
             {
                 methodname: action,
@@ -107,12 +108,12 @@ export default class EditItems {
         ]);
         promises[0].then((response) => {
             if (response.result) {
-                editItems.refreshItemList();
-                return getString('itemdeleted', 'mod_threesixo');
+                return successMessage;
             }
             const warnings = response.warnings.join($('<br/>'));
             throw new Error(warnings);
         }).then((message) => {
+            notifyItemsUpdated(threesixtyId);
             return addToast(message, {});
         }).catch(Notification.exception);
     }
@@ -120,31 +121,43 @@ export default class EditItems {
     registerEvents() {
         const editItems = this;
 
-        // Bind click event for the comments chooser button.
-        $("#btn-question-bank").click(function (e) {
-            e.preventDefault();
-            Bank.init(editItems.threesixtyId);
-        });
+        document.addEventListener('click', e => {
+            let actionButton = '';
+            let action = '';
+            let successMessage = '';
+            if (e.target.closest(ACTIONS.DELETE)) {
+                actionButton = e.target.closest(ACTIONS.DELETE);
+                action = 'mod_threesixo_delete_item';
+                successMessage = getString('itemdeleted', 'mod_threesixo');
+            } else if (e.target.closest(ACTIONS.MOVE_UP)) {
+                actionButton = e.target.closest(ACTIONS.MOVE_UP);
+                action = 'mod_threesixo_move_item_up';
+                successMessage = getString('itemmovedup', 'mod_threesixo');
+            } else if (e.target.closest(ACTIONS.MOVE_DOWN)) {
+                actionButton = e.target.closest(ACTIONS.MOVE_DOWN);
+                action = 'mod_threesixo_move_item_down';
+                successMessage = getString('itemmoveddown', 'mod_threesixo');
+            } else if (e.target.closest(ACTIONS.PICK_QUESTION)) {
+                e.preventDefault();
 
-        $(ACTIONS.DELETE).click(function (e) {
-            e.preventDefault();
+                Bank.init(editItems.threesixtyId);
+            }
 
-            const itemId = $(this).data('itemid');
-            editItems.callItemAction('mod_threesixo_delete_item', itemId);
-        });
+            if (action) {
+                e.preventDefault();
 
-        $(ACTIONS.MOVE_UP).click(function (e) {
-            e.preventDefault();
+                // Remove the tooltip markup from the DOM. For some reason calling .tooltip('dispose') mucks Behat tests.
+                const tooltipId = actionButton.getAttribute('aria-describedby');
+                if (tooltipId) {
+                    const tooltip = document.querySelector(`#${tooltipId}`);
+                    if (tooltip) {
+                        tooltip.remove();
+                    }
+                }
 
-            const itemId = $(this).data('itemid');
-            editItems.callItemAction('mod_threesixo_move_item_up', itemId);
-        });
-
-        $(ACTIONS.MOVE_DOWN).click(function (e) {
-            e.preventDefault();
-
-            const itemId = $(this).data('itemid');
-            editItems.callItemAction('mod_threesixo_move_item_down', itemId);
+                const itemId = actionButton.dataset.itemid;
+                editItems.callItemAction(action, itemId, successMessage);
+            }
         });
 
         document.addEventListener(eventTypes.itemsUpdated, function() {

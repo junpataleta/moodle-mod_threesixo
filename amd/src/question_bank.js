@@ -62,7 +62,7 @@ function getQuestionTypeOptions(selectedId) {
             typeName: questionTypes[key]
         };
 
-        if (typeof selectedId !== 'undefined' && key == selectedId) {
+        if (typeof selectedId !== 'undefined' && key === selectedId) {
             questionType.selected = true;
         }
 
@@ -163,10 +163,9 @@ function renderInputDialogue(dialogueTitle, bodyTemplate) {
                     refreshQuestionsList();
                 }).fail(notification.exception);
             });
-            return;
+            return true;
         }).then(() => {
-            pendingPromise.resolve();
-            return null;
+            return pendingPromise.resolve();
         }).catch(notification.exception);
     }
 }
@@ -214,8 +213,9 @@ function displayQuestionBankDialogue(title, questionBankTemplate) {
         // Set dialogue body.
         questionBankDialogue.setBody(questionBankTemplate);
         // Display the dialogue.
-        questionBankDialogue.show();
-        pendingPromise.resolve();
+        questionBankDialogue.show().then(() => {
+            return pendingPromise.resolve();
+        }).catch(notification.exception);
     } else {
         ModalFactory.create({
             type: ModalFactory.types.SAVE_CANCEL,
@@ -234,7 +234,7 @@ function displayQuestionBankDialogue(title, questionBankTemplate) {
             modalRoot.on(ModalEvents.save, function() {
                 let changed = false;
                 // Check if the new selected questions exist in the old selected questions.
-                $.each(selectedQuestionsOld, function(key, questionId) {
+                selectedQuestionsOld.forEach(questionId => {
                     if (selectedQuestions.indexOf(questionId) === -1) {
                         changed = true;
                     }
@@ -242,7 +242,7 @@ function displayQuestionBankDialogue(title, questionBankTemplate) {
                 // Conversely, if the newly selected items seem to have not changed,
                 // check if the old selected questions exist in the new selected questions.
                 if (!changed) {
-                    $.each(selectedQuestions, function(key, questionId) {
+                    selectedQuestions.forEach(questionId => {
                         if (selectedQuestionsOld.indexOf(questionId) === -1) {
                             changed = true;
                         }
@@ -261,8 +261,7 @@ function displayQuestionBankDialogue(title, questionBankTemplate) {
                     ]);
                     // Refresh the list of questions through AJAX.
                     promises[0].then(function() {
-                        notifyItemsUpdated(threeSixtyId);
-                        return;
+                        return notifyItemsUpdated(threeSixtyId);
                     }).catch(notification.exception);
                 } else {
                     // Nothing changed in the selection, but it's possible that the question texts have been updated.
@@ -274,11 +273,9 @@ function displayQuestionBankDialogue(title, questionBankTemplate) {
             questionBankDialogue = modal;
 
             // Display the dialogue.
-            questionBankDialogue.show();
-            return;
+            return questionBankDialogue.show();
         }).then(() => {
-            pendingPromise.resolve();
-            return null;
+            return pendingPromise.resolve();
         }).catch(notification.exception);
     }
 }
@@ -370,8 +367,7 @@ function handleDeletion(questionId, threesixtyId) {
                     refreshQuestionsList();
                 }).fail(notification.exception);
             });
-            modal.show();
-            return;
+            return modal.show();
         }).catch(notification.exception);
     });
 }
