@@ -25,7 +25,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import $ from 'jquery';
 import * as templates from 'core/templates';
 import * as notification from 'core/notification';
 import * as ajax from 'core/ajax';
@@ -49,9 +48,7 @@ let selectedQuestionsOld,
     selectedQuestions,
     questions = [],
     threeSixtyId,
-    questionTypes,
-    questionBankDialogue,
-    inputDialogue;
+    questionTypes;
 
 /**
  * Fetches option data for the question type selector.
@@ -111,15 +108,15 @@ function renderInputDialogue(dialogueTitle, bodyTemplate) {
         body: bodyTemplate,
         large: true
     }).then(function(modal) {
-        inputDialogue = modal;
-
         // Display the dialogue.
-        inputDialogue.show();
+        modal.show();
 
-        // On show handler.
-        modal.getRoot().on(ModalEvents.shown, function() {
+        modal.getRoot().on(ModalEvents.bodyRendered, function() {
             // Focus on the question text area.
-            $("#question-input").focus();
+            const questionInput = document.getElementById("question-input");
+            if (questionInput) {
+                questionInput.focus();
+            }
         });
 
         // On hide handler.
@@ -129,19 +126,20 @@ function renderInputDialogue(dialogueTitle, bodyTemplate) {
         });
 
         // On save handler.
-        modal.getRoot().on(ModalEvents.save, function() {
-            const question = $("#question-input").val().trim();
+        modal.getRoot().on(ModalEvents.save, () => {
+            const questionInput = document.getElementById("question-input");
+            const question = questionInput.value.trim();
+            // Validate the entered question. Prevent saving if passing an empty question string.
             if (!question) {
-                getString('requiredelement', 'form').done(function(errorMsg) {
-                    const errorMessage = $('<div/>').append(errorMsg)
-                        .attr('class', 'alert alert-error')
-                        .attr('role', 'alert');
-                    $('.error-container').html(errorMessage);
-                }).fail(notification.exception);
-                return;
+                question.value = '';
+                const form = questionInput.form;
+                form.classList.add('was-validated');
+                questionInput.classList.add('is-invalid');
+                questionInput.focus();
+                return false;
             }
-            const qtype = $("#question-type-select").val();
-            const threesixtyid = $("#threesixtyid").val();
+            const qtype = document.getElementById("question-type-select").value;
+            const threesixtyid = document.getElementById("threesixtyid").value;
 
             const data = {
                 question: question,
@@ -150,7 +148,7 @@ function renderInputDialogue(dialogueTitle, bodyTemplate) {
             };
 
             let method = 'mod_threesixo_add_question';
-            const questionId = $("#question-id").val();
+            const questionId = document.getElementById("question-id").value;
             if (questionId) {
                 method = 'mod_threesixo_update_question';
                 data.id = questionId;
@@ -160,9 +158,9 @@ function renderInputDialogue(dialogueTitle, bodyTemplate) {
             const promises = ajax.call([
                 {methodname: method, args: data}
             ]);
-            promises[0].done(function() {
-                refreshQuestionsList();
-            }).fail(notification.exception);
+            return promises[0].then(function() {
+                return refreshQuestionsList();
+            }).catch(notification.exception);
         });
         return true;
     }).then(() => {
@@ -219,7 +217,7 @@ function displayQuestionBankDialogue(title, questionBankTemplate) {
         // On hide handler.
         modalRoot.on(ModalEvents.hidden, function() {
             // Empty modal contents when it's hidden.
-            modal.setBody('');
+            modal.destroy();
         });
 
         modalRoot.on(ModalEvents.save, function() {
@@ -261,10 +259,8 @@ function displayQuestionBankDialogue(title, questionBankTemplate) {
             }
         });
 
-        questionBankDialogue = modal;
-
         // Display the dialogue.
-        return questionBankDialogue.show();
+        return modal.show();
     }).then(() => {
         return pendingPromise.resolve();
     }).catch(notification.exception);
