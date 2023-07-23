@@ -58,7 +58,9 @@
     <tr>
         {{#pickerMode}}
             <th>
-                {{#str}}labelpick, mod_threesixo{{/str}}
+                <label for="pick-all">{{#str}}labelpick, mod_threesixo{{/str}}</label>
+                <input id="pick-all" name="pick-all" type="checkbox" value="1"
+                       data-action="toggle" data-toggle="master" data-togglegroup="360-questions" />
             </th>
         {{/pickerMode}}
         <th>
@@ -76,7 +78,8 @@
             {{#pickerMode}}
                 <td>
                     <input type="checkbox" id="check-question-{{id}}" class="question-checkbox"
-                           data-questionid="{{id}}" {{#checked}}checked="checked"{{/checked}}/>
+                           data-questionid="{{id}}" {{#checked}}checked="checked"{{/checked}}
+                           data-action="toggle" data-toggle="slave" data-togglegroup="360-questions"/>
                 </td>
             {{/pickerMode}}
             <td>
@@ -92,10 +95,10 @@
             </td>
             <td>
                 {{#pickerMode}}
-                    <button class="btn btn-link edit-question-button" id="edit-question-{{id}}" data-threesixtyid="{{pickerMode}}" data-questionid="{{id}}" title="{{#str}}editquestion, mod_threesixo{{/str}}">
+                    <button type="button" class="btn btn-link edit-question-button" id="edit-question-{{id}}" data-threesixtyid="{{pickerMode}}" data-questionid="{{id}}" title="{{#str}}editquestion, mod_threesixo{{/str}}">
                         {{#pix }} t/edit, core, {{#str}}editquestion, mod_threesixo{{/str}} {{/pix}}
                     </button>
-                    <button class="btn btn-link delete-question-button" id="delete-question-{{id}}" data-threesixtyid="{{pickerMode}}" data-questionid="{{id}}" title="{{#str}}deletequestion, mod_threesixo{{/str}}">
+                    <button type="button" class="btn btn-link delete-question-button" id="delete-question-{{id}}" data-threesixtyid="{{pickerMode}}" data-questionid="{{id}}" title="{{#str}}deletequestion, mod_threesixo{{/str}}">
                         {{#pix }} t/delete, core, {{#str}}deletequestion, mod_threesixo{{/str}} {{/pix}}
                     </button>
                 {{/pickerMode}}
@@ -103,8 +106,3 @@
         </tr>
     {{/questions}}
 </table>
-{{#js}}
-    require(['jquery', 'mod_threesixo/question_bank'], function($, qb) {
-        qb.bindItemActionEvents();
-    });
-{{/js}}
