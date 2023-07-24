@@ -28,8 +28,6 @@
  * });
  */
 
-import {dispatchEvent} from 'core/event_dispatcher';
-
 /**
  * Events for `mod_threesixo`.
  *
@@ -57,9 +55,10 @@ export const eventTypes = {
  * @returns {itemsUpdated}
  * @fires itemsUpdated
  */
-export const notifyItemsUpdated = threesixtyId => dispatchEvent(
-    eventTypes.itemsUpdated,
-    {
+export const notifyItemsUpdated = threesixtyId => {
+    const eventData = {
         threesixtyId: threesixtyId,
-    }
-);
+    };
+    const event = new Event(eventTypes.itemsUpdated, eventData);
+    return document.dispatchEvent(event);
+};
