@@ -27,6 +27,7 @@ use coding_exception;
 use core_user;
 use dml_exception;
 use mod_threesixo\api;
+use moodle_url;
 use renderable;
 use renderer_base;
 use stdClass;
@@ -106,6 +107,15 @@ class questionnaire implements renderable, templatable {
                     break;
             }
         }
+
+        $cm = null;
+        $modinfo = get_fast_modinfo($threesixty->course);
+        foreach ($modinfo->get_instances_of('threesixo') as $instance) {
+            if ($instance->instance === $threesixty->id) {
+                $cm = $instance;
+                break;
+            }
+        }
         $data->hasratedquestions = !empty($ratedquestions);
         $data->ratedquestions = $ratedquestions;
         $data->hascommentquestions = !empty($commentquestions);
@@ -115,9 +125,15 @@ class questionnaire implements renderable, templatable {
         $touser = core_user::get_user($submission->touser, $fields);
         $data->tousername = fullname($touser);
         $data->threesixtyid = $submission->threesixo;
+        $data->submissionid = $submission->id;
         $data->anonymous = $threesixty->anonymous;
-        $data->returnurl = $PAGE->url;
+        $data->returnurl = new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]);
         $data->fromuserid = $submission->fromuser;
+        $data->actionurl = $PAGE->url;
+
+        // Hack to display the radio button to enable selection during Behat runs.
+        // It's disgusting, but there's no way around it at the moment.
+        $data->optionclass = defined('BEHAT_SITE_RUNNING') ? '' : 'threesixo_questionnaire_question';
 
         return $data;
     }

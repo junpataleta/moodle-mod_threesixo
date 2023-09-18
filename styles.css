@@ -6,6 +6,6 @@
 }
 
 /* Focus outline for the rating option's radio button label. */
-.threesixo_questionnaire_question:focus + label {
-    box-shadow: inset 0 0 0 2px black;
+.threesixo_questionnaire_question:focus + label span.scaleoptionlabel {
+    box-shadow: inset 0 0 0 4px black;
 }
