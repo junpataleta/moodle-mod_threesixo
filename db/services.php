@@ -35,7 +35,7 @@ $functions = [
         'type'          => 'read',
         'capabilities'  => '',
         'ajax'          => true,
-        'loginrequired' => false,
+        'loginrequired' => true,
     ],
     'mod_threesixo_add_question' => [
         'classname'     => 'mod_threesixo\external',
@@ -45,7 +45,7 @@ $functions = [
         'type'          => 'write',
         'capabilities'  => 'mod/threesixo:editquestions',
         'ajax'          => true,
-        'loginrequired' => false,
+        'loginrequired' => true,
     ],
     'mod_threesixo_update_question' => [
         'classname'     => 'mod_threesixo\external',
@@ -55,7 +55,7 @@ $functions = [
         'type'          => 'write',
         'capabilities'  => 'mod/threesixo:editquestions',
         'ajax'          => true,
-        'loginrequired' => false,
+        'loginrequired' => true,
     ],
     'mod_threesixo_delete_question' => [
         'classname'     => 'mod_threesixo\external',
@@ -65,7 +65,7 @@ $functions = [
         'type'          => 'write',
         'capabilities'  => 'mod/threesixo:editquestions',
         'ajax'          => true,
-        'loginrequired' => false,
+        'loginrequired' => true,
     ],
     'mod_threesixo_get_items' => [
         'classname'     => 'mod_threesixo\external',
@@ -73,7 +73,7 @@ $functions = [
         'description'   => 'Get items for a specific 360-degree feedback instance.',
         'type'          => 'read',
         'ajax'          => true,
-        'loginrequired' => false,
+        'loginrequired' => true,
     ],
     'mod_threesixo_set_items' => [
         'classname'     => 'mod_threesixo\external',
@@ -81,7 +81,7 @@ $functions = [
         'description'   => 'Set the items for a specific 360-degree feedback instance.',
         'type'          => 'read',
         'ajax'          => true,
-        'loginrequired' => false,
+        'loginrequired' => true,
     ],
     'mod_threesixo_delete_item' => [
         'classname'     => 'mod_threesixo\external',
@@ -89,7 +89,7 @@ $functions = [
         'description'   => 'Delete item.',
         'type'          => 'write',
         'ajax'          => true,
-        'loginrequired' => false,
+        'loginrequired' => true,
     ],
     'mod_threesixo_get_question_types' => [
         'classname'     => 'mod_threesixo\external',
@@ -105,7 +105,7 @@ $functions = [
         'description'   => 'Move item up.',
         'type'          => 'write',
         'ajax'          => true,
-        'loginrequired' => false,
+        'loginrequired' => true,
     ],
     'mod_threesixo_move_item_down' => [
         'classname'     => 'mod_threesixo\external',
@@ -113,7 +113,7 @@ $functions = [
         'description'   => 'Move item down.',
         'type'          => 'write',
         'ajax'          => true,
-        'loginrequired' => false,
+        'loginrequired' => true,
     ],
     'mod_threesixo_decline_feedback' => [
         'classname'     => 'mod_threesixo\external',
@@ -121,7 +121,7 @@ $functions = [
         'description'   => 'Decline feedback request.',
         'type'          => 'write',
         'ajax'          => true,
-        'loginrequired' => false,
+        'loginrequired' => true,
     ],
     'mod_threesixo_undo_decline' => [
         'classname'     => 'mod_threesixo\external',
@@ -137,7 +137,7 @@ $functions = [
         'description'   => 'Get data for the list of participants.',
         'type'          => 'read',
         'ajax'          => true,
-        'loginrequired' => false,
+        'loginrequired' => true,
     ],
     'mod_threesixo_save_responses' => [
         'classname'     => 'mod_threesixo\external',
@@ -145,7 +145,7 @@ $functions = [
         'description'   => 'Save responses for the 360 degree feedback.',
         'type'          => 'write',
         'ajax'          => true,
-        'loginrequired' => false,
+        'loginrequired' => true,
     ],
     'mod_threesixo_get_responses' => [
         'classname'     => 'mod_threesixo\external',
@@ -153,6 +153,6 @@ $functions = [
         'description'   => 'Loads the responses of a user for the 360 degree feedback questionnaire.',
         'type'          => 'read',
         'ajax'          => true,
-        'loginrequired' => false,
+        'loginrequired' => true,
     ],
 ];
