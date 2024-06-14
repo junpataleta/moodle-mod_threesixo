@@ -27,6 +27,7 @@ import {get_string as getString, get_strings as getStrings} from 'core/str';
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import {add as addToast} from 'core/toast';
+import Pending from 'core/pending';
 
 /**
  * Selectors for the questionnaire page.
@@ -45,21 +46,24 @@ const selectors = {
  */
 const responses = [];
 
+const itemIds = [];
 /**
  * Initialiser function.
  */
 export const init = () => {
+    const pending = new Pending('mod_threesixo/questionnaire-init');
     registerEvents();
 
     const questionItems = document.querySelectorAll(selectors.questionItem);
     questionItems.forEach(option => {
-        responses[option.getAttribute('data-itemid')] = null;
+        itemIds.push(option.dataset.itemid);
+        responses[option.dataset.itemid] = null;
     });
 
     const questionnaireTable = document.querySelector(selectors.questionnaireTable);
-    const fromUser = questionnaireTable.getAttribute('data-fromuserid');
-    const toUser = questionnaireTable.getAttribute('data-touserid');
-    const threesixtyId = questionnaireTable.getAttribute('data-threesixtyid');
+    const fromUser = questionnaireTable.dataset.fromuserid;
+    const toUser = questionnaireTable.dataset.touserid;
+    const threesixtyId = questionnaireTable.dataset.threesixtyid;
 
     const promises = Ajax.call([
         {
@@ -101,7 +105,7 @@ export const init = () => {
             });
         });
         return true;
-    }).catch(Notification.exception);
+    }).then(pending.resolve).catch(Notification.exception);
 };
 
 /**
@@ -138,12 +142,14 @@ const registerEvents = () => {
     });
 
     const btnSaveFeedback = document.getElementById('save-feedback');
-    btnSaveFeedback.addEventListener('click', () => {
+    btnSaveFeedback.addEventListener('click', (e) => {
+        e.preventDefault();
         saveResponses(false);
     });
 
     const btnSubmitFeedback = document.getElementById('submit-feedback');
-    btnSubmitFeedback.addEventListener('click', () => {
+    btnSubmitFeedback.addEventListener('click', (e) => {
+        e.preventDefault();
         saveResponses(true);
     });
 };
@@ -154,6 +160,7 @@ const registerEvents = () => {
  * @param {HTMLElement} ratingOption The selected option for the given rated question.
  */
 const handleOptionActivation = ratingOption => {
+    const pending = new Pending('mod_threesixo:handleOptionActivation');
     const optionGroup = ratingOption.closest(selectors.questionItem);
     const itemId = optionGroup.getAttribute('data-itemid');
     const options = optionGroup.querySelectorAll(selectors.ratingOption);
@@ -162,8 +169,8 @@ const handleOptionActivation = ratingOption => {
     options.forEach(option => {
         const optionLabel = option.nextElementSibling;
         if (optionLabel.classList.contains('btn-success')) {
-            optionLabel.classList.remove('btn-success');
-            optionLabel.classList.add('btn-secondary');
+            optionLabel.classList.toggle('btn-success', false);
+            optionLabel.classList.toggle('btn-secondary', true);
             option.checked = false;
         }
     });
@@ -171,12 +178,12 @@ const handleOptionActivation = ratingOption => {
     // Mark selected option as selected.
     const selectedLabel = ratingOption.nextElementSibling;
     selectedLabel.classList.remove('btn-secondary');
-    selectedLabel.classList.remove('btn-info');
     selectedLabel.classList.add('btn-success');
     ratingOption.checked = true;
 
     // Add this selected value to the array of responses.
     responses[itemId] = ratingOption.value;
+    pending.resolve();
 };
 
 /**
@@ -187,14 +194,14 @@ const handleOptionActivation = ratingOption => {
 const saveResponses = finalise => {
     const comments = document.querySelectorAll(selectors.commentItem);
     comments.forEach(comment => {
-        responses[comment.getAttribute('data-itemid')] = comment.value.trim();
+        responses[comment.dataset.itemid] = comment.value.trim();
     });
 
     const questionnaireTable = document.querySelector(selectors.questionnaireTable);
-    const toUser = parseInt(questionnaireTable.getAttribute('data-touserid'));
-    const toUserFullname = questionnaireTable.getAttribute('data-tousername');
-    const threesixtyId = parseInt(questionnaireTable.getAttribute('data-threesixtyid'));
-    const anonymous = parseInt(questionnaireTable.getAttribute('data-anonymous'));
+    const toUser = parseInt(questionnaireTable.dataset.touserid);
+    const toUserFullname = questionnaireTable.dataset.tousername;
+    const threesixtyId = parseInt(questionnaireTable.dataset.threesixtyid);
+    const anonymous = parseInt(questionnaireTable.dataset.anonymous);
 
     if (anonymous && finalise) {
         // Show confirmation dialogue to anonymise the feedback responses.
@@ -230,30 +237,44 @@ const saveResponses = finalise => {
  * @param {boolean} finalise
  */
 const submitResponses = (threesixtyId, toUser, responses, finalise) => {
-    var promises = Ajax.call([
+    const pending = new Pending('mod_threesixo/submit-responses');
+    let redirectUrl = null;
+    const responsesToSubmit = [];
+    itemIds.forEach(itemId => {
+        responsesToSubmit.push({
+            item: itemId,
+            value: responses[itemId]
+        });
+    });
+    Ajax.call([
         {
             methodname: 'mod_threesixo_save_responses',
             args: {
                 threesixtyid: threesixtyId,
                 touserid: toUser,
-                responses: responses,
+                responses: responsesToSubmit,
                 complete: finalise
             }
         }
-    ]);
-
-    let redirectUrl = null;
-    promises[0].then(response => {
+    ])[0].then(response => {
         if (response.result) {
             redirectUrl = response.redirurl;
             return getString('responsessaved', 'mod_threesixo');
         }
         return getString('errorresponsesavefailed', 'mod_threesixo');
     }).then(message => {
-        return addToast(message, {});
+        if (!finalise) {
+            // Show toast message when saving the responses but not redirecting.
+            return addToast(message, {});
+        }
+        return true;
     }).then(() => {
+        pending.resolve();
         if (finalise && redirectUrl) {
-            window.location = redirectUrl;
+            const form = document.getElementById('questionnaire');
+            const submitted = document.getElementById('feedback-submitted');
+            submitted.value = 1;
+            form.submit();
         }
         return true;
     }).catch(Notification.exception);

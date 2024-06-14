@@ -28,7 +28,6 @@ require_once('../../config.php');
 
 // The threesixo record id.
 $id = required_param('threesixo', PARAM_INT);
-$submissionid = required_param('submission', PARAM_INT);
 
 list ($course, $cm) = get_course_and_cm_from_instance($id, 'threesixo');
 require_login($course, true, $cm);
@@ -37,6 +36,11 @@ $context = context_module::instance($cm->id);
 
 // Return URL in case of error.
 $returnurl = new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]);
+$submitted = optional_param('feedback-submitted', 0, PARAM_INT);
+if ($submitted) {
+    redirect($returnurl->out(false));
+}
+$submissionid = required_param('submission', PARAM_INT);
 
 try {
     $submission = api::get_submission($submissionid);
@@ -62,7 +66,7 @@ $PAGE->set_context($context);
 $PAGE->set_cm($cm, $course);
 $PAGE->set_pagelayout('incourse');
 
-$PAGE->set_url('/mod/threesixo/view.php', ['id' => $cm->id]);
+$PAGE->set_url('/mod/threesixo/questionnaire.php', ['threesixo' => $cm->instance, 'submission' => $submission->id]);
 $PAGE->set_heading($course->fullname);
 $title = format_string($threesixty->name);
 $PAGE->set_title($title);

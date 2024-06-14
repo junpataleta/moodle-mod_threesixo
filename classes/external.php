@@ -909,7 +909,10 @@ class external extends external_api {
                 'threesixtyid' => new external_value(PARAM_INT, 'The 360-degree feedback identifier.'),
                 'touserid' => new external_value(PARAM_INT, 'The user identifier for the feedback subject.'),
                 'responses' => new external_multiple_structure(
-                    new external_value(PARAM_TEXT, 'The response value with the key as the item ID.')
+                    new external_single_structure([
+                        'item' => new external_value(PARAM_INT, 'The item ID.'),
+                        'value' => new external_value(PARAM_TEXT, 'The response value with the key as the item ID.'),
+                    ]), 'Array of response objects containing item and value'
                 ),
                 'complete' => new external_value(PARAM_BOOL, 'Whether to mark the submission as complete.'),
             ]
@@ -958,12 +961,17 @@ class external extends external_api {
             throw new moodle_exception('errorcannotprovidefeedbacktouser', 'threesixo');
         }
 
-        $result = api::save_responses($threesixtyid, $touserid, $responses);
+        $responsesarray = [];
+        foreach ($responses as $response) {
+            $responsesarray[$response['item']] = $response['value'];
+        }
+
+        $result = api::save_responses($threesixtyid, $touserid, $responsesarray);
 
         if ($complete) {
             $items = api::get_items($threesixtyid);
             foreach ($items as $item) {
-                if ($responses[$item->id] === null) {
+                if ($responsesarray[$item->id] === null) {
                     $complete = false;
                     break;
                 }

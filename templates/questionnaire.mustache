@@ -61,83 +61,49 @@
         <span class="badge {{statusclass}}">{{ status }}</span>
     </div>
 </div>
-<table class="table table-striped"
-       data-region="questionnaire"
-       data-threesixtyid="{{threesixtyid}}"
-       data-anonymous="{{anonymous}}"
-       data-fromuserid="{{fromuserid}}"
-       data-touserid="{{touserid}}"
-       data-tousername="{{tousername}}">
-    {{#hasratedquestions}}
-        <tr role="none">
-            <th role="none">
-                <div class="row rtl-compatible" role="row">
-                    <div class="col-md-5" role="columnheader">
-                        <div class="sr-only">
-                            {{#str}}question, mod_threesixo{{/str}}
-                        </div>
-                    </div>
-                    {{#scales}}
-                        <div class="col-md-1 hideoverflow text-center" title="{{description}}" role="columnheader">
-                            <span class="d-sm-none">{{scalelabel}} - </span>{{description}}
-                        </div>
-                    {{/scales}}
-                </div>
-            </th>
-        </tr>
-        {{#ratedquestions}}
-        <tr role="none">
-            <td role="none">
-                <div class="row rtl-compatible" data-region="question-row" role="row">
-                    <div class="col-md-5" role="rowheader" id="question-{{questionid}}">
-                        {{question}}
-                    </div>
-                    <div class="col-md-7" role="none">
-                        <div class="container">
-                            <div class="row" data-region="question-item" data-itemid="{{id}}" role="radiogroup" aria-labelledby="question-{{questionid}}">
-                                {{#scales}}
-                                    <div class="col text-center">
-                                        <input class="threesixo_questionnaire_question" type="radio" name="question-{{questionid}}" value="{{scale}}" id="option-{{questionid}}-{{scale}}"/>
-                                        <label for="option-{{questionid}}-{{scale}}" class="scaleoptionlabel btn btn-secondary" data-region="rating-scale-option" data-questionid="{{questionid}}" data-value="{{scale}}" data-radio-button="option-{{questionid}}-{{scale}}">
-                                            <span aria-hidden="true">{{scalelabel}}</span>
-                                            <span class="sr-only">{{description}}</span>
-                                        </label>
-                                    </div>
-                                {{/scales}}
+<div class="card"
+     data-region="questionnaire"
+     data-threesixtyid="{{threesixtyid}}"
+     data-anonymous="{{anonymous}}"
+     data-fromuserid="{{fromuserid}}"
+     data-touserid="{{touserid}}"
+     data-tousername="{{tousername}}">
+    <div class="card-body">
+        <form id="questionnaire" method="post" action="{{{actionurl}}}">
+            <input type="hidden" id="threesixo" value="{{threesixtyid}}">
+            <input type="hidden" id="submission" value="{{submissionid}}">
+            <input type="hidden" id="feedback-submitted" name="feedback-submitted" value="">
+            {{#hasratedquestions}}
+                {{#ratedquestions}}
+                    <fieldset class="form-group row mx-1" data-region="question-item" data-itemid="{{id}}">
+                        <legend>
+                            <small>{{question}}</small>
+                        </legend>
+                        {{#scales}}
+                            <div class="col text-center scaleoption">
+                                <label for="option-{{questionid}}-{{scale}}" data-region="rating-scale-option" data-questionid="{{questionid}}" data-value="{{scale}}" data-radio-button="option-{{questionid}}-{{scale}}">
+                                    <input class="{{optionclass}}" type="radio" name="question-{{questionid}}" value="{{scale}}" id="option-{{questionid}}-{{scale}}"/>
+                                    <span aria-hidden="true" class="scaleoptionlabel btn btn-secondary">{{scalelabel}}</span>
+                                    <span class="d-block"><small>{{description}}</small></span>
+                                </label>
                             </div>
-                        </div>
+                        {{/scales}}
+                    </fieldset>
+                {{/ratedquestions}}
+            {{/hasratedquestions}}
+            {{#hascommentquestions}}
+                {{#commentquestions}}
+                    <div class="form-group" data-region="question-item" data-itemid="{{id}}">
+                        <label for="question-{{id}}">{{question}}</label>
+                        <textarea id="question-{{id}}" name="question-{{id}}" placeholder="{{#str}}entercomment, mod_threesixo{{/str}}" class="form-control" cols="50" rows="5" data-region="comment-item" data-itemid="{{id}}">{{value}}</textarea>
                     </div>
-                </div>
-            </td>
-        </tr>
-        {{/ratedquestions}}
-    {{/hasratedquestions}}
-    {{#hascommentquestions}}
-        <tr>
-            <th>
-                {{#str}}comments, mod_threesixo{{/str}}
-            </th>
-        </tr>
-        {{#commentquestions}}
-        <tr>
-            <td>
-                <div class="row rtl-compatible">
-                    <div class="col-md-5">
-                        {{question}}
-                    </div>
-                    <div class="col-md-7" data-region="question-item" data-itemid="{{id}}">
-                        <textarea placeholder="{{#str}}entercomment, mod_threesixo{{/str}}" class="form-control" cols="50" rows="5" data-region="comment-item" data-itemid="{{id}}">{{value}}</textarea>
-                    </div>
-                </div>
-            </td>
-        </tr>
-        {{/commentquestions}}
-    {{/hascommentquestions}}
-</table>
-<div>
-    <button class="btn btn-primary" id="submit-feedback">{{#str}}submit{{/str}}</button>
-    <button class="btn btn-secondary" id="save-feedback">{{#str}}savechanges{{/str}}</button>
-    <a class="btn btn-secondary" id="cancel-feedback" href="{{returnurl}}">{{#str}}cancel{{/str}}</a>
+                {{/commentquestions}}
+            {{/hascommentquestions}}
+            <button type="submit" class="btn btn-primary" id="submit-feedback">{{#str}}submit{{/str}}</button>
+            <button type="submit" class="btn btn-secondary" id="save-feedback">{{#str}}savechanges{{/str}}</button>
+            <a class="btn btn-secondary" id="cancel-feedback" href="{{returnurl}}">{{#str}}cancel{{/str}}</a>
+        </form>
+    </div>
 </div>
 {{#js}}
     require(['mod_threesixo/questionnaire'], function(questionnaire) {
