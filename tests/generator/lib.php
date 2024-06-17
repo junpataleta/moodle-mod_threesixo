@@ -60,7 +60,7 @@ class mod_threesixo_generator extends testing_module_generator {
         $threesixo = parent::create_instance($record, (array)$options);
 
         // Generate sample questions for this instance.
-        $ratedquestions = [
+        $defaultratedquestions = [
             'Treats co-workers with courtesy and respect.',
             'Has a positive attitude.',
             'Has initiative needed without relying on co-workers unnecessarily.',
@@ -74,10 +74,14 @@ class mod_threesixo_generator extends testing_module_generator {
             'Explains ideas clearly.',
             'Makes an effort to listen and tries to understand other people\'s ideas.'
         ];
-        $commentquestions = [
+        $ratedquestions = $options['ratedquestions'] ?? $defaultratedquestions;
+
+        $defaultcommentquestions = [
             'What positive comments can you give me?',
             'What are some things you encourage me to focus on?'
         ];
+        $commentquestions = $options['commentquestions'] ?? $defaultcommentquestions;
+
         $questions = [];
         foreach ($ratedquestions as $question) {
             $questions[] = (object)[
