@@ -82,6 +82,15 @@ class api {
     /** Activity close event type. */
     const THREESIXO_EVENT_TYPE_CLOSE = 'close';
 
+    /** @var int Default minimum rating (Strongly disagree). */
+    const RATING_MIN = 1;
+
+    /** @var int Default maximum rating (Strongly agree). */
+    const RATING_MAX = 6;
+
+    /** @var int Not applicable. */
+    const RATING_NA = 0;
+
     /**
      * Fetches the 360-degree feedback instance.
      *
@@ -828,7 +837,7 @@ class api {
      * @param int $threesixtyid The 360-degree feedback instance ID.
      * @param int $fromuser The respondent's user ID.
      * @param int $touser The feedback recipient's user ID.
-     * @return stdClass
+     * @return false|stdClass
      * @throws dml_exception
      */
     public static function get_submission_by_params($threesixtyid, $fromuser, $touser) {
@@ -898,6 +907,11 @@ class api {
     public static function save_responses($threesixty, $touser, $responses) {
         global $DB, $USER;
 
+        $error = self::validate_responses($threesixty, $responses);
+        if ($error !== '') {
+            throw new moodle_exception($error);
+        }
+
         $fromuser = $USER->id;
         $savedresponses = $DB->get_records('threesixo_response', [
             'threesixo' => $threesixty,
@@ -918,20 +932,44 @@ class api {
                 }
             }
 
+            $response->value = $value;
             if (empty($response->id)) {
                 $response->threesixo = $threesixty;
                 $response->item = $key;
                 $response->touser = $touser;
                 $response->fromuser = $fromuser;
-                $response->value = $value;
                 $id = $DB->insert_record('threesixo_response', $response);
                 $result &= !empty($id);
             } else {
-                $response->value = $value;
                 $result &= $DB->update_record('threesixo_response', $response);
             }
         }
         return $result;
+    }
+
+    /**
+     * Validate user responses to the 360-degree feedback activity, especially the values for the rated questions.
+     *
+     * @param int $threesixty The 360-degree feedback activity identifier.
+     * @param array $responses The array of responses.
+     * @return string The error message if validation errors are found. Returns an empty string if validation passes.
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function validate_responses(int $threesixty, array $responses): string {
+        $items = self::get_items($threesixty);
+        foreach ($responses as $itemid => $value) {
+            $item = $items[$itemid] ?? false;
+            if ($item === false) {
+                return get_string('errorinvaliditem', 'mod_threesixo');
+            }
+            if ($item->type == self::QTYPE_RATED) {
+                if ((float)$value < self::RATING_NA || (float)$value > self::RATING_MAX) {
+                    return get_string('errorinvalidratingvalue', 'mod_threesixo', $value);
+                }
+            }
+        }
+        return '';
     }
 
     /**

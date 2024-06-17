@@ -163,4 +163,82 @@ class api_test extends advanced_testcase {
             $this->assertEquals($expected, $result);
         }
     }
+
+    /**
+     * Data provider for response validation.
+     *
+     * @return array[]
+     */
+    public function validate_responses_provider(): array {
+        return [
+            'Valid responses' => [
+                true, [1, 6, 0], '',
+            ],
+            'Responses with null values' => [
+                true, [6, null, 0], '',
+            ],
+            'Invalid item' => [
+                false, [], get_string('errorinvaliditem', 'mod_threesixo'),
+            ],
+            'Negative value response' => [
+                true, [1, -6, 0], get_string('errorinvalidratingvalue', 'mod_threesixo', -6),
+            ],
+            'Over expected int value response' => [
+                true, [1, 6, (api::RATING_MAX + 1)], get_string('errorinvalidratingvalue', 'mod_threesixo', 7),
+            ],
+            'Over expected float value response' => [
+                true, [1, 6, 6.1], get_string('errorinvalidratingvalue', 'mod_threesixo', 6.1),
+            ],
+        ];
+    }
+
+    /**
+     * Test for {@see api::validate_responses()}
+     *
+     * @dataProvider validate_responses_provider
+     * @covers ::validate_responses
+     * @param bool $validitem If false, we'll pass an invalid item ID that does not belong in the feedback activity.
+     * @param array $responsedata The response data.
+     * @param string $message The expected error message.
+     * @return void
+     */
+    public function test_validate_responses(bool $validitem, array $responsedata, string $message): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+
+        // Create a course.
+        $course = $generator->create_course();
+
+        // Create the instance.
+        $params = [
+            'course' => $course->id,
+        ];
+        $options = [
+            'ratedquestions' => [
+                'R1',
+                'R2',
+                'R3',
+            ],
+            'commentquestions' => [],
+        ];
+        $threesixo = $this->getDataGenerator()->create_module('threesixo', $params, $options);
+
+        $items = api::get_items($threesixo->id);
+
+        $responses = [];
+        $index = 0;
+        $maxitemid = 0;
+        foreach ($items as $item) {
+            $responses[$item->id] = $responsedata[$index] ?? api::RATING_NA;
+            $maxitemid = max($item->id, $maxitemid);
+            $index++;
+        }
+        if (!$validitem) {
+            $maxitemid++;
+            $responses[$maxitemid] = api::RATING_MAX;
+        }
+        $result = api::validate_responses($threesixo->id, $responses);
+        $this->assertEquals($message, $result);
+    }
 }
