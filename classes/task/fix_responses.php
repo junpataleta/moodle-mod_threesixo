@@ -16,7 +16,9 @@
 
 namespace mod_threesixo\task;
 
+use core\message\message;
 use core\task\adhoc_task;
+use core_user;
 use mod_threesixo\api;
 
 /**
@@ -31,6 +33,15 @@ use mod_threesixo\api;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class fix_responses extends adhoc_task {
+
+    /** @var array Cache of 360-degree feedback instances. */
+    private $threesixos = [];
+
+    /** @var array Cache of user records. */
+    private $userlist = [];
+
+    /** @var array Cache of course records. */
+    private $courses = [];
 
     /**
      * Executes the task.
@@ -54,9 +65,9 @@ class fix_responses extends adhoc_task {
         ];
         $rs = $DB->get_recordset_sql($sql, $params);
 
+        $resetsubmissions = [];
+        $anonresetsubmissions = [];
         if ($rs->valid()) {
-            $resetsubmissions = [];
-            $anonresetsubmissions = [];
             foreach ($rs as $record) {
                 if (in_array($record->value, $validratings)) {
                     continue;
@@ -95,32 +106,126 @@ class fix_responses extends adhoc_task {
                     $DB->update_record('threesixo_response', $record);
                 }
             }
-
-            // Reset the anonymous responses. As there's no way to determine who provided the anonymous feedback for a user,
-            // reset all the status of the submissions for the feedback recipient to "in-progress".
-            foreach ($anonresetsubmissions as $resetdata) {
-                mtrace("Resetting the anonymous feedback submission statuses" .
-                       " for user {$resetdata['touser']} to `In progress`...");
-                $resetdata['status'] = api::STATUS_IN_PROGRESS;
-                $sql = "UPDATE {threesixo_submission}
-                           SET status = :status
-                         WHERE threesixo = :threesixo
-                               AND touser = :touser";
-                $DB->execute($sql, $resetdata);
-                mtrace("    Done.");
-            }
-
-            // Reset the status of non-anonymous feedback submissions with invalid ratings.
-            foreach ($resetsubmissions as $resetdata) {
-                $submission = api::get_submission_by_params($resetdata->threesixo, $resetdata->fromuser, $resetdata->touser);
-                if ($submission !== false) {
-                    mtrace("Resetting the feedback submission status of user {$resetdata->fromuser}" .
-                           " to user {$resetdata->touser} to `In progress`...");
-                    api::set_completion($submission->id, api::STATUS_IN_PROGRESS);
-                    mtrace("    Done.");
-                }
-            }
         }
         $rs->close();
+
+        // Reset the status of completed anonymous feedback submissions with invalid ratings.
+        // As there's no way to determine who provided the anonymous feedback for a user,
+        // reset all the status of the submissions for the feedback recipient to "in-progress".
+        $completedanonsubmissions = [];
+        foreach ($anonresetsubmissions as $resetdata) {
+            $completedanonsubmissions += $DB->get_records('threesixo_submission', [
+                'threesixo' => $resetdata['threesixo'],
+                'touser' => $resetdata['touser'],
+                'status' => api::STATUS_COMPLETE,
+            ]);
+
+            mtrace("Resetting the anonymous feedback submission statuses for user {$resetdata['touser']} to `In progress`...");
+            $resetdata['status'] = api::STATUS_IN_PROGRESS;
+            $resetdata['statuscomplete'] = api::STATUS_COMPLETE;
+            $sql = "UPDATE {threesixo_submission}
+                       SET status = :status
+                     WHERE threesixo = :threesixo
+                           AND touser = :touser
+                           AND status = :statuscomplete";
+            $DB->execute($sql, $resetdata);
+            mtrace("    Done.");
+        }
+        $this->notify_participants($completedanonsubmissions, true);
+
+        // Reset the status of completed non-anonymous feedback submissions with invalid ratings.
+        $completedsubmissions = [];
+        foreach ($resetsubmissions as $resetdata) {
+            $submission = api::get_submission_by_params($resetdata->threesixo, $resetdata->fromuser, $resetdata->touser);
+            if ($submission !== false && $submission->status == api::STATUS_COMPLETE) {
+                mtrace("Resetting the completed feedback submission status of user {$resetdata->fromuser}" .
+                       " to user {$resetdata->touser} to `In progress`...");
+                api::set_completion($submission->id, api::STATUS_IN_PROGRESS);
+                mtrace("    Done.");
+
+                // Add this submission for notifying the feedback respondent later.
+                $completedsubmissions[] = $submission;
+            }
+        }
+        $this->notify_participants($completedsubmissions);
+    }
+
+    /**
+     * Notify participants that their feedback submission for another user has been reset.
+     *
+     * @param array $submissiondata The submission records.
+     * @param bool $anonymous Whether we're sending notification for anonymous submissions.
+     * @return void
+     */
+    protected function notify_participants(array $submissiondata, bool $anonymous = false): void {
+        $message = new message();
+        $message->component = 'mod_threesixo';
+        $message->name = 'invalidresponses';
+
+        foreach ($submissiondata as $submission) {
+            // Get the 360-feedback instance.
+            if (!isset($this->threesixos[$submission->threesixo])) {
+                $threesixo = api::get_instance($submission->threesixo);
+                $this->threesixos[$submission->id] = $threesixo;
+            } else {
+                $threesixo = $this->threesixos[$submission->threesixo];
+            }
+            // Set message course ID from the 360 instance record.
+            $message->courseid = $threesixo->course;
+
+            // Get the course the 360-feedback instance belongs to.
+            if (!isset($this->courses[$threesixo->course])) {
+                $course = get_course($threesixo->course);
+                $this->courses[$threesixo->course] = $course;
+            } else {
+                $course = $this->courses[$threesixo->course];
+            }
+
+            // Get the feedback recipient.
+            if (!isset($this->userlist[$submission->touser])) {
+                $touser = core_user::get_user($submission->touser);
+                $this->userlist[$submission->touser] = $touser;
+            } else {
+                $touser = $this->userlist[$submission->touser];
+            }
+
+            if (!isset($this->userlist[$submission->fromuser])) {
+                $usertonotify = core_user::get_user($submission->fromuser);
+                $this->userlist[$submission->fromuser] = $usertonotify;
+            } else {
+                $usertonotify = $this->userlist[$submission->fromuser];
+            }
+
+            $message->userfrom = core_user::get_noreply_user();
+            $message->notification = 1;
+
+            $subject = get_string('notifyinvalidresponsessubject', 'mod_threesixo');
+            $message->subject = $subject;
+            $message->fullmessageformat = FORMAT_HTML;
+            $message->userto = $usertonotify;
+
+            $submissionurl = new \moodle_url('/mod/threesixo/questionnaire.php', [
+                'threesixo' => $submission->threesixo,
+                'submission' => $submission->id,
+            ]);
+            $messageparams = [
+                'respondent' => fullname($usertonotify),
+                'url' => $submissionurl->out(),
+                'recipient' => fullname($touser),
+                'course' => format_string($course->fullname),
+                'threesixo' => format_string($threesixo->name),
+            ];
+            if ($anonymous) {
+                $bodykey = 'notifyinvalidresponsesanon';
+            } else {
+                $bodykey = 'notifyinvalidresponses';
+            }
+            $messagehtml = get_string($bodykey, 'mod_threesixo', $messageparams);
+            $message->fullmessage = html_to_text($messagehtml);
+            $message->fullmessagehtml = $messagehtml;
+
+            // Send the message!
+            message_send($message);
+        }
     }
 }

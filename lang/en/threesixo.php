@@ -99,6 +99,15 @@ $string['moveitemup'] = 'Move item up';
 $string['name'] = 'Name';
 $string['noitemsyet'] = 'The 360° feedback activity doesn\'t have items yet. Add items by clicking on "Edit 360° feedback items".';
 $string['notapplicableabbr'] = 'N/A';
+$string['notifyinvalidresponses'] = '<p>Hi, {$a->respondent}!</p>
+<p>Invalid ratings have been detected for the feedback that you provided for {$a->recipient} in the 360° feedback activity "{$a->threesixo}" in the course "{$a->course}".</p>
+<p>Because of this, your feedback submission has been reset from "Completed" to "In progress".</p>
+<p>Please review your <a href="{$a->url}" target="_blank">feedback submission for {$a->recipient}</a>.</p>';
+$string['notifyinvalidresponsesanon'] = '<p>Hi, {$a->respondent}!</p>
+<p>Invalid ratings have been detected for the feedback that were provided to {$a->recipient} in the anonymous 360° feedback activity "{$a->threesixo}" in the course "{$a->course}".</p>
+<p>Because of this, your feedback submission has been reset from "Completed" to "In progress".</p>
+<p>Kindly provide a new <a href="{$a->url}" target="_blank">feedback submission for {$a->recipient}</a>.</p>';
+$string['notifyinvalidresponsessubject'] = '360° feedback: Your feedback submission has been reset';
 $string['numrespondents'] = 'Number of respondents';
 $string['openafterclose'] = 'You have specified an open date after the close date';
 $string['participants'] = 'Participants';
