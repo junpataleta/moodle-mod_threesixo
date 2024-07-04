@@ -958,13 +958,14 @@ class api {
      */
     public static function validate_responses(int $threesixty, array $responses): string {
         $items = self::get_items($threesixty);
+        $validratings = range(self::RATING_NA, self::RATING_MAX);
         foreach ($responses as $itemid => $value) {
             $item = $items[$itemid] ?? false;
             if ($item === false) {
                 return get_string('errorinvaliditem', 'mod_threesixo');
             }
             if ($item->type == self::QTYPE_RATED) {
-                if ((float)$value < self::RATING_NA || (float)$value > self::RATING_MAX) {
+                if (!in_array((float)$value, $validratings)) {
                     return get_string('errorinvalidratingvalue', 'mod_threesixo', $value);
                 }
             }
