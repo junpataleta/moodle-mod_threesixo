@@ -17,10 +17,7 @@
 namespace mod_threesixo;
 
 use advanced_testcase;
-use coding_exception;
 use DateTime;
-use dml_exception;
-use moodle_exception;
 
 /**
  * API tests.

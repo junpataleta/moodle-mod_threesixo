@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-use mod_threesixo\api;
+namespace mod_threesixo;
+
+use advanced_testcase;
 use mod_threesixo\task\fix_responses;
 
 /**
@@ -23,7 +25,7 @@ use mod_threesixo\task\fix_responses;
  * @package    mod_threesixo
  * @copyright  2024 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass fix_responses
+ * @coversDefaultClass \mod_threesixo\task\fix_responses
  */
 class fix_responses_test extends advanced_testcase {
 

@@ -166,7 +166,7 @@ function xmldb_threesixo_upgrade($oldversion) {
     }
 
     if ($oldversion < 2024063000) {
-        // Queue the ad-hoc task to fix
+        // Queue the ad-hoc task to fix.
         $task = new \mod_threesixo\task\fix_responses();
         \core\task\manager::queue_adhoc_task($task, true);
         // Threesixo savepoint reached.
