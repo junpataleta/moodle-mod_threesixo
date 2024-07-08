@@ -27,14 +27,14 @@ use mod_threesixo\task\fix_responses;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \mod_threesixo\task\fix_responses
  */
-class fix_responses_test extends advanced_testcase {
+final class fix_responses_test extends advanced_testcase {
 
     /**
      * Task execution tests.
      *
      * @covers ::execute
      */
-    public function test_execute() {
+    public function test_execute(): void {
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();

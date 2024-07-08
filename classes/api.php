@@ -189,7 +189,7 @@ class api {
                  WHERE i.threesixo = :threesixtyid
               ORDER BY i.position;";
         $params = [
-            'threesixtyid' => $threesixtyid
+            'threesixtyid' => $threesixtyid,
         ];
 
         $items = $DB->get_records_sql($sql, $params);
@@ -215,7 +215,7 @@ class api {
         $params = [
             'threesixo' => $threesixtyid,
             'fromuser' => $fromuser,
-            'touser' => $touser
+            'touser' => $touser,
         ];
 
         return $DB->get_records('threesixo_response', $params, 'item ASC', 'id, item, value');
@@ -293,7 +293,7 @@ class api {
     public static function get_question_types() {
         return [
             self::QTYPE_RATED => get_string('qtyperated', 'mod_threesixo'),
-            self::QTYPE_COMMENT => get_string('qtypecomment', 'mod_threesixo')
+            self::QTYPE_COMMENT => get_string('qtypecomment', 'mod_threesixo'),
         ];
     }
 
@@ -425,7 +425,7 @@ class api {
         $params = [
             'threesixo' => $submission->threesixo,
             'fromuser' => $submission->fromuser,
-            'touser' => $submission->touser
+            'touser' => $submission->touser,
         ];
         $result = $DB->delete_records('threesixo_response', $params);
 
@@ -446,7 +446,7 @@ class api {
     public static function set_completion($submissionid, $status, $remarks = null) {
         global $DB;
 
-        if ($statusrecord = $DB->get_record('threesixo_submission', array('id' => $submissionid))) {
+        if ($statusrecord = $DB->get_record('threesixo_submission', ['id' => $submissionid])) {
             $statusrecord->status = $status;
             if (!empty($remarks)) {
                 $statusrecord->remarks = $remarks;
@@ -463,7 +463,7 @@ class api {
      * @param context_module|null $context
      * @return bool true if only active users should be shown.
      */
-    public static function show_only_active_users(context_module $context = null) {
+    public static function show_only_active_users(?context_module $context = null) {
         global $CFG;
 
         $defaultgradeshowactiveenrol = !empty($CFG->grade_report_showonlyactiveenrol);
@@ -620,11 +620,11 @@ class api {
                   FROM {threesixo_submission} fs
                  WHERE fs.threesixo = f.id
                        AND fs.fromuser = :fromuser2
-            )'
+            )',
         ];
         $params = [
             'threesixtyid' => $threesixtyid,
-            'fromuser2' => $userid
+            'fromuser2' => $userid,
         ];
 
         if (!$includeself) {
@@ -702,7 +702,7 @@ class api {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function can_respond($threesixtyorid, $userid, context_module $context = null) {
+    public static function can_respond($threesixtyorid, int $userid, ?context_module $context = null) {
         global $DB;
 
         // User can't participate if not enrolled in the course.
@@ -735,7 +735,7 @@ class api {
 
         $params = [
             'threesixtyid' => $threesixtyid,
-            'userid' => $userid
+            'userid' => $userid,
         ];
 
         if ($DB->record_exists_sql($sql, $params)) {
@@ -992,7 +992,7 @@ class api {
         $params = [
             'threesixo' => $threesixtyid,
             'fromuser' => $fromuser,
-            'touser' => $touser
+            'touser' => $touser,
         ];
         $updatesql = "UPDATE {threesixo_response}
                          SET fromuser = 0
@@ -1018,7 +1018,7 @@ class api {
         $params = [
             'threesixo' => $threesixtyid,
             'touser' => $touser,
-            'status' => self::STATUS_COMPLETE
+            'status' => self::STATUS_COMPLETE,
         ];
         $sql = "
             SELECT DISTINCT tr.id, tr.item, tr.fromuser, tr.fromuser, tr.value
@@ -1064,7 +1064,7 @@ class api {
                     }
                     $comments[] = (object)[
                         'fromuser' => $fromusername,
-                        'comment' => $comment
+                        'comment' => $comment,
                     ];
 
                 }

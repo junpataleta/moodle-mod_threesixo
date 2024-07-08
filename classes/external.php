@@ -74,7 +74,7 @@ class external extends external_api {
 
         return [
             'questions' => $questions,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -92,11 +92,11 @@ class external extends external_api {
                             'id' => new external_value(PARAM_INT, 'The question ID.'),
                             'question' => new external_value(PARAM_TEXT, 'The question text.'),
                             'type' => new external_value(PARAM_INT, 'The question type.'),
-                            'typeName' => new external_value(PARAM_TEXT, 'The question type text value.')
+                            'typeName' => new external_value(PARAM_TEXT, 'The question type text value.'),
                         ]
                     )
                 ),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }
@@ -137,7 +137,7 @@ class external extends external_api {
 
         return [
             'questionid' => $questionid,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -163,7 +163,7 @@ class external extends external_api {
         return new external_single_structure(
             [
                 'questionid' => new external_value(PARAM_INT, 'The question ID of the added question.'),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }
@@ -209,7 +209,7 @@ class external extends external_api {
 
         return [
             'result' => $result,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -236,7 +236,7 @@ class external extends external_api {
         return new external_single_structure(
             [
                 'result' => new external_value(PARAM_BOOL, 'The question update processing result.'),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }
@@ -278,7 +278,7 @@ class external extends external_api {
 
         return [
             'result' => $result,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -303,7 +303,7 @@ class external extends external_api {
         return new external_single_structure(
             [
                 'result' => new external_value(PARAM_BOOL, 'The question update processing result.'),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }
@@ -325,7 +325,7 @@ class external extends external_api {
 
         return [
             'items' => $items,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -337,7 +337,7 @@ class external extends external_api {
     public static function get_items_parameters() {
         return new external_function_parameters(
             [
-                'threesixtyid' => new external_value(PARAM_INT, 'The 360-degree feedback ID.')
+                'threesixtyid' => new external_value(PARAM_INT, 'The 360-degree feedback ID.'),
             ]
         );
     }
@@ -359,11 +359,11 @@ class external extends external_api {
                             'position' => new external_value(PARAM_INT, 'The item position'),
                             'question' => new external_value(PARAM_TEXT, 'The question text.'),
                             'type' => new external_value(PARAM_INT, 'The question type.'),
-                            'typetext' => new external_value(PARAM_TEXT, 'The question type text value.')
+                            'typetext' => new external_value(PARAM_TEXT, 'The question type text value.'),
                         ]
                     )
                 ),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }
@@ -385,7 +385,7 @@ class external extends external_api {
         $warnings = [];
         $params = external_api::validate_parameters(self::set_items_parameters(), [
             'threesixtyid' => $threesixtyid,
-            'questionids' => $questionids
+            'questionids' => $questionids,
         ]);
 
         // Validate context and capability.
@@ -400,7 +400,7 @@ class external extends external_api {
 
         return [
             'result' => $result,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -415,7 +415,7 @@ class external extends external_api {
                 'threesixtyid' => new external_value(PARAM_INT, 'The 360-degree feedback ID.'),
                 'questionids' => new external_multiple_structure(
                     new external_value(PARAM_INT, 'The question ID.')
-                )
+                ),
             ]
         );
     }
@@ -429,7 +429,7 @@ class external extends external_api {
         return new external_single_structure(
             [
                 'result' => new external_value(PARAM_BOOL, 'The processing result.'),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }
@@ -454,7 +454,7 @@ class external extends external_api {
         $result = api::get_question_types();
         return [
             'questiontypes' => $result,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -470,7 +470,7 @@ class external extends external_api {
                     new external_value(PARAM_TEXT, 'Question type.'),
                     'List of question types.'
                 ),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }
@@ -506,7 +506,7 @@ class external extends external_api {
 
         return [
             'result' => $result,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -518,7 +518,7 @@ class external extends external_api {
     public static function delete_item_parameters() {
         return new external_function_parameters(
             [
-                'itemid' => new external_value(PARAM_INT, 'The item ID.')
+                'itemid' => new external_value(PARAM_INT, 'The item ID.'),
             ]
         );
     }
@@ -532,7 +532,7 @@ class external extends external_api {
         return new external_single_structure(
             [
                 'result' => new external_value(PARAM_BOOL, 'The item deletion processing result.'),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }
@@ -571,7 +571,7 @@ class external extends external_api {
 
         return [
             'result' => $result,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -583,7 +583,7 @@ class external extends external_api {
     public static function move_item_up_parameters() {
         return new external_function_parameters(
             [
-                'itemid' => new external_value(PARAM_INT, 'The item ID.')
+                'itemid' => new external_value(PARAM_INT, 'The item ID.'),
             ]
         );
     }
@@ -597,7 +597,7 @@ class external extends external_api {
         return new external_single_structure(
             [
                 'result' => new external_value(PARAM_BOOL, 'The item deletion processing result.'),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }
@@ -636,7 +636,7 @@ class external extends external_api {
 
         return [
             'result' => $result,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -648,7 +648,7 @@ class external extends external_api {
     public static function move_item_down_parameters() {
         return new external_function_parameters(
             [
-                'itemid' => new external_value(PARAM_INT, 'The item ID.')
+                'itemid' => new external_value(PARAM_INT, 'The item ID.'),
             ]
         );
     }
@@ -662,7 +662,7 @@ class external extends external_api {
         return new external_single_structure(
             [
                 'result' => new external_value(PARAM_BOOL, 'The item deletion processing result.'),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }
@@ -705,7 +705,7 @@ class external extends external_api {
         $result = api::decline_feedback($statusid, $reason);
         return [
             'result' => $result,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -718,7 +718,7 @@ class external extends external_api {
         return new external_function_parameters(
             [
                 'statusid' => new external_value(PARAM_INT, 'The submission ID.'),
-                'declinereason' => new external_value(PARAM_TEXT, 'The reason for declining the feedback request.', VALUE_DEFAULT)
+                'declinereason' => new external_value(PARAM_TEXT, 'The reason for declining the feedback request.', VALUE_DEFAULT),
             ]
         );
     }
@@ -732,7 +732,7 @@ class external extends external_api {
         return new external_single_structure(
             [
                 'result' => new external_value(PARAM_BOOL, 'The item deletion processing result.'),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }
@@ -784,7 +784,7 @@ class external extends external_api {
         $result = api::set_completion($statusid, api::STATUS_PENDING);
         return [
             'result' => $result,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -810,7 +810,7 @@ class external extends external_api {
         return new external_single_structure(
             [
                 'result' => new external_value(PARAM_BOOL, 'The processing result.'),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }
@@ -830,7 +830,7 @@ class external extends external_api {
         global $PAGE, $USER;
         $warnings = [];
         $params = external_api::validate_parameters(self::data_for_participant_list_parameters(), [
-            'threesixtyid' => $threesixtyid
+            'threesixtyid' => $threesixtyid,
         ]);
 
         $threesixtyid = $params['threesixtyid'];
@@ -848,7 +848,7 @@ class external extends external_api {
             'threesixtyid' => $data->threesixtyid,
             'participants' => $data->participants,
             'canperformactions' => $data->canperformactions,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -893,7 +893,7 @@ class external extends external_api {
                     )
                 ),
                 'canperformactions' => new external_value(PARAM_BOOL, 'Whether actions should be displayed or not'),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }
@@ -948,7 +948,7 @@ class external extends external_api {
             'threesixtyid' => $threesixtyid,
             'touserid' => $touserid,
             'responses' => $responses,
-            'complete' => $complete
+            'complete' => $complete,
         ]);
 
         $threesixtyid = $params['threesixtyid'];
@@ -988,7 +988,7 @@ class external extends external_api {
         return [
             'result' => $result,
             'redirurl' => $redirecturl->out(),
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -1002,7 +1002,7 @@ class external extends external_api {
             [
                 'result' => new external_value(PARAM_BOOL, 'The item deletion processing result.'),
                 'redirurl' => new external_value(PARAM_URL, 'The redirect URL.'),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }
@@ -1059,7 +1059,7 @@ class external extends external_api {
         return [
             'responses' => $responses,
             'redirurl' => $redirecturl->out(),
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -1080,7 +1080,7 @@ class external extends external_api {
                         ]
                     )
                 ),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }

@@ -27,14 +27,14 @@ use DateTime;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \mod_threesixo\api
  */
-class api_test extends advanced_testcase {
+final class api_test extends advanced_testcase {
 
     /**
      * Tests for mod_threesixo\api::get_participants().
      *
      * @covers ::get_participants
      */
-    public function test_get_participants_with_multiple_enrol_methods() {
+    public function test_get_participants_with_multiple_enrol_methods(): void {
         global $CFG;
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -101,7 +101,7 @@ class api_test extends advanced_testcase {
      *
      * @return array
      */
-    public function is_open_provider(): array {
+    public static function is_open_provider(): array {
         return [
             'Empty open and close' => [null, null, false, true],
             'After open, empty close' => ['yesterday', null, false, true],
@@ -122,13 +122,13 @@ class api_test extends advanced_testcase {
      * Test for \mod_threesixo\api::is_open().
      *
      * @dataProvider is_open_provider
-     * @param string $open Relative open date.
-     * @param string $close Relative close date.
+     * @param string|null $open Relative open date.
+     * @param string|null $close Relative close date.
      * @param bool $messagewhenclosed Whether to return a message when the instance is not yet open.
-     * @param bool $expected Expected function result.
+     * @param bool|string $expected Expected function result.
      * @covers ::is_open
      */
-    public function test_is_open($open, $close, $messagewhenclosed, $expected) {
+    public function test_is_open(?string $open, ?string $close, bool $messagewhenclosed, $expected): void {
         $this->resetAfterTest();
         $this->setAdminUser();
         $generator = $this->getDataGenerator();
@@ -166,7 +166,7 @@ class api_test extends advanced_testcase {
      *
      * @return array[]
      */
-    public function validate_responses_provider(): array {
+    public static function validate_responses_provider(): array {
         return [
             'Valid responses' => [
                 true, [1, 6, 0], '',

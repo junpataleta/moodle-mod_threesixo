@@ -22,6 +22,7 @@ use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\writer;
+use core_privacy\tests\provider_testcase;
 use core_privacy\tests\request\content_writer;
 use mod_threesixo\privacy\provider;
 use stdClass;
@@ -34,7 +35,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \mod_threesixo\privacy\provider
  */
-class provider_test extends \core_privacy\tests\provider_testcase {
+final class provider_test extends provider_testcase {
 
     /** @var stdClass The teacher in the course. */
     protected $teacher;
@@ -56,7 +57,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
      *
      * @covers ::get_metadata
      */
-    public function test_get_metadata() {
+    public function test_get_metadata(): void {
         $collection = new collection('mod_threesixo');
         $newcollection = provider::get_metadata($collection);
         $itemcollection = $newcollection->get_collection();
@@ -99,7 +100,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
      *
      * @covers ::get_contexts_for_userid
      */
-    public function test_get_contexts_for_userid() {
+    public function test_get_contexts_for_userid(): void {
         $this->setup_data();
 
         $cm = get_coursemodule_from_instance('threesixo', $this->threesixo->id);
@@ -115,10 +116,10 @@ class provider_test extends \core_privacy\tests\provider_testcase {
      *
      * @covers ::export_user_data
      */
-    public function test_export_user_data() {
+    public function test_export_user_data(): void {
         global $DB;
 
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+        $studentrole = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
 
         $this->setup_data(true, $studentrole->id);
 
@@ -140,7 +141,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
         // Check exported submissions data for the feedback the user has given.
         $subcontext = [
             get_string('feedbackgiven', 'mod_threesixo'),
-            get_string('submissions', 'mod_threesixo')
+            get_string('submissions', 'mod_threesixo'),
         ];
         $data = $writer->get_data($subcontext);
         // We should have 2.
@@ -157,7 +158,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
         // Check responses you have given.
         $subcontext = [
             get_string('feedbackgiven', 'mod_threesixo'),
-            get_string('responses', 'mod_threesixo')
+            get_string('responses', 'mod_threesixo'),
         ];
         $data = $writer->get_data($subcontext);
         // There should be 1 set of response for each question.
@@ -168,7 +169,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
         // Check exported submissions data for the feedback the user has received.
         $subcontext = [
             get_string('feedbackreceived', 'mod_threesixo'),
-            get_string('submissions', 'mod_threesixo')
+            get_string('submissions', 'mod_threesixo'),
         ];
         $data = $writer->get_data($subcontext);
         // We should have 2 from the other 2 students and should be still pending.
@@ -181,7 +182,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
         // The user has not yet received any feedback from the other participants.
         $subcontext = [
             get_string('feedbackreceived', 'mod_threesixo'),
-            get_string('responses', 'mod_threesixo')
+            get_string('responses', 'mod_threesixo'),
         ];
         $data = $writer->get_data($subcontext);
         $this->assertEmpty($data);
@@ -192,10 +193,10 @@ class provider_test extends \core_privacy\tests\provider_testcase {
      *
      * @covers ::delete_data_for_all_users_in_context
      */
-    public function test_delete_data_for_all_users_in_context() {
+    public function test_delete_data_for_all_users_in_context(): void {
         global $DB;
 
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+        $studentrole = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
 
         $this->setup_data(true, $studentrole->id);
 
@@ -233,10 +234,10 @@ class provider_test extends \core_privacy\tests\provider_testcase {
      *
      * @covers ::delete_data_for_user
      */
-    public function test_delete_data_for_user() {
+    public function test_delete_data_for_user(): void {
         global $DB;
 
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+        $studentrole = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
 
         $this->setup_data(false, $studentrole->id);
 
@@ -279,10 +280,10 @@ class provider_test extends \core_privacy\tests\provider_testcase {
      *
      * @covers ::get_users_in_context
      */
-    public function test_get_users_in_context() {
+    public function test_get_users_in_context(): void {
         global $DB;
 
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+        $studentrole = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
 
         // Create a 360 activity in a course with students.
         $this->setup_data(true, $studentrole->id);
@@ -335,7 +336,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
      *
      * @covers ::delete_data_for_users
      */
-    public function test_delete_data_for_users() {
+    public function test_delete_data_for_users(): void {
         global $DB;
 
         // Create an anonymous 360 instance with all course participants.
@@ -389,7 +390,7 @@ class provider_test extends \core_privacy\tests\provider_testcase {
         $params = [
             'threesixo' => $cm->instance,
             'fromuser' => $this->teacher->id,
-            'touser' => $this->student->id
+            'touser' => $this->student->id,
         ];
         $this->assertFalse($DB->record_exists('threesixo_submission', $params));
         $this->assertFalse($DB->record_exists('threesixo_response', $params));
@@ -439,8 +440,8 @@ class provider_test extends \core_privacy\tests\provider_testcase {
         }
         $this->students = $studentids;
 
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
-        $teacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'), '*', MUST_EXIST);
+        $studentrole = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
+        $teacherrole = $DB->get_record('role', ['shortname' => 'editingteacher'], '*', MUST_EXIST);
 
         // Generate feedback statuses for participants.
         if (empty($roleid) || $roleid == $teacherrole->id) {

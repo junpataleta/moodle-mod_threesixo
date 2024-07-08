@@ -88,7 +88,7 @@ class list_360_items implements \renderable, \templatable {
      */
     public function export_for_template(renderer_base $output) {
         $data = new stdClass();
-        $data->allitems = array();
+        $data->allitems = [];
         $data->threesixtyid = $this->threesixtyid;
         $data->viewurl = $this->viewurl;
         $data->makeavailableurl = $this->makeavailableurl;

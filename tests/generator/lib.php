@@ -34,7 +34,7 @@ class mod_threesixo_generator extends testing_module_generator {
      * @param array|null $options General options for course module. Optional.
      * @return stdClass Record from the threesixo table with additional field cmid (corresponding id in course_modules table)
      */
-    public function create_instance($record = null, array $options = null) {
+    public function create_instance($record = null, ?array $options = null) {
         global $DB;
 
         $record = (object)(array)$record;
@@ -72,13 +72,13 @@ class mod_threesixo_generator extends testing_module_generator {
             'Has good communication skills both verbal and written.',
             'Expresses thoughts, opinions, and ideas, in meetings and discussions.',
             'Explains ideas clearly.',
-            'Makes an effort to listen and tries to understand other people\'s ideas.'
+            'Makes an effort to listen and tries to understand other people\'s ideas.',
         ];
         $ratedquestions = $options['ratedquestions'] ?? $defaultratedquestions;
 
         $defaultcommentquestions = [
             'What positive comments can you give me?',
-            'What are some things you encourage me to focus on?'
+            'What are some things you encourage me to focus on?',
         ];
         $commentquestions = $options['commentquestions'] ?? $defaultcommentquestions;
 
@@ -86,13 +86,13 @@ class mod_threesixo_generator extends testing_module_generator {
         foreach ($ratedquestions as $question) {
             $questions[] = (object)[
                 'question' => $question,
-                'type' => api::QTYPE_RATED
+                'type' => api::QTYPE_RATED,
             ];
         }
         foreach ($commentquestions as $question) {
             $questions[] = (object)[
                 'question' => $question,
-                'type' => api::QTYPE_COMMENT
+                'type' => api::QTYPE_COMMENT,
             ];
         }
         $questionids = [];

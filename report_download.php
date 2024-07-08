@@ -21,6 +21,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  * @package mod_threesixo
  */
+
 require_once('../../config.php');
 
 $threesixtyid = required_param('threesixo', PARAM_INT);
@@ -81,13 +82,13 @@ $touser = core_user::get_user($touserid);
 $responses = \mod_threesixo\api::get_feedback_for_user($threesixtyid, $touserid);
 
 // Set the column names.
-$columnnames = array(
+$columnnames = [
     'question' => get_string('question', 'threesixo'),
     'type' => get_string('questiontype', 'threesixo'),
     'responsecount' => get_string('numrespondents', 'threesixo'),
     'averagerating' => get_string('ratingaverage', 'threesixo'),
     'comments' => get_string('comments', 'threesixo'),
-);
+];
 
 // Prepare the report data.
 $reportdata = [];

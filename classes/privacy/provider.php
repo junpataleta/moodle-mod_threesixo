@@ -56,7 +56,7 @@ class provider implements
      * @param collection $items a reference to the collection to use to store the metadata.
      * @return collection the updated collection of metadata items.
      */
-    public static function get_metadata(collection $items) : collection {
+    public static function get_metadata(collection $items): collection {
         $items->add_database_table(
             'threesixo_submission',
             [
@@ -89,7 +89,7 @@ class provider implements
      * @param int $userid the userid.
      * @return contextlist the list of contexts containing user info for the user.
      */
-    public static function get_contexts_for_userid(int $userid) : contextlist {
+    public static function get_contexts_for_userid(int $userid): contextlist {
         // Fetch all threesixo activity contexts where the user is participating.
         $sql = "SELECT ctx.id
                   FROM {context} ctx
@@ -192,7 +192,7 @@ class provider implements
             $options = ['context' => $context];
             if (!isset($submissionsdata[$submission->cmid])) {
                 $submissionsdata[$submission->cmid] = [
-                    'name' => $submission->threesixoname
+                    'name' => $submission->threesixoname,
                 ];
             }
             if ($respondent) {
@@ -212,7 +212,7 @@ class provider implements
             $context = context_module::instance($cmid);
             $subcontext = [
                 $parent,
-                get_string('submissions', 'mod_threesixo')
+                get_string('submissions', 'mod_threesixo'),
             ];
             writer::with_context($context)->export_data($subcontext, (object)$data);
         }
@@ -279,7 +279,7 @@ class provider implements
             $options = ['context' => $context];
             if (!isset($responsesdata[$response->cmid])) {
                 $responsesdata[$response->cmid] = [
-                    'name' => $response->threesixoname
+                    'name' => $response->threesixoname,
                 ];
             }
             $question = format_string($response->question, true, $options);
@@ -313,7 +313,7 @@ class provider implements
             $context = context_module::instance($cmid);
             $subcontext = [
                 $parent,
-                get_string('responses', 'mod_threesixo')
+                get_string('responses', 'mod_threesixo'),
             ];
             writer::with_context($context)->export_data($subcontext, (object)$data);
         }

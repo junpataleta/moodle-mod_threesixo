@@ -185,7 +185,7 @@ function threesixo_core_calendar_provide_event_action(calendar_event $event, act
 
     return $factory->create_instance(
         get_string('providefeedback', 'threesixo'),
-        new moodle_url('/mod/threesixo/view.php', array('id' => $cm->id)),
+        new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]),
         $pendingcount,
         $actionable
     );
@@ -220,14 +220,14 @@ function threesixo_core_calendar_get_valid_event_timestart_range(calendar_event 
         if (!empty($threesixo->timeclose)) {
             $maxdate = [
                 $threesixo->timeclose,
-                get_string('openafterclose', 'threesixo')
+                get_string('openafterclose', 'threesixo'),
             ];
         }
     } else if ($event->eventtype == api::THREESIXO_EVENT_TYPE_CLOSE) {
         if (!empty($threesixo->timeopen)) {
             $mindate = [
                 $threesixo->timeopen,
-                get_string('closebeforeopen', 'threesixo')
+                get_string('closebeforeopen', 'threesixo'),
             ];
         }
     }

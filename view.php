@@ -21,6 +21,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  * @package mod_threesixo
  */
+
 require_once('../../config.php');
 require_once('lib.php');
 
@@ -38,7 +39,7 @@ $PAGE->set_context($context);
 $PAGE->set_cm($cm, $course);
 $PAGE->set_pagelayout('incourse');
 
-$PAGE->set_url('/mod/threesixo/view.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/threesixo/view.php', ['id' => $cm->id]);
 $title = format_string($threesixty->name);
 $PAGE->set_title($title);
 $PAGE->set_heading($course->fullname);

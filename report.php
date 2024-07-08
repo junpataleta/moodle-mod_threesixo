@@ -21,6 +21,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  * @package mod_threesixo
  */
+
 require_once('../../config.php');
 
 $threesixtyid = required_param('threesixo', PARAM_INT);

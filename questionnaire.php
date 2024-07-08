@@ -84,7 +84,7 @@ if ($isready && $openmessage === true) {
         $userheading = [
             'heading' => fullname($touser),
             'user' => $touser,
-            'usercontext' => context_user::instance($submission->touser)
+            'usercontext' => context_user::instance($submission->touser),
         ];
 
         $contextheader = $OUTPUT->context_header($userheading, 3);
