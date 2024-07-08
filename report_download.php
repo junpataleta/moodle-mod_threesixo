@@ -50,7 +50,7 @@ $PAGE->set_pagelayout('incourse');
 $urlparams = [
     'threesixo' => $threesixtyid,
     'touser' => $touserid,
-    'downloadformat' => $format
+    'downloadformat' => $format,
 ];
 $PAGE->set_url('/mod/threesixo/report_download.php', $urlparams);
 $PAGE->set_heading($course->fullname);

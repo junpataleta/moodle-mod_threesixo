@@ -68,7 +68,7 @@ $touser = core_user::get_user($touserid);
 $userheading = [
     'heading' => fullname($touser),
     'user' => $touser,
-    'usercontext' => context_user::instance($touserid)
+    'usercontext' => context_user::instance($touserid),
 ];
 $contextheader = $OUTPUT->context_header($userheading, 3);
 echo html_writer::div($contextheader, 'card card-block p-1');
