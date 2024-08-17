@@ -100,73 +100,71 @@ function checkQuestions(questions) {
  * @param {String} dialogueTitle
  * @param {Object} bodyTemplate
  */
-function renderInputDialogue(dialogueTitle, bodyTemplate) {
+const renderInputDialogue = async(dialogueTitle, bodyTemplate) => {
     const pendingPromise = new Pending('mod_threesixo/question_input');
-    ModalFactory.create({
+    const modal = await ModalFactory.create({
         type: ModalFactory.types.SAVE_CANCEL,
         title: dialogueTitle,
         body: bodyTemplate,
         large: true
-    }).then(function(modal) {
-        // Display the dialogue.
-        modal.show();
+    });
+    // Display the dialogue.
+    modal.show();
 
-        modal.getRoot().on(ModalEvents.bodyRendered, function() {
-            // Focus on the question text area.
-            const questionInput = document.getElementById("question-input");
-            if (questionInput) {
-                questionInput.focus();
-            }
-        });
+    modal.getRoot().on(ModalEvents.bodyRendered, function() {
+        // Focus on the question text area.
+        const questionInput = document.getElementById("question-input");
+        if (questionInput) {
+            questionInput.focus();
+        }
+    });
 
-        // On hide handler.
-        modal.getRoot().on(ModalEvents.hidden, function() {
-            // Just destroy the modal.
-            modal.destroy();
-        });
+    // On hide handler.
+    modal.getRoot().on(ModalEvents.hidden, function() {
+        // Just destroy the modal.
+        modal.destroy();
+    });
 
-        // On save handler.
-        modal.getRoot().on(ModalEvents.save, () => {
-            const questionInput = document.getElementById("question-input");
-            const question = questionInput.value.trim();
-            // Validate the entered question. Prevent saving if passing an empty question string.
-            if (!question) {
-                question.value = '';
-                const form = questionInput.form;
-                form.classList.add('was-validated');
-                questionInput.classList.add('is-invalid');
-                questionInput.focus();
-                return false;
-            }
-            const qtype = document.getElementById("question-type-select").value;
-            const threesixtyid = document.getElementById("threesixtyid").value;
+    // On save handler.
+    modal.getRoot().on(ModalEvents.save, () => {
+        const questionInput = document.getElementById("question-input");
+        const question = questionInput.value.trim();
+        // Validate the entered question. Prevent saving if passing an empty question string.
+        if (!question) {
+            question.value = '';
+            const form = questionInput.form;
+            form.classList.add('was-validated');
+            questionInput.classList.add('is-invalid');
+            questionInput.focus();
+            return false;
+        }
+        const qtype = document.getElementById("question-type-select").value;
+        const threesixtyid = document.getElementById("threesixtyid").value;
 
-            const data = {
-                question: question,
-                type: qtype,
-                threesixtyid: threesixtyid,
-            };
+        const data = {
+            question: question,
+            type: qtype,
+            threesixtyid: threesixtyid,
+        };
 
-            let method = 'mod_threesixo_add_question';
-            const questionId = document.getElementById("question-id").value;
-            if (questionId) {
-                method = 'mod_threesixo_update_question';
-                data.id = questionId;
-            }
+        let method = 'mod_threesixo_add_question';
+        const questionId = document.getElementById("question-id").value;
+        if (questionId) {
+            method = 'mod_threesixo_update_question';
+            data.id = questionId;
+        }
 
-            // Refresh the list of questions through AJAX.
-            const promises = ajax.call([
-                {methodname: method, args: data}
-            ]);
-            return promises[0].then(function() {
-                return refreshQuestionsList();
-            }).catch(notification.exception);
-        });
-        return true;
-    }).then(() => {
-        return pendingPromise.resolve();
-    }).catch(notification.exception);
-}
+        // Refresh the list of questions through AJAX.
+        const promises = ajax.call([
+            {methodname: method, args: data}
+        ]);
+        return promises[0].then(function() {
+            return refreshQuestionsList();
+        }).catch(notification.exception);
+    });
+
+    pendingPromise.resolve();
+};
 
 /**
  * Function that displays the input dialogue.
