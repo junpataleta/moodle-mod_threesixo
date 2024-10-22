@@ -65,11 +65,11 @@ function getQuestionTypeOptions(selectedId) {
         }
         const questionType = {
             typeVal: key,
-            typeName: questionTypes[key]
+            typeName: questionTypes[key],
         };
 
-        if (typeof selectedId !== 'undefined' && key === selectedId) {
-            questionType.selected = true;
+        if (typeof selectedId !== 'undefined') {
+            questionType.selected = parseInt(key) === parseInt(selectedId);
         }
 
         questionTypeOptions.push(questionType);
@@ -172,28 +172,27 @@ const renderInputDialogue = async(dialogueTitle, bodyTemplate) => {
  * @param {Number} threesixtyId The 360 instance ID.
  * @param {Number} questionId The question ID.
  */
-const displayInputDialogue = function(threesixtyId, questionId) {
-    getString('addanewquestion', 'mod_threesixo').then(function(title) {
-        const data = {
-            threesixtyid: threesixtyId
-        };
+const displayInputDialogue = async(threesixtyId, questionId) => {
+    const dialogueTitle = await getString('addanewquestion', 'mod_threesixo');
+    const data = {
+        threesixtyid: threesixtyId
+    };
 
-        if (questionId) {
-            data.questionid = questionId;
-            for (const i in questions) {
-                const question = questions[i];
-                if (question.id === questionId) {
-                    data.question = question.question;
-                    data.type = question.type;
-                    break;
-                }
+    if (questionId) {
+        data.questionid = questionId;
+        for (const i in questions) {
+            const question = questions[i];
+            if (question.id === questionId) {
+                data.question = question.question;
+                data.type = question.type;
+                break;
             }
         }
+    }
 
-        data.questionTypes = getQuestionTypeOptions(data.type);
-        const body = templates.render('mod_threesixo/item_edit', data);
-        return renderInputDialogue(title, body);
-    }).catch(notification.exception);
+    data.questionTypes = getQuestionTypeOptions(data.type);
+    const body = await templates.render('mod_threesixo/item_edit', data);
+    await renderInputDialogue(dialogueTitle, body);
 };
 
 /**
@@ -290,7 +289,7 @@ const updateItemSelection = (questionId, isSelected) => {
  * Binds the event listeners to question items such as edit, delete, checking.
  */
 const registerEvents = function() {
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', async(e) => {
         if (e.target.closest(SELECTORS.PICK_ALL)) {
             const questionCheckboxes = document.querySelectorAll(SELECTORS.QUESTION_CHECKBOX);
             questionCheckboxes.forEach(checkbox => {
@@ -308,20 +307,20 @@ const registerEvents = function() {
             const editQuestionButton = e.target.closest(SELECTORS.EDIT_QUESTION);
             const threesixtyId = parseInt(editQuestionButton.dataset.threesixtyid);
             const questionId = parseInt(editQuestionButton.dataset.questionid);
-            displayInputDialogue(threesixtyId, questionId);
+            await displayInputDialogue(threesixtyId, questionId);
         } else if (e.target.closest(SELECTORS.DELETE_QUESTION)) {
             e.preventDefault();
 
             const deleteButton = e.target.closest(SELECTORS.DELETE_QUESTION);
-            const threesixtyId = deleteButton.dataset.threesixtyid;
-            const questionId = deleteButton.dataset.questionid;
-            handleDeletion(questionId, threesixtyId);
+            const threesixtyId = parseInt(deleteButton.dataset.threesixtyid);
+            const questionId = parseInt(deleteButton.dataset.questionid);
+            await handleDeletion(questionId, threesixtyId);
         } else if (e.target.closest(SELECTORS.ADD_QUESTION)) {
             e.preventDefault();
 
             const addButton = e.target.closest(SELECTORS.ADD_QUESTION);
-            const id = addButton.dataset.threesixtyid;
-            displayInputDialogue(id, null);
+            const id = parseInt(addButton.dataset.threesixtyid);
+            await displayInputDialogue(id, null);
         }
     });
 };
