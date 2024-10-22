@@ -99,8 +99,9 @@ function checkQuestions(questions) {
  *
  * @param {String} dialogueTitle
  * @param {Object} bodyTemplate
+ * @param {HTMLElement} trigger
  */
-const renderInputDialogue = async(dialogueTitle, bodyTemplate) => {
+const renderInputDialogue = async(dialogueTitle, bodyTemplate, trigger) => {
     const pendingPromise = new Pending('mod_threesixo/question_input');
     const modal = await ModalFactory.create({
         type: ModalFactory.types.SAVE_CANCEL,
@@ -123,6 +124,7 @@ const renderInputDialogue = async(dialogueTitle, bodyTemplate) => {
     modal.getRoot().on(ModalEvents.hidden, function() {
         // Just destroy the modal.
         modal.destroy();
+        trigger.removeAttribute('disabled');
     });
 
     // On save handler.
@@ -171,8 +173,10 @@ const renderInputDialogue = async(dialogueTitle, bodyTemplate) => {
  *
  * @param {Number} threesixtyId The 360 instance ID.
  * @param {Number} questionId The question ID.
+ * @param {HTMLElement} trigger The element that triggered the dialogue.
  */
-const displayInputDialogue = async(threesixtyId, questionId) => {
+const displayInputDialogue = async(threesixtyId, questionId, trigger) => {
+    trigger.setAttribute('disabled', 'disabled');
     const dialogueTitle = await getString('addanewquestion', 'mod_threesixo');
     const data = {
         threesixtyid: threesixtyId
@@ -192,7 +196,7 @@ const displayInputDialogue = async(threesixtyId, questionId) => {
 
     data.questionTypes = getQuestionTypeOptions(data.type);
     const body = await templates.render('mod_threesixo/item_edit', data);
-    await renderInputDialogue(dialogueTitle, body);
+    await renderInputDialogue(dialogueTitle, body, trigger);
 };
 
 /**
@@ -307,7 +311,7 @@ const registerEvents = function() {
             const editQuestionButton = e.target.closest(SELECTORS.EDIT_QUESTION);
             const threesixtyId = parseInt(editQuestionButton.dataset.threesixtyid);
             const questionId = parseInt(editQuestionButton.dataset.questionid);
-            await displayInputDialogue(threesixtyId, questionId);
+            await displayInputDialogue(threesixtyId, questionId, editQuestionButton);
         } else if (e.target.closest(SELECTORS.DELETE_QUESTION)) {
             e.preventDefault();
 
@@ -320,7 +324,7 @@ const registerEvents = function() {
 
             const addButton = e.target.closest(SELECTORS.ADD_QUESTION);
             const id = parseInt(addButton.dataset.threesixtyid);
-            await displayInputDialogue(id, null);
+            await displayInputDialogue(id, null, addButton);
         }
     });
 };
