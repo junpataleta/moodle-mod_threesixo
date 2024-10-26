@@ -36,6 +36,7 @@ $string['commentfromuser'] = '{$a->comment} ({$a->fromuser})';
 $string['comments'] = 'Comments';
 $string['confirmfinaliseanonymousfeedback'] = 'This will anonymise your responses on your feedback for {$a->name}. You will no longer be able to change your responses once it has been done. Proceed?';
 $string['confirmquestiondeletion'] = 'Are you sure you want to delete this question?';
+$string['courseinstances'] = '360° feedback instances in {$a}';
 $string['dataformatinvalid'] = 'The file format that was specified for downloading this report is either invalid or not enabled. Please select a valid file format.';
 $string['decline'] = 'Decline';
 $string['declinefeedback'] = 'Decline feedback';

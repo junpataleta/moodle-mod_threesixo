@@ -34,11 +34,15 @@ if (!$course = $DB->get_record('course', ['id' => $id])) {
 
 require_course_login($course);
 
-$strthreesixo = get_string('modulename', 'threesixo');
-$strthreesixos = get_string('modulenameplural', 'threesixo');
+$context = context_course::instance($course->id);
+$PAGE->set_context($context);
 
-$PAGE->set_title($strthreesixos);
-$PAGE->set_heading($course->fullname);
+$strthreesixo = get_string('modulename', 'threesixo');
+$title = get_string('courseinstances', 'threesixo', format_string($course->fullname));
+$PAGE->set_title($title);
+$PAGE->set_heading($title);
+$PAGE->set_url('/mod/threesixo/index.php', ['id' => $id]);
+$PAGE->add_body_class('limitedwidth');
 $PAGE->navbar->add($strthreesixo);
 echo $OUTPUT->header();
 

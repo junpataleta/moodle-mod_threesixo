@@ -48,19 +48,10 @@
         ]
     }
 }}
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>{{#str}}pluginname, mod_threesixo{{/str}}</th>
-        </tr>
-    </thead>
-    <tbody>
-    {{# instances }}
-        <tr class="user3 unselectedrow">
-            <td>
-                <a href="{{url}}">{{name}}</a>
-            </td>
-        </tr>
-    {{/ instances }}
-    </tbody>
-</table>
+<ul>
+{{# instances }}
+    <li>
+        <a href="{{url}}">{{name}}</a>
+    </li>
+{{/ instances }}
+</ul>
