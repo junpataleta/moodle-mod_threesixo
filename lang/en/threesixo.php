@@ -92,6 +92,7 @@ $string['labelquestiontype'] = 'Question type';
 $string['labelsave'] = 'Save';
 $string['makeavailable'] = 'Make available';
 $string['messageafterdecline'] = 'Feedback declined.';
+$string['messageprovider:invalidresponses'] = 'Feedback to another user contains invalid responses';
 $string['modulename'] = '360° feedback';
 $string['modulename_help'] = 'The 360° feedback activity module enables participants to provide feedback to all the other participants.';
 $string['modulenameplural'] = '360° feedbacks';
