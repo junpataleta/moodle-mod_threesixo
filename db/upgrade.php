@@ -173,5 +173,56 @@ function xmldb_threesixo_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024063000, 'threesixo');
     }
 
+    if ($oldversion < 2025050701) {
+
+        // Define field createdby to be added to threesixo_question.
+        $table = new xmldb_table('threesixo_question');
+        $field = new xmldb_field('createdby', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'type');
+
+        // Conditionally launch add field createdby.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field editedby to be added to threesixo_question.
+        $field = new xmldb_field('editedby', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'createdby');
+
+        // Conditionally launch add field editedby.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field timecreated to be added to threesixo_question.
+        $field = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'editedby');
+
+        // Conditionally launch add field timecreated.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field timemodified to be added to threesixo_question.
+        $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timecreated');
+
+        // Conditionally launch add field timemodified.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define key fk_createdby (foreign) to be added to threesixo_question.
+        $key = new xmldb_key('fk_createdby', XMLDB_KEY_FOREIGN, ['createdby'], 'user', ['id']);
+
+        // Launch add key fk_createdby.
+        $dbman->add_key($table, $key);
+
+        // Define key fk_editedby (foreign) to be added to threesixo_question.
+        $key = new xmldb_key('fk_editedby', XMLDB_KEY_FOREIGN, ['editedby'], 'user', ['id']);
+
+        // Launch add key fk_editedby.
+        $dbman->add_key($table, $key);
+
+        // Threesixo savepoint reached.
+        upgrade_mod_savepoint(true, 2025050701, 'threesixo');
+    }
+
     return true;
 }
