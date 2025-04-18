@@ -128,7 +128,7 @@ class external extends external_api {
         $context = context_module::instance($coursecm[1]->id);
         self::validate_context($context);
 
-        require_capability('mod/threesixo:editquestions', $context);
+        require_capability('mod/threesixo:addquestions', $context);
 
         $dataobj = new stdClass();
         $dataobj->question = $params['question'];
@@ -268,7 +268,7 @@ class external extends external_api {
         $context = context_module::instance($coursecm[1]->id);
         self::validate_context($context);
 
-        require_capability('mod/threesixo:editquestions', $context);
+        require_capability('mod/threesixo:deletequestions', $context);
 
         if (api::can_delete_question($id)) {
             $result = api::delete_question($id);
