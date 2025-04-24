@@ -73,7 +73,6 @@ if (!isset($plugins[$format]) || !$plugins[$format]->is_enabled()) {
 }
 
 // Otherwise, everything's good. Proceed with the processing.
-require_once($CFG->dirroot . '/lib/dataformatlib.php');
 
 // Fetch the user.
 $touser = core_user::get_user($touserid);
