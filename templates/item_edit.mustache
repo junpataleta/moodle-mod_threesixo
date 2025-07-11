@@ -51,19 +51,19 @@
 }}
 <div class="container">
     <form id="question-input-form">
-        <div class="form-group">
+        <div class="mb-3">
             <input id="threesixtyid" type="hidden" value="{{threesixtyid}}">
             <input id="question-id" type="hidden" value="{{questionid}}">
-            <label for="question-input">
-                {{#str}}questiontext, mod_threesixo{{/str}} {{#pix }} req, core, {{#str}}requiredelement, form{{/str}} {{/pix }}
+            <label for="question-input" class="form-label">
+                {{#str}}questiontext, mod_threesixo{{/str}} {{#pix }} req, core{{/pix }}
             </label>
             <textarea class="form-control" id="question-input" placeholder="{{#str}}labelenterquestion, mod_threesixo{{/str}}" cols="44" rows="5" required>{{ question }}</textarea>
             <div class="invalid-feedback">
                 {{#str}}requiredelement, form{{/str}}
             </div>
         </div>
-        <div class="form-group">
-            <label for="question-type-select" class="accesshide">{{#str}}questiontype, mod_threesixo{{/str}}</label>
+        <div class="mb-3">
+            <label for="question-type-select" class="form-label">{{#str}}questiontype, mod_threesixo{{/str}}</label>
             <select id="question-type-select" class="form-control">
                 {{# questionTypes }}
                     <option value="{{typeVal}}" {{# selected }}selected="selected"{{/selected}}>

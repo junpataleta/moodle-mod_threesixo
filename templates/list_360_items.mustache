@@ -64,10 +64,10 @@
 }}
 <div class="container-fluid" data-region="itemlist">
     <div class="row m-t-1 m-b-1">
-        <div class="col-6 text-left">
+        <div class="col-6 text-start">
             <button class="btn btn-secondary" id="btn-question-bank">{{#str}}labelpickfromquestionbank, mod_threesixo{{/str}}</button>
         </div>
-        <div class="col-6 text-right">
+        <div class="col-6 text-end">
             {{#makeavailableurl}}
                 <a class="btn btn-secondary" href="{{{makeavailableurl}}}">{{#str}}makeavailable, mod_threesixo{{/str}}</a>
             {{/makeavailableurl}}
@@ -76,7 +76,7 @@
     </div>
     <div class="row">
         <table class="flexible generaltable generalbox">
-            <caption class="sr-only">{{#str}}questions, mod_threesixo{{/str}}</caption>
+            <caption class="visually-hidden">{{#str}}questions, mod_threesixo{{/str}}</caption>
             <thead>
             <tr>
                 <th scope="col">{{#str}}labelquestion, mod_threesixo{{/str}}</th>
@@ -91,22 +91,22 @@
                         {{ question }}
                     </td>
                     <td>
-                        <span class="badge badge-secondary">{{ type }}</span>
+                        <span class="badge text-bg-secondary">{{ type }}</span>
                     </td>
                     <td>
                         {{#deletebutton}}
                             <button class="btn btn-link" data-action="delete-item" id="delete-item-{{id}}" data-itemid="{{id}}" title="{{#str}}deletequestion, mod_threesixo{{/str}}" data-toggle="tooltip" data-trigger="hover focus click">
-                                {{#pix }} t/delete, core{{/pix }} <span class="sr-only">{{#str}}deletequestion, mod_threesixo{{/str}}</span>
+                                {{#pix }} t/delete, core{{/pix }} <span class="visually-hidden">{{#str}}deletequestion, mod_threesixo{{/str}}</span>
                             </button>
                         {{/deletebutton}}
                         {{#moveupbutton}}
                             <button class="btn btn-link" data-action="move-item-up" id="move-item-up-{{id}}" data-itemid="{{id}}" title="{{#str}}moveitemup, mod_threesixo{{/str}}" data-toggle="tooltip" data-trigger="hover focus click">
-                                {{#pix }} t/up, core{{/pix }} <span class="sr-only">{{#str}}moveitemup, mod_threesixo{{/str}}</span>
+                                {{#pix }} t/up, core{{/pix }} <span class="visually-hidden">{{#str}}moveitemup, mod_threesixo{{/str}}</span>
                             </button>
                         {{/moveupbutton}}
                         {{#movedownbutton}}
                             <button class="btn btn-link" data-action="move-item-down" id="move-item-down-{{id}}" data-itemid="{{id}}" title="{{#str}}moveitemdown, mod_threesixo{{/str}}" data-toggle="tooltip" data-trigger="hover focus click">
-                                {{#pix }} t/down, core{{/pix }} <span class="sr-only">{{#str}}moveitemdown, mod_threesixo{{/str}}</span>
+                                {{#pix }} t/down, core{{/pix }} <span class="visually-hidden">{{#str}}moveitemdown, mod_threesixo{{/str}}</span>
                             </button>
                         {{/movedownbutton}}
                     </td>

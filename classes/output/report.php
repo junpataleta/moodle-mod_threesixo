@@ -82,7 +82,7 @@ class report implements renderable, templatable {
 
         if (!empty($participantslist)) {
             $select = new url_select($participantslist, '', ['' => get_string('switchtouser', 'mod_threesixo')]);
-            $select->set_label(get_string('jumpto'), ['class' => 'sr-only']);
+            $select->set_label(get_string('jumpto'), ['class' => 'visually-hidden']);
             $select->attributes = ['id' => 'jump-to-user-report'];
             $select->class = 'd-inline-block';
             $this->userselect = $select;
@@ -93,7 +93,7 @@ class report implements renderable, templatable {
             $downloadurlparams = ['threesixo' => $this->threesixtyid, 'touser' => $touserid];
             $downloadurl = new moodle_url('/mod/threesixo/report_download.php', $downloadurlparams);
             $downloadselect = new single_select($downloadurl, 'format', $downloadformats, '', ['' => $downloadlabel]);
-            $downloadselect->set_label($downloadlabel, ['class' => 'sr-only']);
+            $downloadselect->set_label($downloadlabel, ['class' => 'visually-hidden']);
             $downloadselect->attributes = ['id' => 'download-user-report'];
             $this->downloadselect = $downloadselect;
         }

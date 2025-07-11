@@ -62,11 +62,11 @@
 <div class="card">
     <div class="card-block p-1">
         <div class="row m-0">
-            <div class="col-6 text-left">
+            <div class="col-6 text-start">
                 {{#userselect}}{{> core/url_select }}{{/userselect}}
                 {{#downloadselect}}{{> core/single_select }}{{/downloadselect}}
             </div>
-            <div class="col-6 text-right">
+            <div class="col-6 text-end">
                 {{#activitylink}}{{> core/action_link }}{{/activitylink}}
             </div>
         </div>
@@ -86,7 +86,7 @@
                     {{#averagerating}}
                         <div class="row">
                             <div class="col-3" id="item-{{id}}">
-                                <p class="text-right">
+                                <p class="text-end">
                                     {{#str}}averagerating, mod_threesixo, <strong>{{averagerating}}</strong>{{/str}}
                                 </p>
                             </div>
@@ -98,7 +98,7 @@
                         </div>
                     {{/averagerating}}
                     {{^averagerating}}
-                        <p class="font-italic">{{#str}}notapplicableabbr, mod_threesixo{{/str}}</p>
+                        <p class="fst-italic">{{#str}}notapplicableabbr, mod_threesixo{{/str}}</p>
                     {{/averagerating}}
                 </li>
             {{/ratings}}
@@ -123,7 +123,7 @@
                         </blockquote>
                     {{/comments}}
                     {{^comments}}
-                        <p class="font-italic">{{#str}}notapplicableabbr, mod_threesixo{{/str}}</p>
+                        <p class="fst-italic">{{#str}}notapplicableabbr, mod_threesixo{{/str}}</p>
                     {{/comments}}
                 </li>
             </ul>

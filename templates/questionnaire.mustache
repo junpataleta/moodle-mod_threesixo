@@ -41,7 +41,7 @@
         "fromuserid": 1,
         "touserid": 1,
         "status": "In progress",
-        "statusclass": "badge-info",
+        "statusclass": "text-bg-info",
         "ratedquestions": [
             { "questionid" : 1, "question": "Treats co-workers with courtesy and respect." },
             { "questionid" : 2, "question": "Has a positive attitude." },
@@ -79,7 +79,7 @@
             <input type="hidden" id="feedback-submitted" name="feedback-submitted" value="">
             {{#hasratedquestions}}
                 {{#ratedquestions}}
-                    <fieldset class="form-group row mx-1" data-region="question-item" data-itemid="{{id}}">
+                    <fieldset class="row mx-1 mb-3" data-region="question-item" data-itemid="{{id}}">
                         <legend>
                             <small>{{question}}</small>
                         </legend>
@@ -97,8 +97,8 @@
             {{/hasratedquestions}}
             {{#hascommentquestions}}
                 {{#commentquestions}}
-                    <div class="form-group" data-region="question-item" data-itemid="{{id}}">
-                        <label for="question-{{id}}">{{question}}</label>
+                    <div class="mb-3" data-region="question-item" data-itemid="{{id}}">
+                        <label for="question-{{id}}" class="form-label">{{question}}</label>
                         <textarea id="question-{{id}}" name="question-{{id}}" placeholder="{{#str}}entercomment, mod_threesixo{{/str}}" class="form-control" cols="50" rows="5" data-region="comment-item" data-itemid="{{id}}">{{value}}</textarea>
                     </div>
                 {{/commentquestions}}

@@ -114,7 +114,7 @@ if ($instanceready) {
 
             $feedbackreport = html_writer::link($reportsurl, get_string('viewfeedbackreport', 'threesixo'),
                 ['class' => 'btn btn-secondary']);
-            echo html_writer::div($feedbackreport, 'text-right');
+            echo html_writer::div($feedbackreport, 'text-end');
         }
     }
 

@@ -73,12 +73,12 @@
                         {{ name }}
                     </td>
                     <td>
-                        <span class="badge
-                            {{#statuspending}}badge-secondary{{/statuspending}}
-                            {{#statusinprogress}}badge-info{{/statusinprogress}}
-                            {{#statusviewonly}}badge-info{{/statusviewonly}}
-                            {{#statuscompleted}}badge-success{{/statuscompleted}}
-                            {{#statusdeclined}}badge-warning{{/statusdeclined}}">
+                        <span class="badge rounded-pill
+                            {{#statuspending}}text-bg-secondary{{/statuspending}}
+                            {{#statusinprogress}}text-bg-info{{/statusinprogress}}
+                            {{#statusviewonly}}text-bg-info{{/statusviewonly}}
+                            {{#statuscompleted}}text-bg-success{{/statuscompleted}}
+                            {{#statusdeclined}}text-bg-warning{{/statusdeclined}}">
                             {{#statuspending}}{{#str}}statuspending, mod_threesixo{{/str}}{{/statuspending}}
                             {{#statusinprogress}}{{#str}}statusinprogress, mod_threesixo{{/str}}{{/statusinprogress}}
                             {{#statuscompleted}}{{#str}}statuscompleted, mod_threesixo{{/str}}{{/statuscompleted}}
