@@ -3,13 +3,13 @@ name: Moodle Plugin CI
 on: [push, pull_request]
 
 jobs:
-  # This job performs all the tests on the Moodle main branch.
+  # This job performs all the tests on the Moodle 4.5 branch.
   All-Tests-on-Moodle-Main-Branch:
     runs-on: ubuntu-22.04
 
     services:
       postgres:
-        image: postgres:14
+        image: postgres:13
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -31,8 +31,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [ '8.2', '8.4' ]
-        moodle-branch: [ 'main' ]
+        php: [ '8.1', '8.3' ]
+        moodle-branch: [ 'MOODLE_405_STABLE' ]
         database: [ pgsql, mariadb ]
 
     steps:
@@ -112,7 +112,7 @@ jobs:
       - name: Behat features
         id: behat
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci behat --profile chrome
+        run: moodle-plugin-ci behat --profile chrome --scss-deprecations
 
       - name: Upload Behat Faildump
         if: ${{ failure() && steps.behat.outcome == 'failure' }}
@@ -203,7 +203,7 @@ jobs:
       - name: Behat features
         id: behat
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci behat --profile chrome
+        run: moodle-plugin-ci behat --profile chrome --scss-deprecations
 
       - name: Upload Behat Faildump
         if: ${{ failure() && steps.behat.outcome == 'failure' }}
