@@ -106,4 +106,30 @@ class mod_threesixo_generator extends testing_module_generator {
 
         return $threesixo;
     }
+
+    /**
+     * Create a question for 360-degree feedback activities.
+     *
+     * @param mixed $record The record object.
+     * @return bool|int
+     */
+    public function create_question(mixed $record = null): bool|int {
+        $record = (object)(array)$record;
+
+        if (!isset($record->question)) {
+            throw new coding_exception('Question text is required.');
+        }
+
+        if (!isset($record->type)) {
+            throw new coding_exception('Question type is required.');
+        }
+
+        $question = (object)[
+            'question' => $record->question,
+            'type' => $record->type,
+            'createdby' => $record->createdby ?? null,
+        ];
+
+        return api::add_question($question);
+    }
 }

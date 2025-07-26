@@ -19,6 +19,7 @@ namespace mod_threesixo;
 use cm_info;
 use coding_exception;
 use context_module;
+use context_system;
 use dml_exception;
 use moodle_exception;
 use moodle_url;
@@ -107,13 +108,19 @@ class api {
     /**
      * Fetches the questions from the 360-degree feedback question bank.
      *
+     * @param bool $ownquestions Whether to fetch only the questions created by the current user.
      * @return array
-     * @throws coding_exception
-     * @throws dml_exception
      */
-    public static function get_questions() {
-        global $DB;
-        $questions = $DB->get_records('threesixo_question', null, 'type ASC, question ASC');
+    public static function get_questions(bool $ownquestions = true): array {
+        global $DB, $USER;
+
+        $params = null;
+        if ($ownquestions) {
+            $params = [
+                'createdby' => $USER->id,
+            ];
+        }
+        $questions = $DB->get_records('threesixo_question', $params, 'type ASC, question ASC');
         foreach ($questions as $question) {
             switch ($question->type) {
                 case self::QTYPE_RATED:
@@ -125,9 +132,22 @@ class api {
                 default:
                     break;
             }
+            $question->canEdit = $USER->id == $question->createdby || self::can_edit_others_question($question);
+            $question->canDelete = $USER->id == $question->createdby || self::can_delete_others_question($question);
         }
 
         return $questions;
+    }
+
+    /**
+     * Get a question from its ID.
+     *
+     * @param int $questionid
+     * @return stdClass
+     */
+    public static function get_question(int $questionid): stdClass {
+        global $DB;
+        return $DB->get_record('threesixo_question', ['id' => $questionid], '*', MUST_EXIST);
     }
 
     /**
@@ -138,7 +158,13 @@ class api {
      * @throws dml_exception
      */
     public static function add_question(stdClass $data) {
-        global $DB;
+        global $DB, $USER;
+        if (!isset($data->createdby)) {
+            $data->createdby = $USER->id;
+        }
+        $data->editedby = $data->createdby;
+        $data->timecreated = time();
+        $data->timemodified = time();
         return $DB->insert_record('threesixo_question', $data);
     }
 
@@ -150,7 +176,11 @@ class api {
      * @throws dml_exception
      */
     public static function update_question(stdClass $data) {
-        global $DB;
+        global $DB, $USER;
+        if (!isset($data->editedby)) {
+            $data->editedby = $USER->id;
+        }
+        $data->timemodified = time();
         return $DB->update_record('threesixo_question', $data);
     }
 
@@ -1259,12 +1289,42 @@ class api {
     /**
      * Whether a question can be deleted.
      *
+     * A question can be deleted if it is not in use.
+     *
      * @param int $id The question ID.
      * @return bool
      */
-    public static function can_delete_question($id): bool {
+    public static function can_delete_question(int $id): bool {
         global $DB;
 
         return !$DB->record_exists('threesixo_item', ['question' => $id]);
+    }
+
+    /**
+     * Check if the user can edit another user's question.
+     *
+     * @param stdClass $question The question record from the `threesixo_question` table.
+     * @return bool
+     */
+    public static function can_edit_others_question(stdClass $question): bool {
+        global $USER;
+        $context = context_system::instance();
+        return $USER->id != $question->createdby && has_capability('mod/threesixo:editothersquestions', $context);
+    }
+
+    /**
+     * Check if the user can delete another user's question.
+     *
+     * @param stdClass $question The question record from the `threesixo_question` table.
+     * @return bool
+     */
+    public static function can_delete_others_question(stdClass $question): bool {
+        global $USER;
+        $context = context_system::instance();
+        if ($USER->id == $question->createdby) {
+            // A user can delete their own question.
+            return true;
+        }
+        return has_capability('mod/threesixo:deleteothersquestions', $context);
     }
 }

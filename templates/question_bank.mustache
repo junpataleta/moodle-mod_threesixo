@@ -36,10 +36,18 @@
     }
 }}
 <div class="container-fluid">
-    <div class="row mb-1 d-inline-flex" id="question-edit-form-container">
-        <button class="btn btn-secondary" id="btn-question-bank-add" data-threesixtyid="{{pickerMode}}" data-toggle="tooltip" title="{{#str}}addanewquestion, mod_threesixo{{/str}}">
-            {{#pix}} t/add, core{{/pix}} <span class="visually-hidden">{{#str}}addanewquestion, mod_threesixo{{/str}}</span>
-        </button>
+    <div class="row g-3 mb-1 align-items-center" id="question-edit-form-container">
+        <div class="col-auto">
+            <button class="btn btn-secondary" id="btn-question-bank-add" data-threesixtyid="{{pickerMode}}" data-toggle="tooltip" title="{{#str}}addanewquestion, mod_threesixo{{/str}}" type="button">
+                {{#pix}} t/add, core{{/pix}} <span class="visually-hidden">{{#str}}addanewquestion, mod_threesixo{{/str}}</span>
+            </button>
+        </div>
+        <div class="col-auto">
+            <div class="form-check form-check-inline">
+                <input type="checkbox" id="showOwnQuestions" class="form-check-input" {{#showownquestions}}checked{{/showownquestions}}>
+                <label for="showOwnQuestions" class="form-check-label">{{#str}}showownquestions, mod_threesixo{{/str}}</label>
+            </div>
+        </div>
     </div>
     <div class="row" id="questionListWrapper">
         {{> mod_threesixo/question_list}}

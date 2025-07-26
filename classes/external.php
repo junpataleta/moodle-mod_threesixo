@@ -24,6 +24,7 @@ require_once($CFG->libdir . '/externallib.php');
 use cm_info;
 use coding_exception;
 use context_module;
+use context_system;
 use dml_exception;
 use external_api;
 use external_description;
@@ -57,20 +58,32 @@ class external extends external_api {
      * @return external_function_parameters
      */
     public static function get_questions_parameters() {
-        return new external_function_parameters([]);
+        return new external_function_parameters([
+            'ownquestions' => new external_value(
+                PARAM_BOOL,
+                'Whether to fetch only the questions created by the user.',
+                VALUE_DEFAULT,
+                false
+            ),
+        ]);
     }
 
     /**
      * Fetches the questions from the 360-degree feedback question bank.
      *
+     * @param bool $ownquestions Whether to fetch only the questions created by the user.
      * @return array
-     * @throws coding_exception
-     * @throws dml_exception
      */
-    public static function get_questions() {
+    public static function get_questions(bool $ownquestions): array {
         $warnings = [];
 
-        $questions = api::get_questions();
+        [
+            'ownquestions' => $ownquestions,
+        ] = external_api::validate_parameters(self::get_questions_parameters(), [
+            'ownquestions' => $ownquestions,
+        ]);
+
+        $questions = api::get_questions($ownquestions);
 
         return [
             'questions' => $questions,
@@ -93,6 +106,18 @@ class external extends external_api {
                             'question' => new external_value(PARAM_TEXT, 'The question text.'),
                             'type' => new external_value(PARAM_INT, 'The question type.'),
                             'typeName' => new external_value(PARAM_TEXT, 'The question type text value.'),
+                            'canEdit' => new external_value(
+                                PARAM_BOOL,
+                                'Whether the question can be edited.',
+                                VALUE_DEFAULT,
+                                false
+                            ),
+                            'canDelete' => new external_value(
+                                PARAM_BOOL,
+                                'Whether the question can be deleted.',
+                                VALUE_DEFAULT,
+                                false
+                            ),
                         ]
                     )
                 ),
@@ -182,6 +207,7 @@ class external extends external_api {
      * @throws restricted_context_exception
      */
     public static function update_question($id, $question, $type, $threesixtyid) {
+        global $USER;
         $warnings = [];
 
         $params = external_api::validate_parameters(self::update_question_parameters(), [
@@ -200,10 +226,17 @@ class external extends external_api {
 
         require_capability('mod/threesixo:editquestions', $context);
 
+        // Check if the user has permission to edit questions created by others.
+        $question = api::get_question($params['id']);
+        if ($question->createdby != $USER->id && !has_capability('mod/threesixo:editothersquestions', context_system::instance())) {
+            throw new moodle_exception('errorcannoteditothersquestion', 'mod_threesixo');
+        }
+
         $dataobj = new stdClass();
         $dataobj->id = $params['id'];
         $dataobj->question = $params['question'];
         $dataobj->type = $params['type'];
+        $dataobj->editedby = $USER->id;
 
         $result = api::update_question($dataobj);
 
@@ -253,6 +286,8 @@ class external extends external_api {
      * @throws restricted_context_exception
      */
     public static function delete_question($id, $threesixtyid) {
+        global $DB;
+
         $warnings = [];
 
         $params = external_api::validate_parameters(self::delete_question_parameters(), [
@@ -269,6 +304,12 @@ class external extends external_api {
         self::validate_context($context);
 
         require_capability('mod/threesixo:deletequestions', $context);
+
+        $question = $DB->get_record('threesixo_question', ['id' => $id]);
+        if ($question && !api::can_delete_others_question($question)) {
+            // User can only delete questions they created.
+            throw new moodle_exception('errorcannotdeleteothersquestion', 'mod_threesixo');
+        }
 
         if (api::can_delete_question($id)) {
             $result = api::delete_question($id);
