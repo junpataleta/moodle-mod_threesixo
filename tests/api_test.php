@@ -390,4 +390,53 @@ final class api_test extends advanced_testcase {
             }
         }
     }
+
+    /**
+     * Test for \mod_threesixo\api::add_question().
+     *
+     * @covers ::add_question
+     */
+    public function test_add_question() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $questiondata = (object)[
+            'question' => 'New question text',
+            'type' => api::QTYPE_RATED,
+        ];
+        $result = api::add_question($questiondata);
+        $this->assertIsInt($result);
+        $question = api::get_question($result);
+        $this->assertEquals($questiondata->question, $question->question);
+        $this->assertEquals($questiondata->type, $question->type);
+        $this->assertEquals(2, $question->createdby);
+    }
+
+    /**
+     * Test for \mod_threesixo\api::update_question().
+     *
+     * @covers ::update_question
+     */
+    public function test_update_question() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+        $u1 = $generator->create_user(['username' => 'u1']);
+        /** @var mod_threesixo_generator $threesixogenerator */
+        $threesixogenerator = $generator->get_plugin_generator('mod_threesixo');
+        // Create a question.
+        $q1id = $threesixogenerator->create_question([
+            'question' => 'q1',
+            'type' => api::QTYPE_RATED,
+            'createdby' => $u1->id,
+        ]);
+        $q1 = api::get_question($q1id);
+        $q1->question = 'Updated question text';
+        $q1->editedby = $u1->id;
+        $result = api::update_question($q1);
+        $this->assertTrue($result);
+        $updatedq1 = api::get_question($q1id);
+        $this->assertEquals('Updated question text', $updatedq1->question);
+        $this->assertEquals($u1->id, $updatedq1->editedby);
+    }
 }
