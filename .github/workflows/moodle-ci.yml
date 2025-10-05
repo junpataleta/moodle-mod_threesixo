@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   # This job performs all the tests on the Moodle 4.5 branch.
-  All-Tests-on-Moodle-Main-Branch:
+  Automated-Tests-on-Highest-Supported-Moodle:
     runs-on: ubuntu-22.04
 
     services:
