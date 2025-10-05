@@ -14,8 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-use mod_threesixo\api;
-use mod_threesixo\external;
+namespace mod_threesixo;
+
+use advanced_testcase;
+use mod_threesixo_generator;
+use moodle_exception;
+use required_capability_exception;
 
 /**
  * API tests.
@@ -23,7 +27,7 @@ use mod_threesixo\external;
  * @package    mod_threesixo
  * @copyright  2025 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass mod_threesixo\external
+ * @coversDefaultClass \mod_threesixo\external
  */
 final class external_test extends advanced_testcase {
 

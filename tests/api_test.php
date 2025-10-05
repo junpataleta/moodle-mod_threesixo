@@ -396,7 +396,7 @@ final class api_test extends advanced_testcase {
      *
      * @covers ::add_question
      */
-    public function test_add_question() {
+    public function test_add_question(): void {
         $this->resetAfterTest();
         $this->setAdminUser();
 
@@ -417,7 +417,7 @@ final class api_test extends advanced_testcase {
      *
      * @covers ::update_question
      */
-    public function test_update_question() {
+    public function test_update_question(): void {
         $this->resetAfterTest();
         $this->setAdminUser();
         $generator = $this->getDataGenerator();
