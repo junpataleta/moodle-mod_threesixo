@@ -40,7 +40,6 @@ use url_select;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class report implements renderable, templatable {
-
     /** @var int The 360 instance ID. */
     protected $threesixtyid;
 

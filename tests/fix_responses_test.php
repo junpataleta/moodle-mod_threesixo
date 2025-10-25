@@ -28,7 +28,6 @@ use mod_threesixo\task\fix_responses;
  * @coversDefaultClass \mod_threesixo\task\fix_responses
  */
 final class fix_responses_test extends advanced_testcase {
-
     /**
      * Task execution tests.
      *

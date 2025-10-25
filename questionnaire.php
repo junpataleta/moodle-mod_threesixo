@@ -18,7 +18,7 @@
  * The first page to view the 360-degree feedback.
  *
  * @copyright 2017 Jun Pataleta
- * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @package mod_threesixo
  */
 
@@ -29,7 +29,7 @@ require_once('../../config.php');
 // The threesixo record id.
 $id = required_param('threesixo', PARAM_INT);
 
-list ($course, $cm) = get_course_and_cm_from_instance($id, 'threesixo');
+ [$course, $cm] = get_course_and_cm_from_instance($id, 'threesixo');
 require_login($course, true, $cm);
 
 $context = context_module::instance($cm->id);
@@ -101,7 +101,6 @@ if ($isready && $openmessage === true) {
     $questionslist = new mod_threesixo\output\questionnaire($submission);
     $questionslistoutput = $PAGE->get_renderer('mod_threesixo');
     echo $questionslistoutput->render($questionslist);
-
 } else {
     if ($isready) {
         $message = get_string('instancenotready', 'mod_threesixo');
@@ -110,7 +109,7 @@ if ($isready && $openmessage === true) {
     }
     \core\notification::error($message);
     $viewurl = new moodle_url('/mod/threesixo/view.php', ['id' => $cm->id]);
-    echo html_writer::link($viewurl,  get_string('backto360dashboard', 'mod_threesixo'));
+    echo html_writer::link($viewurl, get_string('backto360dashboard', 'mod_threesixo'));
 }
 
 echo $OUTPUT->footer();

@@ -22,7 +22,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_threesixo_activity_structure_step extends backup_activity_structure_step {
-
     /**
      * Defines the 360-degree feedback instance structure.
      *

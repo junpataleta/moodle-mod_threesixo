@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 // Include forms lib.
-require_once($CFG->libdir.'/formslib.php');
+require_once($CFG->libdir . '/formslib.php');
 
 /**
  * Adds a new 360-degree feedback instance.

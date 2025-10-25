@@ -26,9 +26,12 @@ namespace mod_threesixo\privacy;
 
 use context_module;
 use core_privacy\local\metadata\collection;
+use core_privacy\local\metadata\provider as metadata_provider;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
+use core_privacy\local\request\core_userlist_provider;
+use core_privacy\local\request\plugin\provider as plugin_provider;
 use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
@@ -42,14 +45,14 @@ use mod_threesixo\helper;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
-        // This plugin stores personal data.
-        \core_privacy\local\metadata\provider,
+    // This plugin is capable of determining which users have data within it.
+    core_userlist_provider,
 
-        // This plugin is a core_user_data_provider.
-        \core_privacy\local\request\plugin\provider,
+    // This plugin stores personal data.
+    metadata_provider,
 
-        // This plugin is capable of determining which users have data within it.
-        \core_privacy\local\request\core_userlist_provider {
+    // This plugin is a core_user_data_provider.
+    plugin_provider {
     /**
      * Return the fields which contain personal data.
      *
@@ -151,7 +154,7 @@ class provider implements
     protected static function export_submission_data($contextids, $user, $respondent = true) {
         global $DB;
 
-        list($contextsql, $contextparams) = $DB->get_in_or_equal($contextids, SQL_PARAMS_NAMED);
+        [$contextsql, $contextparams] = $DB->get_in_or_equal($contextids, SQL_PARAMS_NAMED);
         $sql = "
                 SELECT ts.id,
                        cm.id as cmid,
@@ -229,7 +232,7 @@ class provider implements
     protected static function export_responses_data($contextids, $user, $respondent = true) {
         global $DB;
 
-        list($contextsql, $contextparams) = $DB->get_in_or_equal($contextids, SQL_PARAMS_NAMED);
+        [$contextsql, $contextparams] = $DB->get_in_or_equal($contextids, SQL_PARAMS_NAMED);
         $sql = "
                 SELECT tr.id,
                        cm.id as cmid,
@@ -351,7 +354,6 @@ class provider implements
 
         $userid = $contextlist->get_user()->id;
         foreach ($contextlist->get_contexts() as $context) {
-
             if (!$context instanceof context_module) {
                 continue;
             }
@@ -453,7 +455,7 @@ class provider implements
         }
 
         $userids = $userlist->get_userids();
-        list($usersql, $userparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$usersql, $userparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
 
         $fromselect = "threesixo = :threesixo AND fromuser $usersql";
         $toselect = "threesixo = :threesixo AND touser $usersql";

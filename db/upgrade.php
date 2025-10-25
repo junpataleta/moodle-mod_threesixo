@@ -42,6 +42,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\task\manager;
+use mod_threesixo\task\fix_responses;
+
 /**
  * mod_threesixo upgrade function.
  *
@@ -63,7 +66,6 @@ function xmldb_threesixo_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018052601) {
-
         // Define field with_self_review to be added to threesixo.
         $table = new xmldb_table('threesixo');
         $field = new xmldb_field('with_self_review', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'publish_responses');
@@ -78,7 +80,6 @@ function xmldb_threesixo_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018052602) {
-
         // Changing type of field type on table threesixo_question to int.
         $table = new xmldb_table('threesixo_question');
         $field = new xmldb_field('type', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '0', 'question');
@@ -91,7 +92,6 @@ function xmldb_threesixo_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018120301) {
-
         // Define field releasing to be added to threesixo.
         $table = new xmldb_table('threesixo');
         $field = new xmldb_field('releasing', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'timemodified');
@@ -113,7 +113,6 @@ function xmldb_threesixo_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018120302) {
-
         // Define field undodecline to be added to threesixo.
         $table = new xmldb_table('threesixo');
         $field = new xmldb_field('undodecline', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'released');
@@ -128,7 +127,6 @@ function xmldb_threesixo_upgrade($oldversion) {
     }
 
     if ($oldversion < 2018120303) {
-
         // Define field completionsubmit to be dropped from threesixo.
         $table = new xmldb_table('threesixo');
         $field = new xmldb_field('completionsubmit');
@@ -151,7 +149,6 @@ function xmldb_threesixo_upgrade($oldversion) {
     }
 
     if ($oldversion < 2019052000) {
-
         // Define field touser to be dropped from threesixo_response.
         $table = new xmldb_table('threesixo_response');
         $field = new xmldb_field('salt');
@@ -167,14 +164,13 @@ function xmldb_threesixo_upgrade($oldversion) {
 
     if ($oldversion < 2024063000) {
         // Queue the ad-hoc task to fix.
-        $task = new \mod_threesixo\task\fix_responses();
-        \core\task\manager::queue_adhoc_task($task, true);
+        $task = new fix_responses();
+        manager::queue_adhoc_task($task, true);
         // Threesixo savepoint reached.
         upgrade_mod_savepoint(true, 2024063000, 'threesixo');
     }
 
     if ($oldversion < 2025050701) {
-
         // Define field createdby to be added to threesixo_question.
         $table = new xmldb_table('threesixo_question');
         $field = new xmldb_field('createdby', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'type');

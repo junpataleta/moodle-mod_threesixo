@@ -25,7 +25,6 @@ use mod_threesixo\api;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_threesixo_generator extends testing_module_generator {
-
     /**
      * Creates a 360-degree feedback instance based on the record given.
      *
@@ -113,7 +112,7 @@ class mod_threesixo_generator extends testing_module_generator {
      * @param mixed $record The record object.
      * @return bool|int
      */
-    public function create_question(mixed $record = null): bool|int {
+    public function create_question($record = null) {
         $record = (object)(array)$record;
 
         if (!isset($record->question)) {

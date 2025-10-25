@@ -51,7 +51,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class external extends external_api {
-
     /**
      * Parameter description for get_questions().
      *
@@ -215,8 +214,7 @@ class external extends external_api {
                 'question' => $question,
                 'type' => $type,
                 'threesixtyid' => $threesixtyid,
-            ]
-        );
+            ]);
 
         // Validate context and capability.
         $threesixtyid = $params['threesixtyid'];
@@ -928,8 +926,12 @@ class external extends external_api {
                             'viewlink' => new external_value(PARAM_RAW, 'Flag for view button.', VALUE_OPTIONAL, false),
                             'respondlink' => new external_value(PARAM_URL, 'Questionnaire URL.', VALUE_OPTIONAL),
                             'declinelink' => new external_value(PARAM_BOOL, 'Flag for decline button.', VALUE_OPTIONAL, false),
-                            'undodeclinelink' => new external_value(PARAM_BOOL, 'Flag for the undo decline button.', VALUE_OPTIONAL,
-                                false),
+                            'undodeclinelink' => new external_value(
+                                PARAM_BOOL,
+                                'Flag for the undo decline button.',
+                                VALUE_OPTIONAL,
+                                false
+                            ),
                         ]
                     )
                 ),
@@ -953,7 +955,8 @@ class external extends external_api {
                     new external_single_structure([
                         'item' => new external_value(PARAM_INT, 'The item ID.'),
                         'value' => new external_value(PARAM_TEXT, 'The response value with the key as the item ID.'),
-                    ]), 'Array of response objects containing item and value'
+                    ]),
+                    'Array of response objects containing item and value'
                 ),
                 'complete' => new external_value(PARAM_BOOL, 'Whether to mark the submission as complete.'),
             ]

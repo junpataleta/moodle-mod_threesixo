@@ -18,7 +18,7 @@
  * The first page to view the 360-degree feedback.
  *
  * @copyright 2017 Jun Pataleta
- * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @package mod_threesixo
  */
 
