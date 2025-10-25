@@ -34,7 +34,6 @@ require_once($CFG->dirroot . '/mod/threesixo/backup/moodle2/restore_threesixo_st
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_threesixo_activity_task extends restore_activity_task {
-
     /**
      * Define (add) particular settings this activity can have
      */
@@ -71,7 +70,6 @@ class restore_threesixo_activity_task extends restore_activity_task {
         $rules[] = new restore_decode_rule('THREESIXOINDEX', '/mod/threesixo/index.php?id=$1', 'course');
 
         return $rules;
-
     }
 
     /**
@@ -106,8 +104,15 @@ class restore_threesixo_activity_task extends restore_activity_task {
         $rules = [];
 
         // Fix old wrong uses (missing extension).
-        $rules[] = new restore_log_rule('threesixo', 'view all', 'index?id={course}', null,
-                                        null, null, 'index.php?id={course}');
+        $rules[] = new restore_log_rule(
+            'threesixo',
+            'view all',
+            'index?id={course}',
+            null,
+            null,
+            null,
+            'index.php?id={course}'
+        );
         $rules[] = new restore_log_rule('threesixo', 'view all', 'index.php?id={course}', null);
 
         return $rules;

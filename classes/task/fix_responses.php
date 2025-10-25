@@ -33,7 +33,6 @@ use mod_threesixo\api;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class fix_responses extends adhoc_task {
-
     /** @var array Cache of 360-degree feedback instances. */
     private $threesixos = [];
 

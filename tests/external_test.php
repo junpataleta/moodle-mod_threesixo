@@ -30,7 +30,6 @@ use required_capability_exception;
  * @coversDefaultClass \mod_threesixo\external
  */
 final class external_test extends advanced_testcase {
-
     /**
      * Data provider for test_delete_question.
      *

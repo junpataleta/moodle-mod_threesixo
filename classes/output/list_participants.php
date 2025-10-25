@@ -38,7 +38,6 @@ use templatable;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class list_participants implements renderable, templatable {
-
     /** @var stdClass The 360 instance.  */
     protected $threesixo;
 

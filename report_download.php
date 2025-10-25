@@ -18,7 +18,7 @@
  * Generates the user's feedback report for download.
  *
  * @copyright 2019 Jun Pataleta
- * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @package mod_threesixo
  */
 
@@ -28,7 +28,7 @@ $threesixtyid = required_param('threesixo', PARAM_INT);
 $touserid = required_param('touser', PARAM_INT);
 $format = required_param('format', PARAM_ALPHA);
 
-list ($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
+ [$course, $cm] = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
 
 require_login($course, true, $cm);
 

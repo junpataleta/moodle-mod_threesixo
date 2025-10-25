@@ -16,23 +16,18 @@
 
 namespace mod_threesixo;
 
-defined('MOODLE_INTERNAL') || die();
-
-// TODO: When the plugin supports 4.2 as a minimum version, remove this and import the proper core_external classes.
-require_once($CFG->libdir . '/externallib.php');
-
 use cm_info;
 use coding_exception;
 use context_module;
 use context_system;
+use core_external\external_api;
+use core_external\external_description;
+use core_external\external_function_parameters;
+use core_external\external_multiple_structure;
+use core_external\external_single_structure;
+use core_external\external_value;
+use core_external\external_warnings;
 use dml_exception;
-use external_api;
-use external_description;
-use external_function_parameters;
-use external_multiple_structure;
-use external_single_structure;
-use external_value;
-use external_warnings;
 use invalid_parameter_exception;
 use mod_threesixo\output\list_participants;
 use moodle_exception;
@@ -51,7 +46,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class external extends external_api {
-
     /**
      * Parameter description for get_questions().
      *
@@ -215,8 +209,7 @@ class external extends external_api {
                 'question' => $question,
                 'type' => $type,
                 'threesixtyid' => $threesixtyid,
-            ]
-        );
+            ]);
 
         // Validate context and capability.
         $threesixtyid = $params['threesixtyid'];
@@ -928,8 +921,12 @@ class external extends external_api {
                             'viewlink' => new external_value(PARAM_RAW, 'Flag for view button.', VALUE_OPTIONAL, false),
                             'respondlink' => new external_value(PARAM_URL, 'Questionnaire URL.', VALUE_OPTIONAL),
                             'declinelink' => new external_value(PARAM_BOOL, 'Flag for decline button.', VALUE_OPTIONAL, false),
-                            'undodeclinelink' => new external_value(PARAM_BOOL, 'Flag for the undo decline button.', VALUE_OPTIONAL,
-                                false),
+                            'undodeclinelink' => new external_value(
+                                PARAM_BOOL,
+                                'Flag for the undo decline button.',
+                                VALUE_OPTIONAL,
+                                false
+                            ),
                         ]
                     )
                 ),
@@ -953,7 +950,8 @@ class external extends external_api {
                     new external_single_structure([
                         'item' => new external_value(PARAM_INT, 'The item ID.'),
                         'value' => new external_value(PARAM_TEXT, 'The response value with the key as the item ID.'),
-                    ]), 'Array of response objects containing item and value'
+                    ]),
+                    'Array of response objects containing item and value'
                 ),
                 'complete' => new external_value(PARAM_BOOL, 'Whether to mark the submission as complete.'),
             ]

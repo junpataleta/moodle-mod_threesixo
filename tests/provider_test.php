@@ -36,7 +36,6 @@ use stdClass;
  * @coversDefaultClass \mod_threesixo\privacy\provider
  */
 final class provider_test extends provider_testcase {
-
     /** @var stdClass The teacher in the course. */
     protected $teacher;
 
@@ -259,8 +258,11 @@ final class provider_test extends provider_testcase {
         // Delete users's data.
         $cm = get_coursemodule_from_instance('threesixo', $id);
         $cmcontext = context_module::instance($cm->id);
-        $contextlist = new approved_contextlist($this->student, 'threesixo',
-            [context_system::instance()->id, $cmcontext->id]);
+        $contextlist = new approved_contextlist(
+            $this->student,
+            'threesixo',
+            [context_system::instance()->id, $cmcontext->id]
+        );
         provider::delete_data_for_user($contextlist);
 
         // After deletion, the threesixo submissions should have been deleted.
@@ -363,8 +365,8 @@ final class provider_test extends provider_testcase {
         provider::delete_data_for_users($approveduserlist);
 
         // Confirm that the submission/responses the student provided have been deleted.
-        list($sqlfrom, $paramsfrom) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
-        list($sqlto, $paramsto) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$sqlfrom, $paramsfrom] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$sqlto, $paramsto] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
 
         $select = "threesixo = :threesixo AND (fromuser $sqlfrom OR touser $sqlto)";
         $params = ['threesixo' => $cm->instance] + $paramsfrom + $paramsto;
@@ -375,8 +377,8 @@ final class provider_test extends provider_testcase {
         $this->assertEquals(0, $responsescount);
 
         // Confirm that the submission/responses the teacher provided have not been deleted.
-        list($sqlfrom, $paramsfrom) = $DB->get_in_or_equal([$this->teacher->id], SQL_PARAMS_NAMED);
-        list($sqlto, $paramsto) = $DB->get_in_or_equal([$this->teacher->id], SQL_PARAMS_NAMED);
+        [$sqlfrom, $paramsfrom] = $DB->get_in_or_equal([$this->teacher->id], SQL_PARAMS_NAMED);
+        [$sqlto, $paramsto] = $DB->get_in_or_equal([$this->teacher->id], SQL_PARAMS_NAMED);
 
         $select = "threesixo = :threesixo AND (fromuser $sqlfrom OR touser $sqlto)";
         $params = ['threesixo' => $cm->instance] + $paramsfrom + $paramsto;

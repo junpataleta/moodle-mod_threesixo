@@ -33,64 +33,63 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class api {
-
     /** Rated question type. */
-    const QTYPE_RATED = 0;
+    public const QTYPE_RATED = 0;
     /** Comment question type. */
-    const QTYPE_COMMENT = 1;
+    public const QTYPE_COMMENT = 1;
 
     /** Status when a user has not yet provided feedback to another user. */
-    const STATUS_PENDING = 0;
+    public const STATUS_PENDING = 0;
     /** Status when a user has begun providing feedback to another user. */
-    const STATUS_IN_PROGRESS = 1;
+    public const STATUS_IN_PROGRESS = 1;
     /** Status when a user has completed providing feedback to another user. */
-    const STATUS_COMPLETE = 2;
+    public const STATUS_COMPLETE = 2;
     /** Status when a user has declined to provide feedback to another user. */
-    const STATUS_DECLINED = 3;
+    public const STATUS_DECLINED = 3;
 
     /** Move a question item up. */
-    const MOVE_UP = 1;
+    public const MOVE_UP = 1;
     /** Move a question item down. */
-    const MOVE_DOWN = 2;
+    public const MOVE_DOWN = 2;
 
     /** Indicates all course participants regardless of role are the participants of the feedback activity. */
-    const PARTICIPANT_ROLE_ALL = 0;
+    public const PARTICIPANT_ROLE_ALL = 0;
 
     /** Indicates that the feedback instance is not yet ready to be completed by the participants. */
-    const INSTANCE_NOT_READY = 0;
+    public const INSTANCE_NOT_READY = 0;
     /** Indicates that the feedback instance is now ready to be completed by the participants. */
-    const INSTANCE_READY = 1;
+    public const INSTANCE_READY = 1;
 
     /** Closed to participants. Participants cannot view the feedback given to them. Only those with the capability.  */
-    const RELEASING_NONE = 0;
+    public const RELEASING_NONE = 0;
     /** Open to participants. Participants can view the feedback given to them any time. */
-    const RELEASING_OPEN = 1;
+    public const RELEASING_OPEN = 1;
     /**
      * Manual release. Participants can view the feedback given to them when released by users who have the capability to manage
      * the 360 instance (e.g. teacher, manager, admin).
      */
-    const RELEASING_MANUAL = 2;
+    public const RELEASING_MANUAL = 2;
     /** Release after the activity has closed. */
-    const RELEASING_AFTER = 3;
+    public const RELEASING_AFTER = 3;
 
     /** Do not allow participants to undo their declined feedback submissions. */
-    const UNDO_DECLINE_DISALLOW = 0;
+    public const UNDO_DECLINE_DISALLOW = 0;
     /** Allow participants to undo their declined feedback submissions. */
-    const UNDO_DECLINE_ALLOW = 1;
+    public const UNDO_DECLINE_ALLOW = 1;
 
     /** Activity open event type. */
-    const THREESIXO_EVENT_TYPE_OPEN = 'open';
+    public const THREESIXO_EVENT_TYPE_OPEN = 'open';
     /** Activity close event type. */
-    const THREESIXO_EVENT_TYPE_CLOSE = 'close';
+    public const THREESIXO_EVENT_TYPE_CLOSE = 'close';
 
     /** @var int Default minimum rating (Strongly disagree). */
-    const RATING_MIN = 1;
+    public const RATING_MIN = 1;
 
     /** @var int Default maximum rating (Strongly agree). */
-    const RATING_MAX = 6;
+    public const RATING_MAX = 6;
 
     /** @var int Not applicable. */
-    const RATING_NA = 0;
+    public const RATING_NA = 0;
 
     /**
      * Fetches the 360-degree feedback instance.
@@ -565,11 +564,13 @@ class api {
             $userids = get_enrolled_users($context, '', $currentgroup, 'u.id', null, 0, 0, self::show_only_active_users($context));
 
             $userids = array_map(
-                function($user) {
+                function ($user) {
                     return $user->id;
-                }, $userids);
+                },
+                $userids
+            );
             if ($userids) {
-                list($sql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+                [$sql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
 
                 $groupcondition = "u.id $sql";
                 $userssqlparams = array_merge($userssqlparams, $params);
@@ -682,7 +683,7 @@ class api {
             $params['fromuser3'] = $userid;
         }
 
-        list($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixo', $threesixo->course, $userid);
+        [$course, $cm] = get_course_and_cm_from_instance($threesixtyid, 'threesixo', $threesixo->course, $userid);
         $groupmode = groups_get_activity_groupmode($cm);
         if ($groupmode != NOGROUPS) {
             $currentgroup = groups_get_activity_group($cm, true);
@@ -691,10 +692,12 @@ class api {
 
             if ($userids) {
                 $userids = array_map(
-                    function($user) {
+                    function ($user) {
                         return $user->id;
-                    }, $userids);
-                list($sql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+                    },
+                    $userids
+                );
+                [$sql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
                 $params = array_merge($params, $inparams);
                 $wheres[] = "u.id $sql";
             }
@@ -1096,7 +1099,6 @@ class api {
                         'fromuser' => $fromusername,
                         'comment' => $comment,
                     ];
-
                 }
                 $item->comments = $comments;
             }
@@ -1234,7 +1236,7 @@ class api {
             }
 
             // Count participants awaiting feedback from this user.
-            list($insql, $params) = $DB->get_in_or_equal([self::STATUS_PENDING, self::STATUS_IN_PROGRESS], SQL_PARAMS_NAMED);
+            [$insql, $params] = $DB->get_in_or_equal([self::STATUS_PENDING, self::STATUS_IN_PROGRESS], SQL_PARAMS_NAMED);
             $select = "threesixo = :threesixo AND fromuser = :fromuser AND status $insql";
             $params['threesixo'] = $threesixtyid;
             $params['fromuser'] = $user;

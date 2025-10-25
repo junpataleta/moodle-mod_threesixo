@@ -28,7 +28,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class helper {
-
     /**
      * Gets the localised string value of a status code.
      *
@@ -93,7 +92,7 @@ class helper {
     public static function set_events($threesixo) {
         global $CFG;
 
-        require_once($CFG->dirroot.'/calendar/lib.php');
+        require_once($CFG->dirroot . '/calendar/lib.php');
 
         // Get CMID if not sent as part of $threesixo.
         if (!isset($threesixo->coursemodule)) {
@@ -112,15 +111,31 @@ class helper {
         $eventtype = api::THREESIXO_EVENT_TYPE_OPEN;
         // Calendar event type is set to action event when there's no timeclose.
         $calendareventtype = empty($threesixo->timeclose) ? CALENDAR_EVENT_TYPE_ACTION : CALENDAR_EVENT_TYPE_STANDARD;
-        self::set_event($instanceid, $eventname, $eventdescription, $eventtype, $calendareventtype, $threesixo->timeopen,
-            $visible, $courseid);
+        self::set_event(
+            $instanceid,
+            $eventname,
+            $eventdescription,
+            $eventtype,
+            $calendareventtype,
+            $threesixo->timeopen,
+            $visible,
+            $courseid
+        );
 
         // Calendar event for when the 360-degree feedback closes.
         $eventname = get_string('calendarend', 'threesixo', $threesixo->name);
         $eventtype = api::THREESIXO_EVENT_TYPE_CLOSE;
         $calendareventtype = CALENDAR_EVENT_TYPE_ACTION;
-        self::set_event($instanceid, $eventname, $eventdescription, $eventtype, $calendareventtype, $threesixo->timeclose,
-            $visible, $courseid);
+        self::set_event(
+            $instanceid,
+            $eventname,
+            $eventdescription,
+            $eventtype,
+            $calendareventtype,
+            $threesixo->timeclose,
+            $visible,
+            $courseid
+        );
     }
 
     /**
@@ -138,8 +153,16 @@ class helper {
      * @param bool $visible Whether this event is visible.
      * @param int $courseid The course ID of this event.
      */
-    protected static function set_event($id, $eventname, $description, $eventtype, $calendareventtype, $timestamp, $visible,
-                                        $courseid) {
+    protected static function set_event(
+        $id,
+        $eventname,
+        $description,
+        $eventtype,
+        $calendareventtype,
+        $timestamp,
+        $visible,
+        $courseid
+    ) {
         global $DB;
 
         // Build the calendar event object.

@@ -18,7 +18,7 @@
  * The first page to view the 360-degree feedback.
  *
  * @copyright 2015 Jun Pataleta
- * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @package mod_threesixo
  */
 
@@ -28,7 +28,7 @@ require_once('lib.php');
 $id = required_param('id', PARAM_INT);
 $makeavailable = optional_param('makeavailable', false, PARAM_BOOL);
 $release = optional_param('release', -1, PARAM_INT);
-list ($course, $cm) = get_course_and_cm_from_cmid($id, 'threesixo');
+ [$course, $cm] = get_course_and_cm_from_cmid($id, 'threesixo');
 
 require_login($course, true, $cm);
 
@@ -98,7 +98,6 @@ if ($instanceready) {
     if ($canparticipate !== true) {
         \core\notification::warning($canparticipate);
     } else {
-
         // Include self on the list if you can give feedback to others and the instance allows self review.
         $includeself = $threesixty->with_self_review;
 
@@ -112,8 +111,11 @@ if ($instanceready) {
                 'touser' => $USER->id,
             ]);
 
-            $feedbackreport = html_writer::link($reportsurl, get_string('viewfeedbackreport', 'threesixo'),
-                ['class' => 'btn btn-secondary mx-2']);
+            $feedbackreport = html_writer::link(
+                $reportsurl,
+                get_string('viewfeedbackreport', 'threesixo'),
+                ['class' => 'btn btn-secondary mx-2']
+            );
             echo html_writer::div($feedbackreport, 'text-end');
         }
     }
@@ -137,7 +139,6 @@ if ($instanceready) {
     } catch (moodle_exception $e) {
         \core\notification::error($e->getMessage());
     }
-
 } else {
     // Show error to respondents that indicate that the activity is not yet ready.
     if ($canparticipate === true) {

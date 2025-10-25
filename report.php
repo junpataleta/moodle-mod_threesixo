@@ -18,7 +18,7 @@
  * The page containing the feedback to a certain user.
  *
  * @copyright 2017 Jun Pataleta
- * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @package mod_threesixo
  */
 
@@ -27,7 +27,7 @@ require_once('../../config.php');
 $threesixtyid = required_param('threesixo', PARAM_INT);
 $touserid = required_param('touser', PARAM_INT);
 
-list ($course, $cm) = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
+ [$course, $cm] = get_course_and_cm_from_instance($threesixtyid, 'threesixo');
 
 require_login($course, true, $cm);
 

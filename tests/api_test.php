@@ -29,7 +29,6 @@ use mod_threesixo_generator;
  * @coversDefaultClass \mod_threesixo\api
  */
 final class api_test extends advanced_testcase {
-
     /**
      * Tests for mod_threesixo\api::get_participants().
      *
@@ -152,11 +151,9 @@ final class api_test extends advanced_testcase {
             $openstring = userdate($params['timeopen']);
             $message = get_string($expected, 'threesixo', $openstring);
             $this->assertEquals($message, $result);
-
         } else if ($messagewhenclosed && $expected === 'instancealreadyclosed') {
             $message = get_string($expected, 'threesixo');
             $this->assertEquals($message, $result);
-
         } else {
             $this->assertEquals($expected, $result);
         }
