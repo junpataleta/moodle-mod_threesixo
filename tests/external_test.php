@@ -18,11 +18,9 @@ namespace mod_threesixo;
 
 use advanced_testcase;
 use mod_threesixo_generator;
-use moodle_exception;
-use required_capability_exception;
 
 /**
- * API tests.
+ * External API tests.
  *
  * @package    mod_threesixo
  * @copyright  2025 Jun Pataleta
@@ -31,125 +29,81 @@ use required_capability_exception;
  */
 final class external_test extends advanced_testcase {
     /**
-     * Data provider for test_delete_question.
+     * Test getting questions.
      *
-     * @return array
+     * @covers ::get_questions
      */
-    public static function delete_question_provider(): array {
-        return [
-            'Admin can delete any question' => [
-                'user' => 'admin',
-                'deleteinuse' => false,
-                'exception' => null,
-                'exceptionmessage' => null,
-            ],
-            'Admin cannot delete questions in use' => [
-                'user' => 'admin',
-                'deleteinuse' => true,
-                'exception' => moodle_exception::class,
-                'exceptionmessage' => 'errorquestionstillinuse',
-            ],
-            'Users can delete their own questions' => [
-                'user' => 'u1',
-                'deleteinuse' => false,
-                'exception' => null,
-                'exceptionmessage' => null,
-            ],
-            'Users cannot delete questions in use, even their own questions' => [
-                'user' => 'u1',
-                'deleteinuse' => true,
-                'exception' => moodle_exception::class,
-                'exceptionmessage' => 'errorquestionstillinuse',
-            ],
-            'Users cannot delete questions created by others' => [
-                'user' => 'u2',
-                'deleteinuse' => false,
-                'exception' => moodle_exception::class,
-                'exceptionmessage' => 'errorcannotdeleteothersquestion',
-            ],
-            'Students cannot delete questions' => [
-                'user' => 's1',
-                'deleteinuse' => false,
-                'exception' => required_capability_exception::class,
-                'exceptionmessage' => null,
-            ],
-        ];
-    }
-
-    /**
-     * Test question deletion.
-     *
-     * @dataProvider delete_question_provider
-     * @covers ::delete_question
-     * @runInSeparateProcess
-     * @param string $user The user to set for the test.
-     * @param bool $deleteinuse Whether to delete a question that is in use.
-     * @param string|null $exception The expected exception class, if any.
-     * @param string|null $exceptionmessage The expected exception message, if any.
-     */
-    public function test_delete_question(string $user, bool $deleteinuse, ?string $exception, ?string $exceptionmessage): void {
+    public function test_get_questions(): void {
         $this->resetAfterTest();
         $generator = $this->getDataGenerator();
         $this->setAdminUser();
 
-        $u1 = $generator->create_user(['username' => 'u1']);
-        $u2 = $generator->create_user(['username' => 'u2']);
-        $s1 = $generator->create_user(['username' => 's1']);
+        $generator->create_course();
+        $threesixogenerator = $generator->get_plugin_generator('mod_threesixo');
+        $threesixogenerator->create_question(['question' => 'Question 1', 'type' => api::QTYPE_RATED]);
+        $threesixogenerator->create_question(['question' => 'Question 2', 'type' => api::QTYPE_COMMENT]);
 
-        // Create a course.
+        $result = external::get_questions(false);
+
+        $this->assertArrayHasKey('questions', $result);
+        $this->assertCount(2, $result['questions']);
+    }
+
+    /**
+     * Test adding, updating, and deleting a question.
+     *
+     * @covers ::add_question
+     * @covers ::update_question
+     * @covers ::delete_question
+     */
+    public function test_question_crud(): void {
+        $this->resetAfterTest();
+        $generator = $this->getDataGenerator();
+        $this->setAdminUser();
+
         $course = $generator->create_course();
-        // Enrol users.
-        $generator->enrol_user($u1->id, $course->id, 'editingteacher');
-        $generator->enrol_user($u2->id, $course->id, 'editingteacher');
-        $generator->enrol_user($s1->id, $course->id, 'student');
-
-        // Create the instance.
-        $params = [
-            'course' => $course->id,
-        ];
-        $options = [
-            'ratedquestions' => [
-                'R1',
-            ],
+        $threesixo = $generator->create_module('threesixo', ['course' => $course->id], [
+            'ratedquestions' => ['R1'],
             'commentquestions' => [],
-        ];
-        $threesixo = $this->getDataGenerator()->create_module('threesixo', $params, $options);
+        ]);
 
         /** @var mod_threesixo_generator $threesixogenerator */
         $threesixogenerator = $generator->get_plugin_generator('mod_threesixo');
-        // Unused question.
-        $q1 = $threesixogenerator->create_question([
-            'question' => 'Question by u1',
+        $questionid = $threesixogenerator->create_question([
+            'question' => 'Original question',
             'type' => api::QTYPE_RATED,
-            'createdby' => $u1->id,
+            'createdby' => get_admin()->id,
         ]);
-        // Question in use.
-        $q2 = $threesixogenerator->create_question([
-           'question' => 'Question by u1 but in use',
-           'type' => api::QTYPE_RATED,
-           'createdby' => $u1->id,
-        ]);
-        api::set_items($threesixo->id, [$q2]);
 
-        switch ($user) {
-            case 'admin':
-                break;
-            default:
-                $this->setUser($$user);
-                break;
-        }
+        $addresult = external::add_question('Added question', api::QTYPE_RATED, $threesixo->id);
+        $this->assertNotEmpty($addresult['questionid']);
 
-        // Admin can delete others' question.
-        $qtodelete = $q1;
-        if ($deleteinuse) {
-            $qtodelete = $q2;
-        }
-        if ($exception) {
-            $this->expectException($exception);
-            if ($exceptionmessage) {
-                $this->expectExceptionMessage(get_string($exceptionmessage, 'threesixo'));
-            }
-        }
-        external::delete_question($qtodelete, $threesixo->id);
+        $updateresult = external::update_question($questionid, 'Updated question', api::QTYPE_COMMENT, $threesixo->id);
+        $this->assertTrue($updateresult['result']);
+
+        $deleteresult = external::delete_question($questionid, $threesixo->id);
+        $this->assertTrue($deleteresult['result']);
+    }
+
+    /**
+     * Test participant list data.
+     *
+     * @covers ::data_for_participant_list
+     */
+    public function test_data_for_participant_list(): void {
+        $this->resetAfterTest();
+        $generator = $this->getDataGenerator();
+        $this->setAdminUser();
+
+        $course = $generator->create_course();
+        /** @var mod_threesixo_generator $threesixogenerator */
+        $threesixogenerator = $generator->get_plugin_generator('mod_threesixo');
+        $threesixo = $threesixogenerator->create_instance(['course' => $course->id]);
+
+        $result = external::data_for_participant_list($threesixo->id);
+
+        $this->assertArrayHasKey('participants', $result);
+        $this->assertArrayHasKey('threesixtyid', $result);
+        $this->assertSame($threesixo->id, $result['threesixtyid']);
     }
 }

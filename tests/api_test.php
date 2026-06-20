@@ -97,6 +97,23 @@ final class api_test extends advanced_testcase {
     }
 
     /**
+     * Test for \mod_threesixo\api::get_instance().
+     *
+     * @covers ::get_instance
+     */
+    public function test_get_instance(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $threesixo = $generator->create_module('threesixo', ['course' => $course->id]);
+
+        $instance = api::get_instance($threesixo->id);
+        $this->assertEquals($threesixo->id, $instance->id);
+        $this->assertEquals($threesixo->name, $instance->name);
+    }
+
+    /**
      * Data provider for test_is_open.
      *
      * @return array
@@ -396,6 +413,7 @@ final class api_test extends advanced_testcase {
     public function test_add_question(): void {
         $this->resetAfterTest();
         $this->setAdminUser();
+        global $USER;
 
         $questiondata = (object)[
             'question' => 'New question text',
@@ -406,7 +424,7 @@ final class api_test extends advanced_testcase {
         $question = api::get_question($result);
         $this->assertEquals($questiondata->question, $question->question);
         $this->assertEquals($questiondata->type, $question->type);
-        $this->assertEquals(2, $question->createdby);
+        $this->assertSame($USER->id, $question->createdby);
     }
 
     /**
