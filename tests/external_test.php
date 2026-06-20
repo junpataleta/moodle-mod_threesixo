@@ -18,6 +18,7 @@ namespace mod_threesixo;
 
 use advanced_testcase;
 use mod_threesixo_generator;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * External API tests.
@@ -25,13 +26,11 @@ use mod_threesixo_generator;
  * @package    mod_threesixo
  * @copyright  2025 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \mod_threesixo\external
  */
+#[CoversClass(external::class)]
 final class external_test extends advanced_testcase {
     /**
      * Test getting questions.
-     *
-     * @covers ::get_questions
      */
     public function test_get_questions(): void {
         $this->resetAfterTest();
@@ -51,10 +50,6 @@ final class external_test extends advanced_testcase {
 
     /**
      * Test adding, updating, and deleting a question.
-     *
-     * @covers ::add_question
-     * @covers ::update_question
-     * @covers ::delete_question
      */
     public function test_question_crud(): void {
         $this->resetAfterTest();
@@ -87,8 +82,6 @@ final class external_test extends advanced_testcase {
 
     /**
      * Test participant list data.
-     *
-     * @covers ::data_for_participant_list
      */
     public function test_data_for_participant_list(): void {
         $this->resetAfterTest();

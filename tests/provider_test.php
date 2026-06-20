@@ -26,6 +26,7 @@ use core_privacy\tests\provider_testcase;
 use core_privacy\tests\request\content_writer;
 use mod_threesixo\privacy\provider;
 use stdClass;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Privacy provider tests class.
@@ -33,8 +34,8 @@ use stdClass;
  * @package    mod_threesixo
  * @copyright  2018 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \mod_threesixo\privacy\provider
  */
+#[CoversClass(provider::class)]
 final class provider_test extends provider_testcase {
     /** @var stdClass The teacher in the course. */
     protected $teacher;
@@ -53,8 +54,6 @@ final class provider_test extends provider_testcase {
 
     /**
      * Test for provider::get_metadata().
-     *
-     * @covers ::get_metadata
      */
     public function test_get_metadata(): void {
         $collection = new collection('mod_threesixo');
@@ -96,8 +95,6 @@ final class provider_test extends provider_testcase {
 
     /**
      * Test for provider::get_contexts_for_userid().
-     *
-     * @covers ::get_contexts_for_userid
      */
     public function test_get_contexts_for_userid(): void {
         $this->setup_data();
@@ -112,8 +109,6 @@ final class provider_test extends provider_testcase {
 
     /**
      * Test for provider::export_user_data().
-     *
-     * @covers ::export_user_data
      */
     public function test_export_user_data(): void {
         global $DB;
@@ -189,8 +184,6 @@ final class provider_test extends provider_testcase {
 
     /**
      * Test for provider::delete_data_for_all_users_in_context().
-     *
-     * @covers ::delete_data_for_all_users_in_context
      */
     public function test_delete_data_for_all_users_in_context(): void {
         global $DB;
@@ -230,8 +223,6 @@ final class provider_test extends provider_testcase {
 
     /**
      * Test for provider::delete_data_for_user().
-     *
-     * @covers ::delete_data_for_user
      */
     public function test_delete_data_for_user(): void {
         global $DB;
@@ -279,8 +270,6 @@ final class provider_test extends provider_testcase {
 
     /**
      * Test for \mod_threesixo\privacy\provider::get_users_in_context()
-     *
-     * @covers ::get_users_in_context
      */
     public function test_get_users_in_context(): void {
         global $DB;
@@ -335,8 +324,6 @@ final class provider_test extends provider_testcase {
 
     /**
      * Test for \mod_threesixo\privacy\provider::delete_data_for_users()
-     *
-     * @covers ::delete_data_for_users
      */
     public function test_delete_data_for_users(): void {
         global $DB;

@@ -19,6 +19,8 @@ namespace mod_threesixo;
 use advanced_testcase;
 use DateTime;
 use mod_threesixo_generator;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * API tests.
@@ -26,13 +28,11 @@ use mod_threesixo_generator;
  * @package    mod_threesixo
  * @copyright  2018 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \mod_threesixo\api
  */
+#[CoversClass(api::class)]
 final class api_test extends advanced_testcase {
     /**
      * Tests for mod_threesixo\api::get_participants().
-     *
-     * @covers ::get_participants
      */
     public function test_get_participants_with_multiple_enrol_methods(): void {
         global $CFG;
@@ -98,8 +98,6 @@ final class api_test extends advanced_testcase {
 
     /**
      * Test for \mod_threesixo\api::get_instance().
-     *
-     * @covers ::get_instance
      */
     public function test_get_instance(): void {
         $this->resetAfterTest();
@@ -137,14 +135,12 @@ final class api_test extends advanced_testcase {
 
     /**
      * Test for \mod_threesixo\api::is_open().
-     *
-     * @dataProvider is_open_provider
      * @param string|null $open Relative open date.
      * @param string|null $close Relative close date.
      * @param bool $messagewhenclosed Whether to return a message when the instance is not yet open.
      * @param bool|string $expected Expected function result.
-     * @covers ::is_open
      */
+    #[DataProvider('is_open_provider')]
     public function test_is_open(?string $open, ?string $close, bool $messagewhenclosed, $expected): void {
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -206,14 +202,12 @@ final class api_test extends advanced_testcase {
 
     /**
      * Test for {@see api::validate_responses()}
-     *
-     * @dataProvider validate_responses_provider
-     * @covers ::validate_responses
      * @param bool $validitem If false, we'll pass an invalid item ID that does not belong in the feedback activity.
      * @param array $responsedata The response data.
      * @param string $message The expected error message.
      * @return void
      */
+    #[DataProvider('validate_responses_provider')]
     public function test_validate_responses(bool $validitem, array $responsedata, string $message): void {
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -256,8 +250,6 @@ final class api_test extends advanced_testcase {
 
     /**
      * Test for \mod_threesixo\api::can_delete_question().
-     *
-     * @covers ::can_delete_question
      */
     public function test_can_delete_question(): void {
         $this->resetAfterTest();
@@ -292,8 +284,6 @@ final class api_test extends advanced_testcase {
 
     /**
      * Test for \mod_threesixo\api::get_question().
-     *
-     * @covers ::get_question
      */
     public function test_get_question(): void {
         $this->resetAfterTest();
@@ -342,13 +332,11 @@ final class api_test extends advanced_testcase {
 
     /**
      * Test for \mod_threesixo\api::get_questions().
-     *
-     * @dataProvider get_questions_provider
-     * @covers ::get_questions
      * @param string $user The user to set for the test. Can be 'admin' or 'u1'.
      * @param bool $ownquestions If true, only questions created by the user will be returned.
      * @return void
      */
+    #[DataProvider('get_questions_provider')]
     public function test_get_questions(string $user, bool $ownquestions): void {
         global $USER;
 
@@ -407,8 +395,6 @@ final class api_test extends advanced_testcase {
 
     /**
      * Test for \mod_threesixo\api::add_question().
-     *
-     * @covers ::add_question
      */
     public function test_add_question(): void {
         $this->resetAfterTest();
@@ -429,8 +415,6 @@ final class api_test extends advanced_testcase {
 
     /**
      * Test for \mod_threesixo\api::update_question().
-     *
-     * @covers ::update_question
      */
     public function test_update_question(): void {
         $this->resetAfterTest();

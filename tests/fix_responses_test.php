@@ -18,6 +18,8 @@ namespace mod_threesixo;
 
 use advanced_testcase;
 use mod_threesixo\task\fix_responses;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
 
 /**
  * Test for the ad-hoc task that fixes the responses.
@@ -25,13 +27,13 @@ use mod_threesixo\task\fix_responses;
  * @package    mod_threesixo
  * @copyright  2024 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \mod_threesixo\task\fix_responses
  */
+#[CoversClass(fix_responses::class)]
+#[CoversMethod(fix_responses::class, 'execute')]
 final class fix_responses_test extends advanced_testcase {
     /**
      * Task execution tests.
      *
-     * @covers ::execute
      */
     public function test_execute(): void {
         global $DB;

@@ -17,8 +17,7 @@
 namespace mod_threesixo;
 
 use advanced_testcase;
-use mod_threesixo_generator;
-use stdClass;
+use PHPUnit\Framework\Attributes\CoversFunction;
 
 /**
  * Library tests.
@@ -26,13 +25,13 @@ use stdClass;
  * @package    mod_threesixo
  * @copyright  2025 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \mod_threesixo\lib
  */
+#[CoversFunction('threesixo_add_instance')]
+#[CoversFunction('threesixo_update_instance')]
+#[CoversFunction('threesixo_delete_instance')]
 final class lib_test extends advanced_testcase {
     /**
      * Test adding a new 360-degree feedback instance.
-     *
-     * @covers ::threesixo_add_instance
      */
     public function test_threesixo_add_instance(): void {
         $this->resetAfterTest();
@@ -59,8 +58,6 @@ final class lib_test extends advanced_testcase {
 
     /**
      * Test updating a 360-degree feedback instance.
-     *
-     * @covers ::threesixo_update_instance
      */
     public function test_threesixo_update_instance(): void {
         $this->resetAfterTest();
@@ -96,8 +93,6 @@ final class lib_test extends advanced_testcase {
 
     /**
      * Test deleting a 360-degree feedback instance.
-     *
-     * @covers ::threesixo_delete_instance
      */
     public function test_threesixo_delete_instance(): void {
         $this->resetAfterTest();
