@@ -21,9 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import $ from 'jquery';
 import Templates from 'core/templates';
-import notification from 'core/notification';
 import Ajax from 'core/ajax';
 import {getString} from 'core/str';
 import ModalSaveCancel from 'core/modal_save_cancel';
@@ -45,19 +43,17 @@ let threesixtyid;
 /**
  * Refresh the list of participants.
  */
-function refreshParticipantsList() {
+async function refreshParticipantsList() {
     // Refresh the list of participants thru AJAX.
     const promises = Ajax.call([
         {methodname: 'mod_threesixo_data_for_participant_list', args: {threesixtyid: threesixtyid}}
     ]);
-    $.when(promises[0]).then(function(response) {
-        return Templates.render('mod_threesixo/list_participants', response);
-
-    }).done(function(compiledSource, js) {
-        $('[data-region="participantlist"]').replaceWith(compiledSource);
-        Templates.runTemplateJS(js);
-
-    }).fail(notification.exception);
+    const response = await promises[0];
+    const compiledSource = await Templates.render('mod_threesixo/list_participants', response);
+    const participantList = document.querySelector('[data-region="participantlist"]');
+    if (participantList) {
+        participantList.outerHTML = compiledSource;
+    }
 }
 
 const view = function(id) {
@@ -66,25 +62,27 @@ const view = function(id) {
 };
 
 view.prototype.registerEvents = function() {
-    $(ACTIONS.DECLINE_FEEDBACK).click(function(e) {
-        e.preventDefault();
+    document.addEventListener('click', async(e) => {
+        const declineButton = e.target.closest(ACTIONS.DECLINE_FEEDBACK);
+        if (declineButton) {
+            e.preventDefault();
 
-        const statusid = $(this).data('statusid');
-        const name = $(this).data('name');
-        const context = {
-            statusid: statusid,
-            name: name
-        };
-        const declineTemplatePromise = Templates.render('mod_threesixo/decline_feedback', context);
-        const titlePromise = getString('declinefeedback', 'mod_threesixo');
+            const statusid = declineButton.dataset.statusid;
+            const name = declineButton.dataset.name;
+            const context = {
+                statusid: statusid,
+                name: name
+            };
+            const declineTemplatePromise = Templates.render('mod_threesixo/decline_feedback', context);
+            const titlePromise = getString('declinefeedback', 'mod_threesixo');
 
-        $.when(titlePromise).then(function(title) {
-            return ModalSaveCancel.create({
+            const [title, body] = await Promise.all([titlePromise, declineTemplatePromise]);
+            const modal = await ModalSaveCancel.create({
                 title: title,
-                body: declineTemplatePromise,
+                body: body,
                 large: true
             });
-        }).done(function(modal) {
+
             // Display the dialogue.
             modal.show();
 
@@ -94,9 +92,9 @@ view.prototype.registerEvents = function() {
                 modal.destroy();
             });
 
-            modal.getRoot().on(ModalEvents.save, function() {
-                const statusid = $("#decline-statusid").val();
-                const reason = $("#decline-reason").val().trim();
+            modal.getRoot().on(ModalEvents.save, async() => {
+                const statusid = document.getElementById("decline-statusid").value;
+                const reason = document.getElementById("decline-reason").value.trim();
                 const data = {
                     statusid: statusid,
                     declinereason: reason
@@ -105,33 +103,30 @@ view.prototype.registerEvents = function() {
                 const method = 'mod_threesixo_decline_feedback';
 
                 // Refresh the list of questions thru AJAX.
-                const promises = Ajax.call([
+                await Ajax.call([
                     {methodname: method, args: data}
-                ]);
-                promises[0].done(function() {
-                    refreshParticipantsList();
-                }).fail(notification.exception);
+                ])[0];
+                await refreshParticipantsList();
             });
-        }).fail(notification.exception);
-    });
+        }
 
-    $(ACTIONS.UNDO_DECLINE).click(function(e) {
-        e.preventDefault();
+        const undoButton = e.target.closest(ACTIONS.UNDO_DECLINE);
+        if (undoButton) {
+            e.preventDefault();
 
-        const statusid = $(this).data('statusid');
-        const data = {
-            statusid: statusid
-        };
+            const statusid = undoButton.dataset.statusid;
+            const data = {
+                statusid: statusid
+            };
 
-        const method = 'mod_threesixo_undo_decline';
+            const method = 'mod_threesixo_undo_decline';
 
-        // Refresh the list of questions thru AJAX.
-        const promises = Ajax.call([
-            {methodname: method, args: data}
-        ]);
-        promises[0].done(function() {
-            refreshParticipantsList();
-        }).fail(notification.exception);
+            // Refresh the list of questions thru AJAX.
+            await Ajax.call([
+                {methodname: method, args: data}
+            ])[0];
+            await refreshParticipantsList();
+        }
     });
 };
 
