@@ -14,128 +14,125 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * AMD code for the frequently used comments chooser for the marking guide grading form.
+ * ES module for the frequently used comments chooser for the marking guide grading form.
  *
  * @module     mod_threesixo/view
- * @class      view
  * @copyright  2016 Jun Pataleta <jun@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define([
-    'jquery',
-    'core/templates',
-    'core/notification',
-    'core/ajax',
-    'core/str',
-    'core/modal_save_cancel',
-    'core/modal_events'
-], function($, Templates, notification, ajax, Str, ModalSaveCancel, ModalEvents) {
 
-    /**
-     * List of action selectors.
-     *
-     * @type {{VIEW_FEEDBACK: string, DECLINE_FEEDBACK: string}}
-     */
-    var ACTIONS = {
-        VIEW_FEEDBACK: '[data-action="view-feedback"]',
-        DECLINE_FEEDBACK: '[data-action="decline-feedback"]',
-        UNDO_DECLINE: '[data-action="undo-decline"]'
-    };
+import $ from 'jquery';
+import Templates from 'core/templates';
+import notification from 'core/notification';
+import Ajax from 'core/ajax';
+import {getString} from 'core/str';
+import ModalSaveCancel from 'core/modal_save_cancel';
+import ModalEvents from 'core/modal_events';
 
-    var threesixtyid;
+/**
+ * List of action selectors.
+ *
+ * @type {{VIEW_FEEDBACK: string, DECLINE_FEEDBACK: string}}
+ */
+const ACTIONS = {
+    VIEW_FEEDBACK: '[data-action="view-feedback"]',
+    DECLINE_FEEDBACK: '[data-action="decline-feedback"]',
+    UNDO_DECLINE: '[data-action="undo-decline"]'
+};
 
-    /**
-     * Refresh the list of participants.
-     */
-    function refreshParticipantsList() {
-        // Refresh the list of participants thru AJAX.
-        var promises = ajax.call([
-            {methodname: 'mod_threesixo_data_for_participant_list', args: {threesixtyid: threesixtyid}}
-        ]);
-        $.when(promises[0]).then(function(response) {
-            return Templates.render('mod_threesixo/list_participants', response);
+let threesixtyid;
 
-        }).done(function(compiledSource, js) {
-            $('[data-region="participantlist"]').replaceWith(compiledSource);
-            Templates.runTemplateJS(js);
+/**
+ * Refresh the list of participants.
+ */
+function refreshParticipantsList() {
+    // Refresh the list of participants thru AJAX.
+    const promises = Ajax.call([
+        {methodname: 'mod_threesixo_data_for_participant_list', args: {threesixtyid: threesixtyid}}
+    ]);
+    $.when(promises[0]).then(function(response) {
+        return Templates.render('mod_threesixo/list_participants', response);
 
+    }).done(function(compiledSource, js) {
+        $('[data-region="participantlist"]').replaceWith(compiledSource);
+        Templates.runTemplateJS(js);
+
+    }).fail(notification.exception);
+}
+
+const view = function(id) {
+    threesixtyid = id;
+    this.registerEvents();
+};
+
+view.prototype.registerEvents = function() {
+    $(ACTIONS.DECLINE_FEEDBACK).click(function(e) {
+        e.preventDefault();
+
+        const statusid = $(this).data('statusid');
+        const name = $(this).data('name');
+        const context = {
+            statusid: statusid,
+            name: name
+        };
+        const declineTemplatePromise = Templates.render('mod_threesixo/decline_feedback', context);
+        const titlePromise = getString('declinefeedback', 'mod_threesixo');
+
+        $.when(titlePromise).then(function(title) {
+            return ModalSaveCancel.create({
+                title: title,
+                body: declineTemplatePromise,
+                large: true
+            });
+        }).done(function(modal) {
+            // Display the dialogue.
+            modal.show();
+
+            // On hide handler.
+            modal.getRoot().on(ModalEvents.hidden, function() {
+                // Destroy modal when hidden.
+                modal.destroy();
+            });
+
+            modal.getRoot().on(ModalEvents.save, function() {
+                const statusid = $("#decline-statusid").val();
+                const reason = $("#decline-reason").val().trim();
+                const data = {
+                    statusid: statusid,
+                    declinereason: reason
+                };
+
+                const method = 'mod_threesixo_decline_feedback';
+
+                // Refresh the list of questions thru AJAX.
+                const promises = Ajax.call([
+                    {methodname: method, args: data}
+                ]);
+                promises[0].done(function() {
+                    refreshParticipantsList();
+                }).fail(notification.exception);
+            });
         }).fail(notification.exception);
-    }
+    });
 
-    var view = function(id) {
-        threesixtyid = id;
-        this.registerEvents();
-    };
+    $(ACTIONS.UNDO_DECLINE).click(function(e) {
+        e.preventDefault();
 
-    view.prototype.registerEvents = function() {
-        $(ACTIONS.DECLINE_FEEDBACK).click(function(e) {
-            e.preventDefault();
+        const statusid = $(this).data('statusid');
+        const data = {
+            statusid: statusid
+        };
 
-            var statusid = $(this).data('statusid');
-            var name = $(this).data('name');
-            var context = {
-                statusid: statusid,
-                name: name
-            };
-            var declineTemplatePromise = Templates.render('mod_threesixo/decline_feedback', context);
-            var titlePromise = Str.get_string('declinefeedback', 'mod_threesixo');
+        const method = 'mod_threesixo_undo_decline';
 
-            $.when(titlePromise).then(function(title) {
-                return ModalSaveCancel.create({
-                    title: title,
-                    body: declineTemplatePromise,
-                    large: true
-                });
-            }).done(function(modal) {
-                // Display the dialogue.
-                modal.show();
+        // Refresh the list of questions thru AJAX.
+        const promises = Ajax.call([
+            {methodname: method, args: data}
+        ]);
+        promises[0].done(function() {
+            refreshParticipantsList();
+        }).fail(notification.exception);
+    });
+};
 
-                // On hide handler.
-                modal.getRoot().on(ModalEvents.hidden, function() {
-                    // Destroy modal when hidden.
-                    modal.destroy();
-                });
-
-                modal.getRoot().on(ModalEvents.save, function() {
-                    var statusid = $("#decline-statusid").val();
-                    var reason = $("#decline-reason").val().trim();
-                    var data = {
-                        statusid: statusid,
-                        declinereason: reason
-                    };
-
-                    var method = 'mod_threesixo_decline_feedback';
-
-                    // Refresh the list of questions thru AJAX.
-                    var promises = ajax.call([
-                        {methodname: method, args: data}
-                    ]);
-                    promises[0].done(function() {
-                        refreshParticipantsList();
-                    }).fail(notification.exception);
-                });
-            }).fail(notification.exception);
-        });
-
-        $(ACTIONS.UNDO_DECLINE).click(function(e) {
-            e.preventDefault();
-
-            var statusid = $(this).data('statusid');
-            var data = {
-                statusid: statusid
-            };
-
-            var method = 'mod_threesixo_undo_decline';
-
-            // Refresh the list of questions thru AJAX.
-            var promises = ajax.call([
-                {methodname: method, args: data}
-            ]);
-            promises[0].done(function() {
-                refreshParticipantsList();
-            }).fail(notification.exception);
-        });
-    };
-
-    return view;
-});
+export default view;
