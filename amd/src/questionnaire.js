@@ -24,7 +24,7 @@
 import Notification from 'core/notification';
 import Ajax from 'core/ajax';
 import {get_string as getString, get_strings as getStrings} from 'core/str';
-import ModalFactory from 'core/modal_factory';
+import ModalSaveCancel from 'core/modal_save_cancel';
 import ModalEvents from 'core/modal_events';
 import {add as addToast} from 'core/toast';
 import Pending from 'core/pending';
@@ -292,11 +292,10 @@ const submitResponses = (threesixtyId, toUser, responses, finalise) => {
  */
 const showConfirmationDialogue = async(title, confirmationMessage, threesixtyId, toUser, responses, finalise) => {
     const confirmButtonText = await getString('finalise', 'mod_threesixo');
-    const confirmModal = await ModalFactory.create({
+    const confirmModal = await ModalSaveCancel.create({
         title: title,
         body: confirmationMessage,
-        large: true,
-        type: ModalFactory.types.SAVE_CANCEL
+        large: true
     });
 
     confirmModal.setSaveButtonText(confirmButtonText);

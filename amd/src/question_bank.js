@@ -29,7 +29,7 @@ import * as templates from 'core/templates';
 import * as notification from 'core/notification';
 import * as ajax from 'core/ajax';
 import {get_string as getString} from 'core/str';
-import ModalFactory from 'core/modal_factory';
+import ModalSaveCancel from 'core/modal_save_cancel';
 import ModalEvents from 'core/modal_events';
 import Pending from 'core/pending';
 import {notifyItemsUpdated} from "mod_threesixo/events";
@@ -104,8 +104,7 @@ function checkQuestions(questions) {
  */
 const renderInputDialogue = async(dialogueTitle, bodyTemplate, trigger) => {
     const pendingPromise = new Pending('mod_threesixo/question_input');
-    const modal = await ModalFactory.create({
-        type: ModalFactory.types.SAVE_CANCEL,
+    const modal = await ModalSaveCancel.create({
         title: dialogueTitle,
         body: bodyTemplate,
         large: true
@@ -209,8 +208,7 @@ const displayInputDialogue = async(threesixtyId, questionId, trigger) => {
 const displayQuestionBankDialogue = async(title, questionBankTemplate) => {
     const pendingPromise = new Pending('mod_threesixo/question_bank');
 
-    const modal = await ModalFactory.create({
-        type: ModalFactory.types.SAVE_CANCEL,
+    const modal = await ModalSaveCancel.create({
         title: title,
         body: questionBankTemplate,
         large: true
@@ -372,10 +370,9 @@ function refreshQuestionsList() {
  */
 const handleDeletion = async(questionId, threesixtyId) => {
     const delTitle = await getString('deletequestion', 'mod_threesixo');
-    const modal = await ModalFactory.create({
+    const modal = await ModalSaveCancel.create({
         title: delTitle,
-        body: getString('confirmquestiondeletion', 'mod_threesixo'),
-        type: ModalFactory.types.SAVE_CANCEL
+        body: getString('confirmquestiondeletion', 'mod_threesixo')
     });
 
     modal.getRoot().on(ModalEvents.save, function() {
