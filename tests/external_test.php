@@ -152,6 +152,117 @@ final class external_test extends advanced_testcase {
         }
         external::delete_question($qtodelete, $threesixo->id);
     }
+
+    /**
+     * Data provider for test_item_editing_locked_after_responses.
+     *
+     * @return array
+     */
+    public static function item_action_provider(): array {
+        return [
+            'Set items (add/remove questions)' => ['set_items'],
+            'Delete item' => ['delete_item'],
+            'Move item up' => ['move_item_up'],
+            'Move item down' => ['move_item_down'],
+        ];
+    }
+
+    /**
+     * The questionnaire items cannot be modified once respondents have started providing feedback.
+     *
+     * @dataProvider item_action_provider
+     * @covers ::set_items
+     * @covers ::delete_item
+     * @covers ::move_item_up
+     * @covers ::move_item_down
+     * @runInSeparateProcess
+     * @param string $action The item-modifying external method to exercise.
+     */
+    public function test_item_editing_locked_after_responses(string $action): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+
+        $course = $generator->create_course();
+        $teacher = $generator->create_user();
+        $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $s1 = $generator->create_user();
+        $s2 = $generator->create_user();
+        $generator->enrol_user($s1->id, $course->id, 'student');
+        $generator->enrol_user($s2->id, $course->id, 'student');
+
+        $options = [
+            'ratedquestions' => ['R1', 'R2', 'R3'],
+            'commentquestions' => [],
+        ];
+        $threesixo = $this->getDataGenerator()->create_module('threesixo', ['course' => $course->id], $options);
+        $items = api::get_items($threesixo->id);
+        $firstitem = reset($items);
+
+        // Sanity check: while there are no responses yet, the items can be edited.
+        $this->assertFalse(api::has_responses($threesixo->id));
+
+        // A respondent submits a response.
+        $DB->insert_record('threesixo_response', (object) [
+            'threesixo' => $threesixo->id,
+            'item' => $firstitem->id,
+            'fromuser' => $s1->id,
+            'touser' => $s2->id,
+            'value' => 5,
+        ]);
+        $this->assertTrue(api::has_responses($threesixo->id));
+
+        $this->setUser($teacher);
+
+        // Every item-modifying operation should now be rejected.
+        $this->expectException(moodle_exception::class);
+        $this->expectExceptionMessage(get_string('cannotmodifyitemswithresponses', 'mod_threesixo'));
+
+        self::call_item_action($action, $threesixo->id, $firstitem);
+    }
+
+    /**
+     * The item-modifying web services still work while no feedback has been provided yet.
+     *
+     * This is the counterpart of test_item_editing_locked_after_responses, so that a regression that always reports the
+     * items as locked cannot pass unnoticed.
+     *
+     * @dataProvider item_action_provider
+     * @covers ::set_items
+     * @covers ::delete_item
+     * @covers ::move_item_up
+     * @covers ::move_item_down
+     * @runInSeparateProcess
+     * @param string $action The item-modifying external method to exercise.
+     */
+    public function test_item_editing_allowed_without_responses(string $action): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+
+        $course = $generator->create_course();
+        $teacher = $generator->create_user();
+        $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
+
+        $options = [
+            'ratedquestions' => ['R1', 'R2', 'R3'],
+            'commentquestions' => [],
+        ];
+        $threesixo = $this->getDataGenerator()->create_module('threesixo', ['course' => $course->id], $options);
+        $items = api::get_items($threesixo->id);
+        $firstitem = reset($items);
+
+        $this->assertFalse(api::has_responses($threesixo->id));
+
+        $this->setUser($teacher);
+
+        $result = self::call_item_action($action, $threesixo->id, $firstitem);
+        $this->assertTrue($result['result']);
+        $this->assertEmpty($result['warnings']);
+    }
+
     /**
      * Sets up a 360-degree feedback instance with two participants, ready for providing feedback.
      *
@@ -301,5 +412,28 @@ final class external_test extends advanced_testcase {
 
         $submission = api::get_submission_by_params($threesixo->id, $s1->id, $s2->id);
         $this->assertNotEquals(api::STATUS_COMPLETE, $submission->status);
+    }
+
+    /**
+     * Calls the given item-modifying external method.
+     *
+     * @param string $action The item-modifying external method to call.
+     * @param int $threesixtyid The 360-degree feedback instance ID.
+     * @param \stdClass $item The item to act on.
+     * @return array The external method's result.
+     */
+    protected static function call_item_action(string $action, int $threesixtyid, \stdClass $item): array {
+        switch ($action) {
+            case 'set_items':
+                return external::set_items($threesixtyid, [$item->questionid]);
+            case 'delete_item':
+                return external::delete_item($item->id);
+            case 'move_item_up':
+                return external::move_item_up($item->id);
+            case 'move_item_down':
+                return external::move_item_down($item->id);
+        }
+
+        throw new \coding_exception('Unknown item action: ' . $action);
     }
 }

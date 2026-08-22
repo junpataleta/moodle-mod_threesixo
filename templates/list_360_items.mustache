@@ -34,6 +34,7 @@
     Example context (json):
     {
         "threesixtyid" : 1,
+        "locked": false,
         "allitems": [
             {
                 "id": 1,
@@ -63,9 +64,16 @@
     }
 }}
 <div class="container-fluid" data-region="itemlist">
+    {{#locked}}
+        <div class="alert alert-info" role="alert" data-region="itemlist-locked">
+            {{#str}}itemseditinglocked, mod_threesixo{{/str}}
+        </div>
+    {{/locked}}
     <div class="row my-2">
         <div class="col-6 text-start">
-            <button class="btn btn-secondary" id="btn-question-bank">{{#str}}labelpickfromquestionbank, mod_threesixo{{/str}}</button>
+            {{^locked}}
+                <button class="btn btn-secondary" id="btn-question-bank">{{#str}}labelpickfromquestionbank, mod_threesixo{{/str}}</button>
+            {{/locked}}
         </div>
         <div class="col-6 text-end">
             {{#makeavailableurl}}
