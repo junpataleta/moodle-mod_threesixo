@@ -39,3 +39,33 @@ Feature: Provide a feedback to a participant
     When I click on "Provide feedback" "link" in the "Student 2" "table_row"
     Then the field "Strongly agree" in the "Treats co-workers with courtesy and respect" "fieldset" matches value "6"
     And the field "Agree" in the "Has a positive attitude" "fieldset" matches value "5"
+
+  Scenario: Finalising a feedback with unanswered rating questions warns the respondent
+    Given the following "activities" exist:
+      | activity  | name          | intro            | course  | idnumber  | with_self_review | participantrolename | anonymous |
+      | threesixo | Team feedback | Test description | C1      | review1   | 0                | student             | 1         |
+    And I am on the "review1" activity page logged in as "student1"
+    And I click on "Provide feedback" "link" in the "Student 2" "table_row"
+    And I click on "Strongly agree" "radio" in the "Treats co-workers with courtesy and respect" "fieldset"
+    When I press "Submit"
+    Then I should see "All rating questions must be answered" in the "Unanswered questions" "dialogue"
+    # The unanswered questions are listed by name, and the answered one is not.
+    And I should see "Has a positive attitude." in the "Unanswered questions" "dialogue"
+    And I should not see "Treats co-workers with courtesy and respect" in the "Unanswered questions" "dialogue"
+    # Reviewing the questions keeps the respondent on the questionnaire.
+    And I click on "Review questions" "button" in the "Unanswered questions" "dialogue"
+    And I should see "Provide feedback"
+    And the field "Strongly agree" in the "Treats co-workers with courtesy and respect" "fieldset" matches value "6"
+
+  Scenario: Saving the progress of an incomplete feedback keeps it in progress
+    Given the following "activities" exist:
+      | activity  | name          | intro            | course  | idnumber  | with_self_review | participantrolename | anonymous |
+      | threesixo | Team feedback | Test description | C1      | review1   | 0                | student             | 1         |
+    And I am on the "review1" activity page logged in as "student1"
+    And I click on "Provide feedback" "link" in the "Student 2" "table_row"
+    And I click on "Strongly agree" "radio" in the "Treats co-workers with courtesy and respect" "fieldset"
+    And I press "Submit"
+    When I click on "Save progress and exit" "button" in the "Unanswered questions" "dialogue"
+    Then I should see "In progress" in the "Student 2" "table_row"
+    And I click on "Provide feedback" "link" in the "Student 2" "table_row"
+    And the field "Strongly agree" in the "Treats co-workers with courtesy and respect" "fieldset" matches value "6"

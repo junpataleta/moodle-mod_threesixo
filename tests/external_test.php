@@ -99,4 +99,154 @@ final class external_test extends advanced_testcase {
         $this->assertArrayHasKey('threesixtyid', $result);
         $this->assertSame($threesixo->id, $result['threesixtyid']);
     }
+    /**
+     * Sets up a 360-degree feedback instance with two participants, ready for providing feedback.
+     *
+     * @param bool $anonymous Whether the instance is anonymous.
+     * @return array An array containing the instance, the respondent and the feedback recipient.
+     */
+    protected function setup_feedback_instance(bool $anonymous): array {
+        $generator = $this->getDataGenerator();
+        $this->setAdminUser();
+
+        $course = $generator->create_course();
+        $s1 = $generator->create_user();
+        $s2 = $generator->create_user();
+        $generator->enrol_user($s1->id, $course->id, 'student');
+        $generator->enrol_user($s2->id, $course->id, 'student');
+
+        $threesixo = $generator->create_module('threesixo', [
+            'course' => $course->id,
+            'anonymous' => $anonymous,
+        ], [
+            'ratedquestions' => ['R1', 'R2'],
+            'commentquestions' => ['C1'],
+        ]);
+
+        api::generate_360_feedback_statuses($threesixo->id, $s1->id);
+
+        return [$threesixo, $s1, $s2];
+    }
+
+    /**
+     * Data provider for the save_responses tests.
+     *
+     * @return array
+     */
+    public static function anonymous_provider(): array {
+        return [
+            'Non-anonymous feedback' => [false],
+            'Anonymous feedback' => [true],
+        ];
+    }
+
+    /**
+     * A submission is marked as completed when every item has been answered.
+     *
+     * @dataProvider anonymous_provider
+     * @covers ::save_responses
+     * @runInSeparateProcess
+     * @param bool $anonymous Whether the instance is anonymous.
+     */
+    public function test_save_responses_complete(bool $anonymous): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        [$threesixo, $s1, $s2] = $this->setup_feedback_instance($anonymous);
+
+        $responses = [];
+        foreach (api::get_items($threesixo->id) as $item) {
+            $responses[] = [
+                'item' => (int) $item->id,
+                'value' => $item->type == api::QTYPE_RATED ? '5' : 'Some feedback',
+            ];
+        }
+
+        $this->setUser($s1);
+        $result = external::save_responses($threesixo->id, $s2->id, $responses, true);
+        // The result is built with a bitwise AND, so it is an int until it is cast by the web service layer.
+        $this->assertTrue((bool) $result['result']);
+
+        $submission = api::get_submission_by_params($threesixo->id, $s1->id, $s2->id);
+        $this->assertEquals(api::STATUS_COMPLETE, $submission->status);
+
+        // The responses of a completed anonymous submission are anonymised, otherwise the respondent is retained.
+        $expectedfromuser = $anonymous ? 0 : $s1->id;
+        $fromusers = $DB->get_fieldset_select(
+            'threesixo_response',
+            'DISTINCT fromuser',
+            'threesixo = :threesixo AND touser = :touser',
+            ['threesixo' => $threesixo->id, 'touser' => $s2->id]
+        );
+        $this->assertEquals([$expectedfromuser], $fromusers);
+    }
+
+    /**
+     * A submission is not marked as completed while an item has not been answered.
+     *
+     * @covers ::save_responses
+     * @runInSeparateProcess
+     */
+    public function test_save_responses_incomplete(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        [$threesixo, $s1, $s2] = $this->setup_feedback_instance(true);
+
+        // Leave one rated question unanswered, which is what the questionnaire sends for an unanswered rating.
+        $responses = [];
+        $skipped = true;
+        foreach (api::get_items($threesixo->id) as $item) {
+            $value = $item->type == api::QTYPE_RATED ? '5' : 'Some feedback';
+            if ($skipped && $item->type == api::QTYPE_RATED) {
+                $value = null;
+                $skipped = false;
+            }
+            $responses[] = ['item' => (int) $item->id, 'value' => $value];
+        }
+
+        $this->setUser($s1);
+        $result = external::save_responses($threesixo->id, $s2->id, $responses, true);
+        // The result is built with a bitwise AND, so it is an int until it is cast by the web service layer.
+        $this->assertTrue((bool) $result['result']);
+
+        // The submission is not completed, and the responses are not anonymised.
+        $submission = api::get_submission_by_params($threesixo->id, $s1->id, $s2->id);
+        $this->assertNotEquals(api::STATUS_COMPLETE, $submission->status);
+        $this->assertTrue($DB->record_exists('threesixo_response', [
+            'threesixo' => $threesixo->id,
+            'touser' => $s2->id,
+            'fromuser' => $s1->id,
+        ]));
+    }
+
+    /**
+     * A submission is not marked as completed when an item is missing from the responses altogether.
+     *
+     * @covers ::save_responses
+     * @runInSeparateProcess
+     */
+    public function test_save_responses_missing_item(): void {
+        $this->resetAfterTest();
+        [$threesixo, $s1, $s2] = $this->setup_feedback_instance(false);
+
+        // Omit the last item entirely from the submitted responses.
+        $items = api::get_items($threesixo->id);
+        array_pop($items);
+        $responses = [];
+        foreach ($items as $item) {
+            $responses[] = [
+                'item' => (int) $item->id,
+                'value' => $item->type == api::QTYPE_RATED ? '5' : 'Some feedback',
+            ];
+        }
+
+        $this->setUser($s1);
+        $result = external::save_responses($threesixo->id, $s2->id, $responses, true);
+        // The result is built with a bitwise AND, so it is an int until it is cast by the web service layer.
+        $this->assertTrue((bool) $result['result']);
+
+        $submission = api::get_submission_by_params($threesixo->id, $s1->id, $s2->id);
+        $this->assertNotEquals(api::STATUS_COMPLETE, $submission->status);
+    }
 }

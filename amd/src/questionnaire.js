@@ -42,6 +42,13 @@ const selectors = {
 };
 
 /**
+ * CSS class used to highlight unanswered rating question items.
+ *
+ * @type {string}
+ */
+const unansweredClass = 'threesixo-unanswered';
+
+/**
  * Array of responses to the items in the questionnaire with item ID for the key and the response for the value.
  */
 const responses = [];
@@ -181,9 +188,131 @@ const handleOptionActivation = ratingOption => {
     selectedLabel.classList.add('btn-success');
     ratingOption.checked = true;
 
+    // This rating question is now answered, so clear any "unanswered" highlight on it.
+    optionGroup.classList.remove(unansweredClass);
+    optionGroup.removeAttribute('aria-invalid');
+
     // Add this selected value to the array of responses.
     responses[itemId] = ratingOption.value;
     pending.resolve();
+};
+
+/**
+ * Fetches the rating question items that have not been answered yet.
+ *
+ * Only rating questions are required to be answered. Comment questions are optional.
+ *
+ * @return {HTMLElement[]} The list of unanswered rating question item elements.
+ */
+const getUnansweredRatedItems = () => {
+    const unanswered = [];
+    document.querySelectorAll(selectors.questionItem).forEach(item => {
+        const ratingOptions = item.querySelectorAll(selectors.ratingOption);
+        // A question item with rating options that has no option selected is an unanswered rating question.
+        if (ratingOptions.length && !item.querySelector(`${selectors.ratingOption}:checked`)) {
+            unanswered.push(item);
+        }
+    });
+    return unanswered;
+};
+
+/**
+ * Highlights the given unanswered rating question items and clears any previous highlights.
+ *
+ * @param {HTMLElement[]} items The unanswered rating question item elements.
+ */
+const highlightUnansweredItems = items => {
+    document.querySelectorAll(`${selectors.questionItem}.${unansweredClass}`).forEach(item => {
+        item.classList.remove(unansweredClass);
+        item.removeAttribute('aria-invalid');
+    });
+    items.forEach(item => {
+        item.classList.add(unansweredClass);
+        // Expose the unanswered state to assistive technology, not just visually.
+        item.setAttribute('aria-invalid', 'true');
+    });
+};
+
+/**
+ * Fetches the question text of a question item.
+ *
+ * @param {HTMLElement} item The question item element.
+ * @return {string} The question text.
+ */
+const getQuestionText = item => {
+    const legend = item.querySelector('legend');
+    return legend ? legend.textContent.trim() : '';
+};
+
+/**
+ * Moves the user to the given question item, scrolling it into view and focusing its first rating option.
+ *
+ * @param {HTMLElement} item The question item element.
+ */
+const goToQuestionItem = item => {
+    item.scrollIntoView({behavior: 'smooth', block: 'center'});
+    // Move the keyboard focus as well, so that keyboard and screen reader users are taken to the question too.
+    const firstOption = item.querySelector(selectors.ratingOption);
+    if (firstOption) {
+        firstOption.focus({preventScroll: true});
+    }
+};
+
+/**
+ * Renders a dialogue warning the user that there are unanswered rating questions when they try to finalise.
+ *
+ * The unanswered questions are listed by name so that they are identified in text, and not only by the highlight.
+ *
+ * @param {number} threesixtyId
+ * @param {number} toUser
+ * @param {HTMLElement[]} unanswered The unanswered rating question item elements.
+ */
+const showIncompleteDialogue = async(threesixtyId, toUser, unanswered) => {
+    const bodyKey = unanswered.length === 1 ? 'finaliseincompletesingle' : 'finaliseincomplete';
+    const [title, intro, saveText, reviewText] = await getStrings([
+        {key: 'finaliseincompletetitle', component: 'mod_threesixo'},
+        {key: bodyKey, component: 'mod_threesixo', param: unanswered.length},
+        {key: 'saveprogressandexit', component: 'mod_threesixo'},
+        {key: 'reviewquestions', component: 'mod_threesixo'},
+    ]);
+
+    // Build the list of unanswered questions. Use textContent so that the question text is escaped.
+    const list = document.createElement('ul');
+    unanswered.forEach(item => {
+        const listItem = document.createElement('li');
+        listItem.textContent = getQuestionText(item);
+        list.appendChild(listItem);
+    });
+    const introParagraph = document.createElement('p');
+    introParagraph.textContent = intro;
+
+    const incompleteModal = await ModalSaveCancel.create({
+        title: title,
+        body: introParagraph.outerHTML + list.outerHTML,
+    });
+    incompleteModal.setSaveButtonText(saveText);
+    incompleteModal.setButtonText('cancel', reviewText);
+
+    // Save progress and exit: save the responses as a draft (not finalised) and return to the dashboard.
+    incompleteModal.getRoot().on(ModalEvents.save, () => {
+        submitResponses(threesixtyId, toUser, responses, false, true);
+    });
+
+    // Review questions: close the dialogue and take the user to the first unanswered question.
+    let reviewrequested = false;
+    incompleteModal.getRoot().on(ModalEvents.cancel, () => {
+        reviewrequested = true;
+    });
+
+    incompleteModal.getRoot().on(ModalEvents.hidden, () => {
+        // Move to the question only once the dialogue is hidden, as hiding it restores the focus to the submit button.
+        if (reviewrequested) {
+            goToQuestionItem(unanswered[0]);
+        }
+        incompleteModal.destroy();
+    });
+
+    incompleteModal.show();
 };
 
 /**
@@ -202,6 +331,17 @@ const saveResponses = finalise => {
     const toUserFullname = questionnaireTable.dataset.tousername;
     const threesixtyId = parseInt(questionnaireTable.dataset.threesixtyid);
     const anonymous = parseInt(questionnaireTable.dataset.anonymous);
+
+    // When finalising, make sure all rating questions have been answered. A submission cannot be marked as completed
+    // while rating questions remain unanswered, so warn the user instead of silently leaving it "In progress".
+    if (finalise) {
+        const unanswered = getUnansweredRatedItems();
+        if (unanswered.length) {
+            highlightUnansweredItems(unanswered);
+            showIncompleteDialogue(threesixtyId, toUser, unanswered);
+            return;
+        }
+    }
 
     if (anonymous && finalise) {
         // Show confirmation dialogue to anonymise the feedback responses.
@@ -235,8 +375,9 @@ const saveResponses = finalise => {
  * @param {number} toUser
  * @param {array} responses
  * @param {boolean} finalise
+ * @param {boolean} [exitAfterSave=false] Whether to return to the dashboard after saving (used when saving a draft and exiting).
  */
-const submitResponses = (threesixtyId, toUser, responses, finalise) => {
+const submitResponses = (threesixtyId, toUser, responses, finalise, exitAfterSave = false) => {
     const pending = new Pending('mod_threesixo/submit-responses');
     let redirectUrl = null;
     const responsesToSubmit = [];
@@ -263,14 +404,14 @@ const submitResponses = (threesixtyId, toUser, responses, finalise) => {
         }
         return getString('errorresponsesavefailed', 'mod_threesixo');
     }).then(message => {
-        if (!finalise) {
+        if (!finalise && !exitAfterSave) {
             // Show toast message when saving the responses but not redirecting.
             return addToast(message, {});
         }
         return true;
     }).then(() => {
         pending.resolve();
-        if (finalise && redirectUrl) {
+        if ((finalise || exitAfterSave) && redirectUrl) {
             const form = document.getElementById('questionnaire');
             const submitted = document.getElementById('feedback-submitted');
             submitted.value = 1;
