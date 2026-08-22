@@ -1013,9 +1013,10 @@ class external extends external_api {
         $result = api::save_responses($threesixtyid, $touserid, $responsesarray);
 
         if ($complete) {
+            // A submission can only be marked as complete when a response has been provided for every item.
             $items = api::get_items($threesixtyid);
             foreach ($items as $item) {
-                if ($responsesarray[$item->id] === null) {
+                if (($responsesarray[$item->id] ?? null) === null) {
                     $complete = false;
                     break;
                 }
