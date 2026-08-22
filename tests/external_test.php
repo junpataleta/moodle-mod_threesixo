@@ -18,7 +18,10 @@ namespace mod_threesixo;
 
 use advanced_testcase;
 use mod_threesixo_generator;
+use moodle_exception;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * External API tests.
@@ -117,14 +120,10 @@ final class external_test extends advanced_testcase {
     /**
      * The questionnaire items cannot be modified once respondents have started providing feedback.
      *
-     * @dataProvider item_action_provider
-     * @covers ::set_items
-     * @covers ::delete_item
-     * @covers ::move_item_up
-     * @covers ::move_item_down
-     * @runInSeparateProcess
      * @param string $action The item-modifying external method to exercise.
      */
+    #[DataProvider('item_action_provider')]
+    #[RunInSeparateProcess]
     public function test_item_editing_locked_after_responses(string $action): void {
         global $DB;
 
@@ -176,14 +175,10 @@ final class external_test extends advanced_testcase {
      * This is the counterpart of test_item_editing_locked_after_responses, so that a regression that always reports the
      * items as locked cannot pass unnoticed.
      *
-     * @dataProvider item_action_provider
-     * @covers ::set_items
-     * @covers ::delete_item
-     * @covers ::move_item_up
-     * @covers ::move_item_down
-     * @runInSeparateProcess
      * @param string $action The item-modifying external method to exercise.
      */
+    #[DataProvider('item_action_provider')]
+    #[RunInSeparateProcess]
     public function test_item_editing_allowed_without_responses(string $action): void {
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -254,11 +249,10 @@ final class external_test extends advanced_testcase {
     /**
      * A submission is marked as completed when every item has been answered.
      *
-     * @dataProvider anonymous_provider
-     * @covers ::save_responses
-     * @runInSeparateProcess
      * @param bool $anonymous Whether the instance is anonymous.
      */
+    #[DataProvider('anonymous_provider')]
+    #[RunInSeparateProcess]
     public function test_save_responses_complete(bool $anonymous): void {
         global $DB;
 
@@ -295,9 +289,8 @@ final class external_test extends advanced_testcase {
     /**
      * A submission is not marked as completed while an item has not been answered.
      *
-     * @covers ::save_responses
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function test_save_responses_incomplete(): void {
         global $DB;
 
@@ -334,9 +327,8 @@ final class external_test extends advanced_testcase {
     /**
      * A submission is not marked as completed when an item is missing from the responses altogether.
      *
-     * @covers ::save_responses
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function test_save_responses_missing_item(): void {
         $this->resetAfterTest();
         [$threesixo, $s1, $s2] = $this->setup_feedback_instance(false);

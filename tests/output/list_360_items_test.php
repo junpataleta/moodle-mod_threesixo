@@ -19,6 +19,7 @@ namespace mod_threesixo\output;
 use advanced_testcase;
 use mod_threesixo\api;
 use moodle_url;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Tests for the 360-degree feedback item list renderable.
@@ -26,13 +27,11 @@ use moodle_url;
  * @package    mod_threesixo
  * @copyright  2026 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \mod_threesixo\output\list_360_items
  */
+#[CoversClass(list_360_items::class)]
 final class list_360_items_test extends advanced_testcase {
     /**
      * The item action controls are only offered while the items can still be modified.
-     *
-     * @covers ::export_for_template
      */
     public function test_export_for_template_locked(): void {
         global $DB, $PAGE;

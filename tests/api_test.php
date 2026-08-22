@@ -461,12 +461,11 @@ final class api_test extends advanced_testcase {
      * Saving a draft creates a response record for every item, including the unanswered ones, so only responses that
      * actually hold a value should be counted.
      *
-     * @dataProvider has_responses_provider
-     * @covers ::has_responses
      * @param string|null $value The response value to store.
      * @param bool $expected Whether the instance is expected to be reported as having responses.
      * @param bool $insert Whether to insert a response record at all.
      */
+    #[DataProvider('has_responses_provider')]
     public function test_has_responses(?string $value, bool $expected, bool $insert = false): void {
         global $DB;
 
@@ -506,10 +505,6 @@ final class api_test extends advanced_testcase {
     /**
      * The questionnaire items can still be modified while no feedback has been provided yet.
      *
-     * @covers ::set_items
-     * @covers ::delete_item
-     * @covers ::move_item_up
-     * @covers ::move_item_down
      */
     public function test_modify_items_without_responses(): void {
         $this->resetAfterTest();
@@ -549,10 +544,6 @@ final class api_test extends advanced_testcase {
     /**
      * The questionnaire items can no longer be modified through the API once feedback has been provided.
      *
-     * @covers ::set_items
-     * @covers ::delete_item
-     * @covers ::move_item_up
-     * @covers ::move_item_down
      */
     public function test_modify_items_with_responses(): void {
         global $DB;
