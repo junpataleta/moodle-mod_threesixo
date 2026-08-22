@@ -359,6 +359,8 @@ class external extends external_api {
 
         return [
             'items' => $items,
+            // Whether the items can no longer be modified because respondents have started providing feedback.
+            'locked' => api::has_responses($params['threesixtyid']),
             'warnings' => $warnings,
         ];
     }
@@ -396,6 +398,12 @@ class external extends external_api {
                             'typetext' => new external_value(PARAM_TEXT, 'The question type text value.'),
                         ]
                     )
+                ),
+                'locked' => new external_value(
+                    PARAM_BOOL,
+                    'Whether the items can no longer be modified because feedback has already been provided.',
+                    VALUE_DEFAULT,
+                    false
                 ),
                 'warnings' => new external_warnings(),
             ]

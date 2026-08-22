@@ -438,4 +438,168 @@ final class api_test extends advanced_testcase {
         $this->assertEquals('Updated question text', $updatedq1->question);
         $this->assertEquals($u1->id, $updatedq1->editedby);
     }
+
+    /**
+     * Data provider for test_has_responses.
+     *
+     * @return array
+     */
+    public static function has_responses_provider(): array {
+        return [
+            'No response records at all' => [null, false],
+            'Draft response with a null value' => [null, false, true],
+            'Draft response with an empty value' => ['', false, true],
+            'Answered rating' => ['5', true, true],
+            'Answered rating with the N/A value' => ['0', true, true],
+            'Answered comment' => ['Some feedback', true, true],
+        ];
+    }
+
+    /**
+     * Test for \mod_threesixo\api::has_responses().
+     *
+     * Saving a draft creates a response record for every item, including the unanswered ones, so only responses that
+     * actually hold a value should be counted.
+     *
+     * @dataProvider has_responses_provider
+     * @covers ::has_responses
+     * @param string|null $value The response value to store.
+     * @param bool $expected Whether the instance is expected to be reported as having responses.
+     * @param bool $insert Whether to insert a response record at all.
+     */
+    public function test_has_responses(?string $value, bool $expected, bool $insert = false): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+
+        $course = $generator->create_course();
+        $s1 = $generator->create_user();
+        $s2 = $generator->create_user();
+        $generator->enrol_user($s1->id, $course->id, 'student');
+        $generator->enrol_user($s2->id, $course->id, 'student');
+
+        $threesixo = $generator->create_module('threesixo', ['course' => $course->id], [
+            'ratedquestions' => ['R1'],
+            'commentquestions' => ['C1'],
+        ]);
+
+        // No responses yet.
+        $this->assertFalse(api::has_responses($threesixo->id));
+
+        if ($insert) {
+            $items = api::get_items($threesixo->id);
+            $item = reset($items);
+            $DB->insert_record('threesixo_response', (object) [
+                'threesixo' => $threesixo->id,
+                'item' => $item->id,
+                'fromuser' => $s1->id,
+                'touser' => $s2->id,
+                'value' => $value,
+            ]);
+        }
+
+        $this->assertEquals($expected, api::has_responses($threesixo->id));
+    }
+
+    /**
+     * The questionnaire items can still be modified while no feedback has been provided yet.
+     *
+     * @covers ::set_items
+     * @covers ::delete_item
+     * @covers ::move_item_up
+     * @covers ::move_item_down
+     */
+    public function test_modify_items_without_responses(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+
+        $course = $generator->create_course();
+        $threesixo = $generator->create_module('threesixo', ['course' => $course->id], [
+            'ratedquestions' => ['R1', 'R2', 'R3'],
+            'commentquestions' => [],
+        ]);
+
+        $items = api::get_items($threesixo->id);
+        $this->assertCount(3, $items);
+        $first = reset($items);
+        $last = end($items);
+
+        // Reordering works.
+        $this->assertTrue(api::move_item_down($first->id));
+        $this->assertEquals(2, api::get_item_by_id($first->id)->position);
+        $this->assertTrue(api::move_item_up($first->id));
+        $this->assertEquals(1, api::get_item_by_id($first->id)->position);
+
+        // Deleting works.
+        $this->assertTrue(api::delete_item($last->id));
+        $this->assertCount(2, api::get_items($threesixo->id));
+
+        // Adding/removing items via set_items() works.
+        $questionids = [];
+        foreach (api::get_items($threesixo->id) as $item) {
+            $questionids[] = $item->questionid;
+        }
+        $this->assertTrue(api::set_items($threesixo->id, [reset($questionids)]));
+        $this->assertCount(1, api::get_items($threesixo->id));
+    }
+
+    /**
+     * The questionnaire items can no longer be modified through the API once feedback has been provided.
+     *
+     * @covers ::set_items
+     * @covers ::delete_item
+     * @covers ::move_item_up
+     * @covers ::move_item_down
+     */
+    public function test_modify_items_with_responses(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+
+        $course = $generator->create_course();
+        $s1 = $generator->create_user();
+        $s2 = $generator->create_user();
+        $generator->enrol_user($s1->id, $course->id, 'student');
+        $generator->enrol_user($s2->id, $course->id, 'student');
+
+        $threesixo = $generator->create_module('threesixo', ['course' => $course->id], [
+            'ratedquestions' => ['R1', 'R2'],
+            'commentquestions' => [],
+        ]);
+        $items = api::get_items($threesixo->id);
+        $first = reset($items);
+
+        $DB->insert_record('threesixo_response', (object) [
+            'threesixo' => $threesixo->id,
+            'item' => $first->id,
+            'fromuser' => $s1->id,
+            'touser' => $s2->id,
+            'value' => '5',
+        ]);
+
+        $message = get_string('cannotmodifyitemswithresponses', 'mod_threesixo');
+        $actions = [
+            fn() => api::set_items($threesixo->id, [$first->questionid]),
+            fn() => api::delete_item($first->id),
+            fn() => api::move_item_up($first->id),
+            fn() => api::move_item_down($first->id),
+        ];
+        foreach ($actions as $action) {
+            try {
+                $action();
+                $this->fail('A moodle_exception was expected when modifying items that already have responses.');
+            } catch (\moodle_exception $e) {
+                $this->assertEquals($message, $e->getMessage());
+            }
+        }
+
+        // Nothing was changed.
+        $this->assertCount(2, api::get_items($threesixo->id));
+        $this->assertEquals($first->position, api::get_item_by_id($first->id)->position);
+    }
 }

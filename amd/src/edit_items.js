@@ -63,19 +63,22 @@ export default class EditItems {
             }
         ]);
         promises[0].then(function(response) {
+            // Once respondents have started providing feedback, the items can no longer be modified.
+            const locked = response.locked;
             const context = {
-                threesixtyid: editItems.threesixtyId
+                threesixtyid: editItems.threesixtyId,
+                locked: locked
             };
 
             const items = [];
             const itemCount = response.items.length;
             response.items.forEach((value) => {
                 const item = value;
-                item.deletebutton = true;
+                item.deletebutton = !locked;
                 item.moveupbutton = false;
                 item.movedownbutton = false;
                 item.type = value.typetext;
-                if (itemCount > 1) {
+                if (!locked && itemCount > 1) {
                     if (value.position === 1) {
                         item.movedownbutton = true;
                     } else if (value.position === itemCount) {
