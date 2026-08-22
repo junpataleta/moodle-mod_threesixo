@@ -92,6 +92,10 @@ class list_360_items implements \renderable, \templatable {
         $data->viewurl = $this->viewurl;
         $data->makeavailableurl = $this->makeavailableurl;
 
+        // Once respondents have started providing feedback, the questionnaire's items can no longer be modified.
+        $locked = api::has_responses($this->threesixtyid);
+        $data->locked = $locked;
+
         if ($items = api::get_items($this->threesixtyid)) {
             $itemcount = count($items);
 
@@ -110,7 +114,7 @@ class list_360_items implements \renderable, \templatable {
                 // Move up and move down button display flags.
                 $listitem->moveupbutton = false;
                 $listitem->movedownbutton = false;
-                if ($itemcount > 1) {
+                if (!$locked && $itemcount > 1) {
                     if ($item->position == 1) {
                         $listitem->movedownbutton = true;
                     } else if ($item->position == $itemcount) {
@@ -122,7 +126,7 @@ class list_360_items implements \renderable, \templatable {
                 }
 
                 // Delete action.
-                $listitem->deletebutton = true;
+                $listitem->deletebutton = !$locked;
 
                 $data->allitems[] = $listitem;
             }

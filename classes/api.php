@@ -262,6 +262,8 @@ class api {
     public static function set_items($threesixtyid, $questionids) {
         global $DB;
 
+        self::require_items_modifiable($threesixtyid);
+
         // Delete existing, but were unselected, items.
         $select = 'threesixo = :threesixo';
         $params = ['threesixo' => $threesixtyid];
@@ -374,6 +376,8 @@ class api {
 
         // Get the feedback item.
         if ($item = $DB->get_record('threesixo_item', ['id' => $itemid])) {
+            self::require_items_modifiable($item->threesixo);
+
             $oldposition = $item->position;
             $itemcount = $DB->count_records('threesixo_item', ['threesixo' => $item->threesixo]);
 
@@ -416,6 +420,8 @@ class api {
         global $DB;
         $itemtobedeleted = $DB->get_record('threesixo_item', ['id' => $itemid], 'id, position, threesixo');
         if ($itemtobedeleted) {
+            self::require_items_modifiable($itemtobedeleted->threesixo);
+
             $select = 'position > :position AND threesixo = :threesixo';
             $params = [
                 'position' => $itemtobedeleted->position,
@@ -1149,6 +1155,43 @@ class api {
     public static function has_items($threesixtyid) {
         global $DB;
         return $DB->record_exists('threesixo_item', ['threesixo' => $threesixtyid]);
+    }
+
+    /**
+     * Whether respondents have already started providing feedback for the 360-degree feedback instance.
+     *
+     * This is used to lock the editing of the questionnaire's items once respondents have started providing feedback,
+     * to avoid orphaned response data (when items are deleted) or incomplete finalised submissions (when items are added).
+     *
+     * Saving a draft creates a response record for every item in the questionnaire, including the items that have not
+     * been answered yet. Only responses that actually hold a value are therefore counted here, so that simply opening
+     * a questionnaire and saving it without answering anything does not lock the questionnaire.
+     *
+     * @param int $threesixtyid The 360 instance ID.
+     * @return bool True if at least one response with a value exists for the instance. False, otherwise.
+     * @throws dml_exception
+     */
+    public static function has_responses($threesixtyid) {
+        global $DB;
+
+        $isnotempty = $DB->sql_isnotempty('threesixo_response', 'value', true, true);
+        $select = "threesixo = :threesixo AND value IS NOT NULL AND $isnotempty";
+
+        return $DB->record_exists_select('threesixo_response', $select, ['threesixo' => $threesixtyid]);
+    }
+
+    /**
+     * Checks that the questionnaire's items can still be modified, throwing an exception when they cannot.
+     *
+     * @param int $threesixtyid The 360 instance ID.
+     * @return void
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    protected static function require_items_modifiable($threesixtyid) {
+        if (self::has_responses($threesixtyid)) {
+            throw new moodle_exception('cannotmodifyitemswithresponses', 'mod_threesixo');
+        }
     }
 
     /**
