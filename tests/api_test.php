@@ -19,6 +19,7 @@ namespace mod_threesixo;
 use advanced_testcase;
 use DateTime;
 use mod_threesixo_generator;
+use moodle_exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -592,5 +593,272 @@ final class api_test extends advanced_testcase {
         // Nothing was changed.
         $this->assertCount(2, api::get_items($threesixo->id));
         $this->assertEquals($first->position, api::get_item_by_id($first->id)->position);
+    }
+
+    /**
+     * Test the rating scale offered to respondents.
+     */
+    public function test_get_scales(): void {
+        $scales = api::get_scales();
+
+        // Every rating from "N/A" up to the maximum is offered, exactly once.
+        $values = array_column($scales, 'scale');
+        sort($values);
+        $this->assertSame(range(api::RATING_NA, api::RATING_MAX), $values);
+
+        // Each one carries a label and its own description.
+        $descriptions = [];
+        foreach ($scales as $scale) {
+            $this->assertNotEmpty($scale->scalelabel);
+            $this->assertNotEmpty($scale->description);
+            $descriptions[] = $scale->description;
+        }
+        $this->assertCount(count($scales), array_unique($descriptions));
+    }
+
+    /**
+     * Test the list of question types offered when writing a question.
+     */
+    public function test_get_question_types(): void {
+        $this->assertSame([
+            api::QTYPE_RATED => get_string('qtyperated', 'mod_threesixo'),
+            api::QTYPE_COMMENT => get_string('qtypecomment', 'mod_threesixo'),
+        ], api::get_question_types());
+    }
+
+    /**
+     * Test that an instance reports whether it has any questions.
+     */
+    public function test_has_items(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $threesixo = $this->getDataGenerator()->create_module('threesixo', ['course' => $course->id], [
+            'ratedquestions' => ['R1'],
+            'commentquestions' => [],
+        ]);
+        $this->assertTrue(api::has_items($threesixo->id));
+
+        api::set_items($threesixo->id, []);
+        $this->assertFalse(api::has_items($threesixo->id));
+    }
+
+    /**
+     * Test that an instance is only ready once it has questions and has been made available.
+     */
+    public function test_is_ready(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $threesixo = $this->getDataGenerator()->create_module('threesixo', ['course' => $course->id], [
+            'ratedquestions' => ['R1'],
+            'commentquestions' => [],
+        ]);
+
+        // The generator makes the instance available, so it starts out ready.
+        $this->assertTrue(api::is_ready($threesixo->id));
+
+        // Without questions it cannot be ready, whatever its status says.
+        api::set_items($threesixo->id, []);
+        $this->assertFalse(api::is_ready($threesixo->id));
+
+        // With questions but not yet made available, it is still not ready.
+        $questionid = api::add_question((object) ['question' => 'R1', 'type' => api::QTYPE_RATED]);
+        api::set_items($threesixo->id, [$questionid]);
+        $DB->set_field('threesixo', 'status', api::INSTANCE_NOT_READY, ['id' => $threesixo->id]);
+        $this->assertFalse(api::is_ready($threesixo->id));
+
+        api::make_ready($threesixo->id);
+        $this->assertTrue(api::is_ready($threesixo->id));
+
+        // An instance object can be passed instead of an ID, and its status is used when it carries one.
+        $instance = api::get_instance($threesixo->id);
+        $this->assertTrue(api::is_ready($instance));
+    }
+
+    /**
+     * Test releasing the feedback reports of a manually released instance.
+     */
+    public function test_toggle_released_flag(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $threesixo = $this->getDataGenerator()->create_module('threesixo', [
+            'course' => $course->id,
+            'releasing' => api::RELEASING_MANUAL,
+        ], ['ratedquestions' => ['R1'], 'commentquestions' => []]);
+
+        $instance = api::get_instance($threesixo->id);
+        $this->assertTrue(api::toggle_released_flag($instance, 1));
+        $this->assertEquals(1, $DB->get_field('threesixo', 'released', ['id' => $threesixo->id]));
+
+        $this->assertTrue(api::toggle_released_flag($instance, 0));
+        $this->assertEquals(0, $DB->get_field('threesixo', 'released', ['id' => $threesixo->id]));
+    }
+
+    /**
+     * Test that only the values 0 and 1 are accepted when releasing reports.
+     */
+    public function test_toggle_released_flag_invalid_value(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $threesixo = $this->getDataGenerator()->create_module('threesixo', [
+            'course' => $course->id,
+            'releasing' => api::RELEASING_MANUAL,
+        ], ['ratedquestions' => ['R1'], 'commentquestions' => []]);
+
+        $this->expectException(moodle_exception::class);
+        api::toggle_released_flag(api::get_instance($threesixo->id), 2);
+    }
+
+    /**
+     * Test that reports cannot be released for an instance that is not manually released.
+     */
+    public function test_toggle_released_flag_wrong_releasing_mode(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $threesixo = $this->getDataGenerator()->create_module('threesixo', [
+            'course' => $course->id,
+            'releasing' => api::RELEASING_OPEN,
+        ], ['ratedquestions' => ['R1'], 'commentquestions' => []]);
+
+        $this->expectException(moodle_exception::class);
+        api::toggle_released_flag(api::get_instance($threesixo->id), 1);
+    }
+
+    /**
+     * Test counting the participants still awaiting feedback from a respondent.
+     */
+    public function test_count_users_awaiting_feedback(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+
+        $course = $generator->create_course();
+        $students = [];
+        for ($i = 0; $i < 3; $i++) {
+            $students[$i] = $generator->create_user();
+            $generator->enrol_user($students[$i]->id, $course->id, 'student');
+        }
+        $threesixo = $generator->create_module('threesixo', ['course' => $course->id], [
+            'ratedquestions' => ['R1'],
+            'commentquestions' => [],
+        ]);
+
+        // The submission records are generated on the first count, one per other participant.
+        $this->setUser($students[0]);
+        $this->assertEquals(2, api::count_users_awaiting_feedback($threesixo->id, $students[0]->id));
+
+        // Completing one of them leaves one outstanding.
+        $submission = api::get_submission_by_params($threesixo->id, $students[0]->id, $students[1]->id);
+        api::set_completion($submission->id, api::STATUS_COMPLETE);
+        $this->assertEquals(1, api::count_users_awaiting_feedback($threesixo->id, $students[0]->id));
+
+        // Declining the other one leaves none.
+        $submission = api::get_submission_by_params($threesixo->id, $students[0]->id, $students[2]->id);
+        api::set_completion($submission->id, api::STATUS_DECLINED);
+        $this->assertEquals(0, api::count_users_awaiting_feedback($threesixo->id, $students[0]->id));
+    }
+
+    /**
+     * Test declining to give feedback, and that it discards anything already answered.
+     */
+    public function test_decline_feedback(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+
+        $course = $generator->create_course();
+        $s1 = $generator->create_user();
+        $s2 = $generator->create_user();
+        $generator->enrol_user($s1->id, $course->id, 'student');
+        $generator->enrol_user($s2->id, $course->id, 'student');
+        $threesixo = $generator->create_module('threesixo', ['course' => $course->id], [
+            'ratedquestions' => ['R1'],
+            'commentquestions' => ['C1'],
+        ]);
+
+        api::generate_360_feedback_statuses($threesixo->id, $s1->id);
+        $items = api::get_items($threesixo->id);
+        $responses = [];
+        foreach ($items as $item) {
+            $responses[$item->id] = $item->type == api::QTYPE_RATED ? 5 : 'Some feedback';
+        }
+
+        $this->setUser($s1);
+        api::save_responses($threesixo->id, $s2->id, $responses);
+        $submission = api::get_submission_by_params($threesixo->id, $s1->id, $s2->id);
+        $this->assertNotEmpty(api::get_responses($threesixo->id, $s1->id, $s2->id));
+
+        $this->assertTrue((bool) api::decline_feedback($submission->id, 'Not working with them'));
+
+        $submission = api::get_submission($submission->id);
+        $this->assertEquals(api::STATUS_DECLINED, $submission->status);
+        $this->assertSame('Not working with them', $submission->remarks);
+        $this->assertEmpty(api::get_responses($threesixo->id, $s1->id, $s2->id));
+    }
+
+    /**
+     * Test the capability checks around managing questions and questionnaire items.
+     */
+    public function test_capability_checks(): void {
+        $this->resetAfterTest();
+        $generator = $this->getDataGenerator();
+
+        $course = $generator->create_course();
+        $teacher = $generator->create_user();
+        $otherteacher = $generator->create_user();
+        $student = $generator->create_user();
+        $generator->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $generator->enrol_user($otherteacher->id, $course->id, 'editingteacher');
+        $generator->enrol_user($student->id, $course->id, 'student');
+
+        $this->setAdminUser();
+        $threesixo = $generator->create_module('threesixo', ['course' => $course->id], [
+            'ratedquestions' => ['R1'],
+            'commentquestions' => [],
+        ]);
+
+        // A teacher can edit the questionnaire's items, a student cannot.
+        $this->setUser($teacher);
+        $this->assertTrue(api::can_edit_items($threesixo->id));
+        $this->setUser($student);
+        $this->assertFalse(api::can_edit_items($threesixo->id));
+
+        // A question belongs to whoever wrote it. The two checks read the author differently: can_edit_others_question()
+        // asks whether the question belongs to somebody else, so it is false for the author, while
+        // can_delete_others_question() answers for the question at hand and lets the author delete their own.
+        $this->setUser($teacher);
+        $questionid = api::add_question((object) ['question' => 'Teacher question', 'type' => api::QTYPE_RATED]);
+        $question = api::get_question($questionid);
+        $this->assertFalse(api::can_edit_others_question($question));
+        $this->assertTrue(api::can_delete_others_question($question));
+
+        // Both capabilities are site level, so another editing teacher on the course does not hold them and cannot
+        // manage somebody else's question. Neither can a student.
+        $this->setUser($otherteacher);
+        $this->assertFalse(api::can_edit_others_question($question));
+        $this->assertFalse(api::can_delete_others_question($question));
+        $this->setUser($student);
+        $this->assertFalse(api::can_edit_others_question($question));
+        $this->assertFalse(api::can_delete_others_question($question));
+
+        // An administrator can manage anyone's questions.
+        $this->setAdminUser();
+        $this->assertTrue(api::can_edit_others_question($question));
+        $this->assertTrue(api::can_delete_others_question($question));
     }
 }
