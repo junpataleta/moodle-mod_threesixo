@@ -70,7 +70,17 @@ class backup_threesixo_activity_structure_step extends backup_activity_structure
         $threesixo->set_source_table('threesixo', ['id' => backup::VAR_ACTIVITYID]);
 
         $item->set_source_table('threesixo_item', ['threesixo' => backup::VAR_PARENTID], 'id ASC');
-        $question->set_source_table('threesixo_question', [], 'id ASC');
+
+        // Only back up the questions this instance actually uses. The question bank is shared site-wide, so
+        // backing up the whole table would put every other author's questions into the backup file and add
+        // them to the question bank of whichever site the backup is restored on.
+        $question->set_source_sql('
+                SELECT DISTINCT q.id, q.question, q.type
+                  FROM {threesixo_question} q
+                  JOIN {threesixo_item} i
+                    ON i.question = q.id
+                 WHERE i.threesixo = ?
+              ORDER BY q.id ASC', [backup::VAR_PARENTID]);
 
         // All the rest of elements only happen if we are including user info.
         if ($userinfo) {
