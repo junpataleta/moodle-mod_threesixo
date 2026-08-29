@@ -1,0 +1,92 @@
+name: Release
+
+# Publishes the CHANGELOG.md section for a tag as that tag's GitHub release notes.
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Extract the changelog section for this tag
+        run: |
+          set -euo pipefail
+
+          # Match the heading literally, so that the dots in a tag such as v5.1.1 are not treated as wildcards
+          # and cannot match a different release's heading. Stop at the next '## ' heading of any kind, so a
+          # section cannot run on into a non-release heading such as 'Earlier releases'.
+          awk -v heading="## [${GITHUB_REF_NAME}]" '
+            index($0, heading) == 1 { found = 1; next }
+            found && /^## /         { exit }
+            found                   { print }
+          ' CHANGELOG.md > section.md
+
+          # Trim the blank lines left at either end of the extracted section.
+          trim() { awk 'NF {p = 1} p' | tac | awk 'NF {p = 1} p' | tac; }
+          trim < section.md > section.trimmed && mv section.trimmed section.md
+
+          if [ ! -s section.md ]; then
+            echo "::error::No CHANGELOG.md section found for ${GITHUB_REF_NAME}."
+            echo "::error::Add a '## [${GITHUB_REF_NAME}] - YYYY-MM-DD' heading before tagging."
+            exit 1
+          fi
+
+          # The first line is the release's one-line summary, and becomes the GitHub release title. If the
+          # section opens with a heading or a list instead, there is no summary, so fall back to the tag alone
+          # and keep every line as the body.
+          FIRST_LINE="$(head -n 1 section.md)"
+          case "$FIRST_LINE" in
+            '#'*|'-'*|'*'*|'_'*)
+              echo "RELEASE_TITLE=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+              cp section.md release-notes.md
+              ;;
+            *)
+              echo "RELEASE_TITLE=${GITHUB_REF_NAME}: ${FIRST_LINE}" >> "$GITHUB_ENV"
+              tail -n +2 section.md | trim > release-notes.md
+              # A section that is nothing but its summary would leave the release with an empty body, so keep
+              # the summary as the body as well.
+              if [ ! -s release-notes.md ]; then
+                printf '%s\n' "$FIRST_LINE" > release-notes.md
+              fi
+              ;;
+          esac
+
+          echo "Release notes for ${GITHUB_REF_NAME}:"
+          cat release-notes.md
+
+      - name: Create or update the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          # Look the release up in the listing rather than with "gh release view". Getting a release by tag
+          # returns published releases only, so a draft from an earlier run of this workflow would not be
+          # found and a second draft would be created for the same tag. Listings do include drafts for users
+          # with push access.
+          if gh release list --limit 200 --json tagName --jq '.[].tagName' \
+              | grep -Fxq "${GITHUB_REF_NAME}"; then
+            # Only the title and notes are updated. The draft or published state is deliberately left alone:
+            # passing --draft here would unpublish an already released version.
+            gh release edit "${GITHUB_REF_NAME}" \
+              --title "${RELEASE_TITLE}" \
+              --notes-file release-notes.md
+            echo "Updated the existing release for ${GITHUB_REF_NAME}."
+          else
+            # Created as a draft, so that publishing stays a manual step. gh prints the release URL.
+            URL="$(gh release create "${GITHUB_REF_NAME}" \
+              --draft \
+              --title "${RELEASE_TITLE}" \
+              --notes-file release-notes.md)"
+            echo "Created a draft release for ${GITHUB_REF_NAME}. Review it and publish when ready:"
+            echo "${URL}"
+          fi
