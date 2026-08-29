@@ -26,6 +26,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use restore_controller;
 use stdClass;
 
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+// Required at file scope: the backup and restore classes live in legacy .class.php files that the autoloader
+// does not map, and PHPUnit resolves this file's coverage targets before any test method runs.
+require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+
 /**
  * Tests for how the shared question bank is handled by backup and restore.
  *
@@ -33,7 +40,9 @@ use stdClass;
  * @copyright  2026 Jun Pataleta
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\backup_threesixo_activity_task::class)]
 #[CoversClass(\backup_threesixo_activity_structure_step::class)]
+#[CoversClass(\restore_threesixo_activity_task::class)]
 #[CoversClass(\restore_threesixo_activity_structure_step::class)]
 final class backup_restore_questions_test extends advanced_testcase {
     /**
@@ -160,8 +169,7 @@ final class backup_restore_questions_test extends advanced_testcase {
      */
     #[DataProvider('orphaned_question_provider')]
     public function test_restore_recreates_orphaned_question(bool $withuserdata): void {
-        global $CFG, $DB;
-        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+        global $DB;
 
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -240,8 +248,7 @@ final class backup_restore_questions_test extends advanced_testcase {
      * owns the question the restored instance ends up pointing at.
      */
     public function test_restore_matches_oldest_duplicate_question(): void {
-        global $CFG, $DB;
-        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+        global $DB;
 
         $this->resetAfterTest();
         $this->setAdminUser();
