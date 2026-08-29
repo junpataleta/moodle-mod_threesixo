@@ -82,7 +82,16 @@ class restore_threesixo_activity_structure_step extends restore_activity_structu
         // Check if the question already exists in the questions table.
         $newitemid = $DB->get_field('threesixo_question', 'id', ['question' => $data->question, 'type' => $data->type]);
         if (!$newitemid) {
-            // If it doesn't exist yet, create a new one.
+            // The question is no longer in the question bank: it was either deleted, or its text was edited
+            // since the backup was made, so it can no longer be matched. Recreate it, and give it to the user
+            // performing the restore. The original author is not recorded in the backup, and leaving the
+            // ownership fields at their default of 0 would produce a question that nobody owns, which only a
+            // user with the "edit/delete others' questions" capabilities could then manage.
+            $now = time();
+            $data->createdby = $this->task->get_userid();
+            $data->editedby = $data->createdby;
+            $data->timecreated = $now;
+            $data->timemodified = $now;
             $newitemid = $DB->insert_record('threesixo_question', $data);
         }
         $this->set_mapping('threesixo_question', $oldid, $newitemid);
