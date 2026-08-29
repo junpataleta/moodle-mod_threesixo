@@ -79,8 +79,13 @@ class restore_threesixo_activity_structure_step extends restore_activity_structu
         $data = (object)$data;
         $oldid = $data->id;
 
-        // Check if the question already exists in the questions table.
-        $newitemid = $DB->get_field('threesixo_question', 'id', ['question' => $data->question, 'type' => $data->type]);
+        // Check if the question already exists in the questions table. Nothing stops the same question from being
+        // contributed to the shared bank more than once, so match on the oldest of them rather than on whichever
+        // row the database happens to return first.
+        $newitemid = $DB->get_field_sql(
+            'SELECT MIN(id) FROM {threesixo_question} WHERE question = ? AND type = ?',
+            [$data->question, $data->type]
+        );
         if (!$newitemid) {
             // The question is no longer in the question bank: it was either deleted, or its text was edited
             // since the backup was made, so it can no longer be matched. Recreate it, and give it to the user

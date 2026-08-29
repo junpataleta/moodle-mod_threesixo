@@ -76,6 +76,68 @@ final class backup_restore_questions_test extends advanced_testcase {
     }
 
     /**
+     * Backs up a 360-degree feedback activity.
+     *
+     * @param stdClass $threesixo The instance to back up, as returned by the generator.
+     * @param int $userid The user performing the backup.
+     * @param bool|null $userdata Whether to force user data on or off. Null leaves the plan's defaults alone.
+     * @return string The ID of the resulting backup.
+     */
+    protected function backup_activity(stdClass $threesixo, int $userid, ?bool $userdata = null): string {
+        $bc = new backup_controller(
+            backup::TYPE_1ACTIVITY,
+            $threesixo->cmid,
+            backup::FORMAT_MOODLE,
+            backup::INTERACTIVE_NO,
+            backup::MODE_IMPORT,
+            $userid,
+            backup::RELEASESESSION_NO
+        );
+        if ($userdata !== null) {
+            $this->set_user_data($bc->get_plan()->get_settings(), $userdata);
+        }
+        $backupid = $bc->get_backupid();
+        $bc->execute_plan();
+        $bc->destroy();
+
+        return $backupid;
+    }
+
+    /**
+     * Restores a backup back into the course it came from.
+     *
+     * @param string $backupid The ID of the backup to restore.
+     * @param stdClass $threesixo The instance the backup was taken from, used to tell the restored copy apart.
+     * @param int $userid The user performing the restore.
+     * @param bool|null $userdata Whether to force user data on or off. Null leaves the plan's defaults alone.
+     * @return int The ID of the restored 360-degree feedback instance.
+     */
+    protected function restore_activity(string $backupid, stdClass $threesixo, int $userid, ?bool $userdata = null): int {
+        global $DB;
+
+        $rc = new restore_controller(
+            $backupid,
+            $threesixo->course,
+            backup::INTERACTIVE_NO,
+            backup::MODE_GENERAL,
+            $userid,
+            backup::TARGET_CURRENT_ADDING
+        );
+        if ($userdata !== null) {
+            $this->set_user_data($rc->get_plan()->get_settings(), $userdata);
+        }
+        $this->assertTrue($rc->execute_precheck());
+        $rc->execute_plan();
+        $rc->destroy();
+
+        return (int) $DB->get_field_sql(
+            'SELECT MAX(id) FROM {threesixo} WHERE course = :course AND id <> :orig',
+            ['course' => $threesixo->course, 'orig' => $threesixo->id],
+            MUST_EXIST
+        );
+    }
+
+    /**
      * Data provider for test_restore_recreates_orphaned_question.
      *
      * @return array
@@ -135,19 +197,7 @@ final class backup_restore_questions_test extends advanced_testcase {
         $this->assertGreaterThan(0, $DB->count_records('threesixo_submission', ['threesixo' => $threesixo->id]));
 
         // Back up the activity.
-        $bc = new backup_controller(
-            backup::TYPE_1ACTIVITY,
-            $threesixo->cmid,
-            backup::FORMAT_MOODLE,
-            backup::INTERACTIVE_NO,
-            backup::MODE_IMPORT,
-            $restorer->id,
-            backup::RELEASESESSION_NO
-        );
-        $this->set_user_data($bc->get_plan()->get_settings(), $withuserdata);
-        $backupid = $bc->get_backupid();
-        $bc->execute_plan();
-        $bc->destroy();
+        $backupid = $this->backup_activity($threesixo, $restorer->id, $withuserdata);
 
         // Only the two questions used by the instance belong in the backup.
         $files = glob(make_backup_temp_directory($backupid) . '/activities/threesixo_*/threesixo.xml');
@@ -164,24 +214,7 @@ final class backup_restore_questions_test extends advanced_testcase {
 
         // Restoring must rebuild the questionnaire regardless of whether user data is included.
         $this->setUser($restorer);
-        $rc = new restore_controller(
-            $backupid,
-            $course->id,
-            backup::INTERACTIVE_NO,
-            backup::MODE_GENERAL,
-            $restorer->id,
-            backup::TARGET_CURRENT_ADDING
-        );
-        $this->set_user_data($rc->get_plan()->get_settings(), $withuserdata);
-        $this->assertTrue($rc->execute_precheck());
-        $rc->execute_plan();
-        $rc->destroy();
-
-        $newinstanceid = (int) $DB->get_field_sql(
-            'SELECT MAX(id) FROM {threesixo} WHERE course = :course AND id <> :orig',
-            ['course' => $course->id, 'orig' => $threesixo->id],
-            MUST_EXIST
-        );
+        $newinstanceid = $this->restore_activity($backupid, $threesixo, $restorer->id, $withuserdata);
         $this->assertCount(2, api::get_items($newinstanceid));
 
         // The deleted questions are recreated, and owned by the user who restored them.
@@ -197,5 +230,55 @@ final class backup_restore_questions_test extends advanced_testcase {
         } else {
             $this->assertEquals(0, $submissions);
         }
+    }
+
+    /**
+     * Test restoring an instance whose question is in the shared question bank more than once.
+     *
+     * Nothing stops two authors from contributing the same question, so the restore has to settle on one of the
+     * duplicates. It takes the oldest rather than leaving the choice to the database, which is what decides who
+     * owns the question the restored instance ends up pointing at.
+     */
+    public function test_restore_matches_oldest_duplicate_question(): void {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+
+        $course = $generator->create_course();
+        $author = $generator->create_user();
+        $duplicator = $generator->create_user();
+        $generator->enrol_user($author->id, $course->id, 'editingteacher');
+        $generator->enrol_user($duplicator->id, $course->id, 'editingteacher');
+
+        $conditions = ['question' => 'Shared rated question', 'type' => api::QTYPE_RATED];
+
+        $this->setUser($author);
+        $questionid = api::add_question((object) $conditions);
+        $threesixo = $generator->create_module('threesixo', ['course' => $course->id]);
+        api::set_items($threesixo->id, [$questionid]);
+
+        $backupid = $this->backup_activity($threesixo, $author->id);
+
+        // A second teacher independently contributes the very same question to the shared bank.
+        $this->setUser($duplicator);
+        $duplicateid = api::add_question((object) $conditions);
+        $this->assertGreaterThan($questionid, $duplicateid);
+        $this->assertEquals(2, $DB->count_records('threesixo_question', $conditions));
+
+        $newinstanceid = $this->restore_activity($backupid, $threesixo, $duplicator->id);
+
+        // The question is matched rather than recreated, so the bank is left as it was.
+        $this->assertEquals(2, $DB->count_records('threesixo_question', $conditions));
+
+        // Of the two, the restored instance uses the one that was there first.
+        $items = api::get_items($newinstanceid);
+        $this->assertCount(1, $items);
+        $this->assertEquals($questionid, reset($items)->questionid);
+
+        // Matching a question that appears more than once must not report a database error.
+        $this->assertDebuggingNotCalled();
     }
 }
