@@ -17,10 +17,13 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-Fixes to how shared questions are handled when an activity is backed up and restored.
+Fixes to how shared questions are handled when an activity is backed up and restored, and to how the
+feedback report is read out.
 
 ### Fixed
 
+- Screen readers announce what each bar on the feedback report measures. The bars carried the average
+  rating but no name, so they were read out as an unlabelled progress bar.
 - Backups now contain only the questions the activity actually uses. Previously a backup included every
   question on the site, and restoring it added them all to the target site's question bank.
 - If a question has been deleted from the question bank since the backup was made, the restore recreates it and

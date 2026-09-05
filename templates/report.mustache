@@ -80,7 +80,7 @@
         <ul class="list-group list-group-flush">
             {{#ratings}}
                 <li class="list-group-item">
-                    <p class="card-text">
+                    <p class="card-text" id="question-{{id}}">
                         <strong>{{question}}</strong>
                     </p>
                     {{#averagerating}}
@@ -92,7 +92,7 @@
                             </div>
                             <div class="col-9">
                                 <div class="progress">
-                                    <div class="progress-bar" role="progressbar" style="width: {{progresspercentage}}%" aria-valuenow="{{progresspercentage}}" aria-valuemin="0" aria-valuemax="100" aria-describedby="item-{{id}}"></div>
+                                    <div class="progress-bar" role="progressbar" style="width: {{progresspercentage}}%" aria-valuenow="{{progresspercentage}}" aria-valuemin="0" aria-valuemax="100" aria-labelledby="question-{{id}}" aria-describedby="item-{{id}}"></div>
                                 </div>
                             </div>
                         </div>
