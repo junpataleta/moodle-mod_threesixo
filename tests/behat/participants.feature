@@ -183,3 +183,26 @@ Feature: Check the participants list of a 360-degree feedback instance in variou
     And I should see "Student 3" in the "participants" "table"
     But I should not see "Student 1" in the "participants" "table"
     And I should not see "Student 4" in the "participants" "table"
+
+  # The whole page assertion uses the standard tag set. The best-practice rules are asserted over the
+  # plugin's own markup only, because theme_boost's course index drawer heading and activity header fail
+  # the "region" rule on every page in the site and would drown out anything found here.
+  @javascript @accessibility
+  Scenario: The participants list meets accessibility standards
+    Given the following "activities" exist:
+      | activity  | name          | intro            | course | idnumber | with_self_review | participantrolename | anonymous |
+      | threesixo | Team feedback | Test description | C1     | review1  | 0                | student             | 1         |
+    When I am on the "review1" activity page logged in as "student1"
+    Then the page should meet accessibility standards
+    And the "#participants" "css_element" should meet accessibility standards with "best-practice" extra tests
+
+  # The decline dialogue has no other coverage, and a dialogue is the kind of surface where a missing
+  # label or an unlabelled close button goes unnoticed. The pointer rests on the action that opened it.
+  @javascript @accessibility
+  Scenario: The dialogue for declining to give feedback meets accessibility standards
+    Given the following "activities" exist:
+      | activity  | name          | intro            | course | idnumber | with_self_review | participantrolename | anonymous |
+      | threesixo | Team feedback | Test description | C1     | review1  | 0                | student             | 1         |
+    And I am on the "review1" activity page logged in as "student1"
+    When I click on "Decline" "link" in the "Student 2" "table_row"
+    Then the "Decline feedback" "dialogue" should meet accessibility standards
