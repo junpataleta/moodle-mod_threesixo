@@ -60,7 +60,7 @@
     }
 }}
 <div class="card">
-    <div class="card-block p-1">
+    <div class="card-body p-1">
         <div class="row m-0">
             <div class="col-6 text-start">
                 {{#userselect}}{{> core/url_select }}{{/userselect}}
@@ -76,7 +76,7 @@
     <div class="card-header">
         <h4>{{#str}}ratings, mod_threesixo{{/str}}</h4>
     </div>
-    <div class="card-block">
+    <div class="card-body">
         <ul class="list-group list-group-flush">
             {{#ratings}}
                 <li class="list-group-item">
@@ -92,7 +92,7 @@
                             </div>
                             <div class="col-9">
                                 <div class="progress">
-                                    <div class="progress-bar bar" role="progressbar" style="width: {{progresspercentage}}%" aria-valuenow="{{progresspercentage}}" aria-valuemin="0" aria-valuemax="100" aria-describedby="item-{{id}}"></div>
+                                    <div class="progress-bar" role="progressbar" style="width: {{progresspercentage}}%" aria-valuenow="{{progresspercentage}}" aria-valuemin="0" aria-valuemax="100" aria-describedby="item-{{id}}"></div>
                                 </div>
                             </div>
                         </div>
@@ -109,7 +109,7 @@
     <div class="card-header">
         <h4>{{#str}}comments, mod_threesixo{{/str}}</h4>
     </div>
-    <div class="card-block">
+    <div class="card-body">
         {{#commentitems}}
             <ul class="list-group list-group-flush">
                 <li class="list-group-item">

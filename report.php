@@ -71,7 +71,7 @@ $userheading = [
     'usercontext' => context_user::instance($touserid),
 ];
 $contextheader = $OUTPUT->context_header($userheading, 3);
-echo html_writer::div($contextheader, 'card card-block p-1');
+echo html_writer::div($contextheader, 'card card-body p-1');
 
 // Download format options.
 $downloadformats = [];
