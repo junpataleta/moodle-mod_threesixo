@@ -6,15 +6,23 @@
 }
 
 /* Focus outline for the rating option's radio button label. */
+/* The theme's emphasis colour inverts with the colour mode, so the outline stays visible in both. */
+/* A hardcoded colour cannot: black scored 1.83:1 against the dark mode card it was drawn on. */
+/* The fallback only applies if the variable is ever undefined, which would leave the whole shorthand */
+/* invalid and draw no outline at all. It is the light value, since a theme without the variable has */
+/* no colour mode to follow. */
 .threesixo_rating_option:focus + span.scaleoptionlabel {
-    outline: .2rem solid #000;
-    box-shadow: inset 0 0 0 2px #fff;
+    outline: .2rem solid var(--bs-emphasis-color, #000);
 }
 
 /* Highlight for rating questions left unanswered when the user tries to finalise their feedback. */
 /* Only the border is themed, so that the question text keeps the theme's own colours and contrast. */
+/* The emphasis variant of the danger colour is the one the theme redefines per colour mode, so it is */
+/* the only one that clears 3:1 against the card in both. The fallback carries the light value for the */
+/* same reason as the outline above: without it, an undefined variable would invalidate the shorthand */
+/* and leave the question with no highlight at all. */
 [data-region="question-item"].threesixo-unanswered {
-    border-inline-start: .25rem solid var(--danger, #d9534f);
+    border-inline-start: .25rem solid var(--bs-danger-text-emphasis, #51140d);
     border-radius: .25rem;
     padding-top: .5rem;
     padding-bottom: .5rem;
