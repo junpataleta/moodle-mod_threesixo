@@ -84,3 +84,21 @@ Feature: Provide a feedback to a participant
     When I click on "Provide feedback" "link" in the "Student 2" "table_row"
     Then the page should meet accessibility standards
     And the "[data-region=questionnaire]" "css_element" should meet accessibility standards with "best-practice" extra tests
+
+  # The highlight is added by JavaScript after a failed finalise rather than rendered with the page, so
+  # it is the one state on the questionnaire that no other scenario leaves axe to look at. Its border
+  # colour is not asserted here: axe has no rule for the non-text contrast of a border, so that is
+  # covered by the measurements recorded in the commit that changed it.
+  @accessibility
+  Scenario: The questionnaire meets accessibility standards with unanswered rating questions highlighted
+    Given the following "activities" exist:
+      | activity  | name          | intro            | course | idnumber | with_self_review | participantrolename | anonymous |
+      | threesixo | Team feedback | Test description | C1     | review1  | 0                | student             | 1         |
+    And I am on the "review1" activity page logged in as "student1"
+    And I click on "Provide feedback" "link" in the "Student 2" "table_row"
+    And I click on "Strongly agree" "radio" in the "Treats co-workers with courtesy and respect" "fieldset"
+    And I press "Submit"
+    When I click on "Review questions" "button" in the "Unanswered questions" "dialogue"
+    Then the "aria-invalid" attribute of "Has a positive attitude." "fieldset" should contain "true"
+    And the "aria-invalid" attribute of "Treats co-workers with courtesy and respect" "fieldset" should not be set
+    And the page should meet accessibility standards
