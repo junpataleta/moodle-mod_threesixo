@@ -25,6 +25,9 @@ report is read out, and to the colours the questionnaire uses in dark mode.
 - The questionnaire is legible in dark mode. The outline marking which rating option has the keyboard focus
   was drawn in black, and the highlight on a question left unanswered in a fixed red, so both were close to
   invisible against a dark background. They now follow the colour the theme defines for the current mode.
+- The list of unanswered rating questions can be scrolled with the keyboard. The dialogue that warns about
+  them scrolls once the list is long enough, and nothing in it could take focus, so the questions past the
+  first few could not be reached.
 - Screen readers announce what each bar on the feedback report measures. The bars carried the average
   rating but no name, so they were read out as an unlabelled progress bar.
 - Backups now contain only the questions the activity actually uses. Previously a backup included every

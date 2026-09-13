@@ -277,7 +277,11 @@ const showIncompleteDialogue = async(threesixtyId, toUser, unanswered) => {
     ]);
 
     // Build the list of unanswered questions. Use textContent so that the question text is escaped.
+    // Core makes every modal body scrollable, so a long list of questions scrolls with nothing in it to
+    // tab to, leaving a keyboard user no way to reach the rest. Making the list itself focusable gives
+    // the scrollable region a way in.
     const list = document.createElement('ul');
+    list.tabIndex = 0;
     unanswered.forEach(item => {
         const listItem = document.createElement('li');
         listItem.textContent = getQuestionText(item);
