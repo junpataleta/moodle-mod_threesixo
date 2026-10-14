@@ -60,6 +60,7 @@ $string['errorcannoteditothersquestion'] = 'You cannot edit questions created by
 $string['errorcannotparticipate'] = 'You cannot participate in this 360° feedback activity.';
 $string['errorcannotprovidefeedbacktouser'] = 'You cannot provide feedback for this user.';
 $string['errorcannotupdateitem'] = 'Cannot update the 360° feedback item.';
+$string['errorcannotviewotherresponses'] = 'You cannot view the feedback responses given by another user.';
 $string['errorinvaliditem'] = 'Invalid item';
 $string['errorinvalidratingvalue'] = 'Invalid rating response value: {$a}';
 $string['errorinvalidstatus'] = 'Invalid status';

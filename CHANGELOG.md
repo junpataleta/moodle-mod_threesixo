@@ -12,7 +12,12 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-Fixes to how shared questions are handled when an activity is backed up and restored.
+Fixes to how shared questions are handled when an activity is backed up and restored, and a change to how
+saved answers are loaded into the questionnaire.
+
+### Changed
+
+- The questionnaire now loads back only the answers of the person filling it in.
 
 ### Fixed
 
