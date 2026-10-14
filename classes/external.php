@@ -1083,6 +1083,8 @@ class external extends external_api {
      * @throws restricted_context_exception
      */
     public static function get_responses($threesixtyid, $fromuserid, $touserid) {
+        global $USER;
+
         $warnings = [];
 
         $cm = get_coursemodule_from_instance('threesixo', $threesixtyid);
@@ -1101,6 +1103,11 @@ class external extends external_api {
         $threesixtyid = $params['threesixtyid'];
         $fromuserid = $params['fromuserid'];
         $touserid = $params['touserid'];
+
+        // This method serves the questionnaire, which only ever loads back the answers of the user filling it in.
+        if ($fromuserid != $USER->id) {
+            throw new moodle_exception('errorcannotviewotherresponses', 'mod_threesixo');
+        }
 
         $responses = api::get_responses($threesixtyid, $fromuserid, $touserid);
 

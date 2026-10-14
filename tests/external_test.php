@@ -436,4 +436,88 @@ final class external_test extends advanced_testcase {
 
         throw new \coding_exception('Unknown item action: ' . $action);
     }
+
+    /**
+     * A respondent can load their own responses back into the questionnaire.
+     *
+     * @covers ::get_responses
+     * @runInSeparateProcess
+     */
+    public function test_get_responses_own(): void {
+        $this->resetAfterTest();
+        [$threesixo, $s1, $s2] = $this->setup_feedback_instance(false);
+
+        $responses = [];
+        foreach (api::get_items($threesixo->id) as $item) {
+            $responses[] = [
+                'item' => (int) $item->id,
+                'value' => $item->type == api::QTYPE_RATED ? '5' : 'My private comment',
+            ];
+        }
+
+        $this->setUser($s1);
+        external::save_responses($threesixo->id, $s2->id, $responses, false);
+
+        $result = external::get_responses($threesixo->id, $s1->id, $s2->id);
+        $this->assertCount(count($responses), $result['responses']);
+    }
+
+    /**
+     * The responses given by a respondent are only ever returned to that respondent.
+     *
+     * @covers ::get_responses
+     * @runInSeparateProcess
+     */
+    public function test_get_responses_of_another_user(): void {
+        $this->resetAfterTest();
+        [$threesixo, $s1, $s2] = $this->setup_feedback_instance(false);
+
+        // Another participant of the same activity.
+        $generator = $this->getDataGenerator();
+        $another = $generator->create_user();
+        $generator->enrol_user($another->id, $threesixo->course, 'student');
+
+        $responses = [];
+        foreach (api::get_items($threesixo->id) as $item) {
+            $responses[] = [
+                'item' => (int) $item->id,
+                'value' => $item->type == api::QTYPE_RATED ? '5' : 'My private comment',
+            ];
+        }
+
+        $this->setUser($s1);
+        external::save_responses($threesixo->id, $s2->id, $responses, false);
+
+        $this->setUser($another);
+        $this->expectException(moodle_exception::class);
+        $this->expectExceptionMessage(get_string('errorcannotviewotherresponses', 'mod_threesixo'));
+        external::get_responses($threesixo->id, $s1->id, $s2->id);
+    }
+
+    /**
+     * The subject of the feedback is not the respondent, so they do not get the responses back either.
+     *
+     * @covers ::get_responses
+     * @runInSeparateProcess
+     */
+    public function test_get_responses_about_self(): void {
+        $this->resetAfterTest();
+        [$threesixo, $s1, $s2] = $this->setup_feedback_instance(false);
+
+        $responses = [];
+        foreach (api::get_items($threesixo->id) as $item) {
+            $responses[] = [
+                'item' => (int) $item->id,
+                'value' => $item->type == api::QTYPE_RATED ? '5' : 'My private comment',
+            ];
+        }
+
+        $this->setUser($s1);
+        external::save_responses($threesixo->id, $s2->id, $responses, false);
+
+        $this->setUser($s2);
+        $this->expectException(moodle_exception::class);
+        $this->expectExceptionMessage(get_string('errorcannotviewotherresponses', 'mod_threesixo'));
+        external::get_responses($threesixo->id, $s1->id, $s2->id);
+    }
 }
