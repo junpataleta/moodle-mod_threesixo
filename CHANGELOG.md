@@ -10,10 +10,9 @@ the plugin's full release history.
 Each release starts with a one-line summary, which is also used as the title of its GitHub release. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [v5.0.3] - 2026-10-17
 
-Fixes to how shared questions are handled when an activity is backed up and restored, and a change to how
-saved answers are loaded into the questionnaire.
+Better handling of shared questions in backup and restore, and of saved questionnaire answers.
 
 ### Changed
 
