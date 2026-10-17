@@ -15,21 +15,20 @@ The maintenance branches document their own series only:
 Each release starts with a one-line summary, which is also used as the title of its GitHub release. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [v5.1.2] - 2026-10-17
 
-Fixes to how shared questions are handled when an activity is backed up and restored, to how the feedback
-report is read out, and to the colours the questionnaire uses in dark mode, plus a change to how saved answers
-are loaded into the questionnaire.
+Questionnaire colours from the theme, and fixes for the report read-out, backups and how saved answers load.
 
 ### Changed
 
 - The questionnaire now loads back only the answers of the person filling it in.
+- The questionnaire takes its own colours from the theme's Bootstrap custom properties instead of hardcoding
+  them. This covers the outline marking which rating option has the keyboard focus, and the highlight on a
+  question left unanswered. It also makes both compatible with the dark mode in Moodle 5.3, where the black
+  outline and the fixed red highlight were close to invisible against a dark background.
 
 ### Fixed
 
-- The questionnaire is legible in dark mode. The outline marking which rating option has the keyboard focus
-  was drawn in black, and the highlight on a question left unanswered in a fixed red, so both were close to
-  invisible against a dark background. They now follow the colour the theme defines for the current mode.
 - The list of unanswered rating questions can be scrolled with the keyboard. The dialogue that warns about
   them scrolls once the list is long enough, and nothing in it could take focus, so the questions past the
   first few could not be reached.
