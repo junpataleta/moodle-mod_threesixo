@@ -1053,21 +1053,30 @@ class api {
     public static function get_feedback_for_user($threesixtyid, $touser) {
         global $DB;
 
-        // Fetch responses that are from completed submissions.
+        $threesixty = self::get_instance($threesixtyid);
+
+        // Fetch only the responses from finalised submissions. Responses are anonymised when their submission is finalised,
+        // so those have no respondent left to match. The rest must come from the respondent's own completed submission.
         $params = [
             'threesixo' => $threesixtyid,
             'touser' => $touser,
             'status' => self::STATUS_COMPLETE,
         ];
         $sql = "
-            SELECT DISTINCT tr.id, tr.item, tr.fromuser, tr.fromuser, tr.value
-                       FROM {threesixo_response} tr
-                       JOIN {threesixo_submission} ts
-                         ON tr.threesixo = ts.threesixo
-                      WHERE tr.threesixo = :threesixo
-                            AND tr.touser = :touser
-                            AND ts.status = :status
-                   ORDER BY tr.item ASC";
+            SELECT tr.id, tr.item, tr.fromuser, tr.value
+              FROM {threesixo_response} tr
+             WHERE tr.threesixo = :threesixo
+                   AND tr.touser = :touser
+                   AND (tr.fromuser = 0
+                        OR EXISTS (
+                            SELECT 1
+                              FROM {threesixo_submission} ts
+                             WHERE ts.threesixo = tr.threesixo
+                                   AND ts.fromuser = tr.fromuser
+                                   AND ts.touser = tr.touser
+                                   AND ts.status = :status
+                        ))
+          ORDER BY tr.item ASC";
         $responses = $DB->get_records_sql($sql, $params);
 
         $items = self::get_items($threesixtyid);
@@ -1095,7 +1104,8 @@ class api {
                     if ($item->id != $response->item || empty($comment)) {
                         continue;
                     }
-                    if ($response->fromuser) {
+                    // Never name the respondent in an anonymous activity, even if the response still carries their ID.
+                    if ($response->fromuser && !$threesixty->anonymous) {
                         $fromuser = \core_user::get_user($response->fromuser);
                         $fromusername = fullname($fromuser);
                     } else {

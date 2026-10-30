@@ -15,6 +15,18 @@ The maintenance branches document their own series only:
 Each release starts with a one-line summary, which is also used as the title of its GitHub release. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+A fix to which answers the feedback report counts and whose names it shows.
+
+### Fixed
+
+- The feedback report and its download only count the answers of respondents who have finalised their feedback.
+  Saved but unfinalised answers were counted in the averages and listed among the comments as soon as anyone in the
+  activity had finalised theirs, and in anonymous activities those comments carried the respondent's name.
+- The feedback report no longer names respondents in an anonymous activity, including for answers finalised before
+  the activity was made anonymous.
+
 ## [v5.1.2] - 2026-10-17
 
 Questionnaire colours from the theme, and fixes for the report read-out, backups and how saved answers load.
