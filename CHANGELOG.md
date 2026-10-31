@@ -12,7 +12,10 @@ is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-A fix to which answers the feedback report counts and whose names it shows.
+The last v5.0.x release, with a fix to which answers the feedback report counts and whose names it shows.
+
+This is the last release for Moodle 5.0, which Moodle stopped supporting on 5 October 2026. To keep receiving fixes,
+upgrade to Moodle 5.1 or later and to the latest release of the plugin.
 
 ### Fixed
 
