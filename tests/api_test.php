@@ -812,6 +812,131 @@ final class api_test extends advanced_testcase {
     }
 
     /**
+     * Data provider for test_get_feedback_for_user().
+     *
+     * @return array
+     */
+    public static function get_feedback_for_user_provider(): array {
+        return [
+            'Non-anonymous feedback' => [false],
+            'Anonymous feedback' => [true],
+        ];
+    }
+
+    /**
+     * Test that the report only counts finalised feedback, and only names respondents when the activity is not anonymous.
+     *
+     * @param bool $anonymous Whether the instance is anonymous.
+     */
+    #[DataProvider('get_feedback_for_user_provider')]
+    public function test_get_feedback_for_user(bool $anonymous): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+
+        $course = $generator->create_course();
+        $recipient = $generator->create_user();
+        $finaliser = $generator->create_user();
+        $drafter = $generator->create_user();
+        foreach ([$recipient, $finaliser, $drafter] as $user) {
+            $generator->enrol_user($user->id, $course->id, 'student');
+        }
+        $threesixo = $generator->create_module('threesixo', ['course' => $course->id, 'anonymous' => $anonymous], [
+            'ratedquestions' => ['R1'],
+            'commentquestions' => ['C1'],
+        ]);
+
+        // One respondent finalises their feedback for the recipient.
+        $this->give_feedback($threesixo->id, $finaliser, $recipient, 4, 'Finalised comment', true);
+        // Another one has only saved a draft of theirs.
+        $this->give_feedback($threesixo->id, $drafter, $recipient, 1, 'Draft comment', false);
+
+        $items = api::get_feedback_for_user($threesixo->id, $recipient->id);
+        foreach ($items as $item) {
+            if ($item->type == api::QTYPE_RATED) {
+                // The draft rating is left out of the count and the average.
+                $this->assertEquals(1, $item->responsecount);
+                $this->assertEquals('4.00', $item->averagerating);
+            } else {
+                $this->assertCount(1, $item->comments);
+                $comment = reset($item->comments);
+                $this->assertEquals('Finalised comment', $comment->comment);
+                $expectedname = $anonymous ? get_string('anonymous', 'mod_threesixo') : fullname($finaliser);
+                $this->assertEquals($expectedname, $comment->fromuser);
+            }
+        }
+    }
+
+    /**
+     * Test that the report stops naming respondents once the activity is made anonymous.
+     */
+    public function test_get_feedback_for_user_made_anonymous(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator();
+
+        $course = $generator->create_course();
+        $recipient = $generator->create_user();
+        $respondent = $generator->create_user();
+        $generator->enrol_user($recipient->id, $course->id, 'student');
+        $generator->enrol_user($respondent->id, $course->id, 'student');
+        $threesixo = $generator->create_module('threesixo', ['course' => $course->id, 'anonymous' => 0], [
+            'ratedquestions' => ['R1'],
+            'commentquestions' => ['C1'],
+        ]);
+
+        // The feedback is finalised while the activity is not anonymous, so the responses keep the respondent's ID.
+        $this->give_feedback($threesixo->id, $respondent, $recipient, 4, 'Named comment', true);
+        $DB->set_field('threesixo', 'anonymous', 1, ['id' => $threesixo->id]);
+
+        $items = api::get_feedback_for_user($threesixo->id, $recipient->id);
+        foreach ($items as $item) {
+            if ($item->type == api::QTYPE_RATED) {
+                $this->assertEquals(1, $item->responsecount);
+            } else {
+                $this->assertCount(1, $item->comments);
+                $this->assertEquals(get_string('anonymous', 'mod_threesixo'), reset($item->comments)->fromuser);
+            }
+        }
+    }
+
+    /**
+     * Saves a respondent's answers to every item the way the questionnaire does, optionally finalising them.
+     *
+     * @param int $threesixtyid The 360-degree feedback ID.
+     * @param \stdClass $fromuser The respondent.
+     * @param \stdClass $touser The recipient of the feedback.
+     * @param int $rating The answer to the rated items.
+     * @param string $comment The answer to the comment items.
+     * @param bool $finalise Whether to finalise the submission.
+     */
+    protected function give_feedback(
+        int $threesixtyid,
+        \stdClass $fromuser,
+        \stdClass $touser,
+        int $rating,
+        string $comment,
+        bool $finalise
+    ): void {
+        api::generate_360_feedback_statuses($threesixtyid, $fromuser->id);
+        $responses = [];
+        foreach (api::get_items($threesixtyid) as $item) {
+            $responses[$item->id] = $item->type == api::QTYPE_RATED ? $rating : $comment;
+        }
+
+        $this->setUser($fromuser);
+        api::save_responses($threesixtyid, $touser->id, $responses);
+        if ($finalise) {
+            $submission = api::get_submission_by_params($threesixtyid, $fromuser->id, $touser->id);
+            api::anonymise_responses($threesixtyid, $fromuser->id, $touser->id);
+            api::set_completion($submission->id, api::STATUS_COMPLETE);
+        }
+        $this->setAdminUser();
+    }
+
+    /**
      * Test the capability checks around managing questions and questionnaire items.
      */
     public function test_capability_checks(): void {
