@@ -25,9 +25,18 @@
 - **PHP** 8.3 or later, matching the parent Moodle installation
 
 > **Version compatibility**
-> - Moodle 4.1–4.5: use plugin version [`v4.1.1`](https://github.com/junpataleta/moodle-mod_threesixo/releases/tag/v4.1.1)
-> - Moodle 5.0: use plugin version [`v5.0.x`](https://github.com/junpataleta/moodle-mod_threesixo/releases/tag/v5.0.1)
-> - Moodle 5.1+: use the current [`main`](https://github.com/junpataleta/moodle-mod_threesixo/tree/main) branch or the latest release
+> - Moodle 5.1 and later: use the current [`main`](https://github.com/junpataleta/moodle-mod_threesixo/tree/main) branch or the latest release
+> - Moodle 4.1–4.5: use the latest v4.1.x release, from the [`401_STABLE`](https://github.com/junpataleta/moodle-mod_threesixo/tree/401_STABLE) branch
+> - Moodle 5.0: [`v5.0.4`](https://github.com/junpataleta/moodle-mod_threesixo/releases/tag/v5.0.4) is the last release. Moodle stopped supporting 5.0 on 5 October 2026, so upgrade to Moodle 5.1 or later to keep receiving fixes
+
+### Support policy
+
+Each stable branch gets fixes for as long as Moodle supports the newest version it covers, following the
+[Moodle releases](https://moodledev.io/general/releases) page. While that version only receives security fixes, the
+branch only gets security and privacy fixes.
+
+For example, `401_STABLE` gets security and privacy fixes until Moodle 4.5 support ends on 4 October 2027. Sites on
+Moodle 4.1 to 4.4 can use the same releases, but those versions are no longer supported by Moodle.
 
 ## Installation
 
